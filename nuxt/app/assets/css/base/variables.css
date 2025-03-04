@@ -1,0 +1,12 @@
+@layer base {
+  :root {
+    /* Add your custom CSS variables here */
+    --primary-color: theme("colors.blue.600");
+    --secondary-color: theme("colors.gray.600");
+  }
+
+  .dark {
+    --primary-color: theme("colors.blue.400");
+    --secondary-color: theme("colors.gray.400");
+  }
+}

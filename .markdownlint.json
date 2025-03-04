@@ -1,0 +1,11 @@
+{
+  "no-duplicate-heading": {
+    "siblings_only": true
+  },
+  "line-length": false,
+
+  "MD049": false,
+  "MD041": false,
+  "MD032": false,
+  "MD033": false
+}

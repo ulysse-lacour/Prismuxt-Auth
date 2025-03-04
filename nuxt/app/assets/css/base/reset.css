@@ -1,0 +1,8 @@
+@layer base {
+  /* Add any additional reset styles beyond Tailwind's normalize here */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
