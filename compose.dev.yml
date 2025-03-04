@@ -1,0 +1,85 @@
+services:
+  database:
+    image: postgis/postgis:13-master
+    container_name: ${PROJECT_NAME}__database
+    platform: linux/amd64
+
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
+    command: -p ${DB_PORT}
+    networks:
+      - prisma-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -p ${DB_PORT}"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+
+    volumes:
+      - ./postgres/data/database:/var/lib/postgresql/data
+
+  nuxt:
+    image: ${PROJECT_NAME}__nuxt
+    container_name: ${PROJECT_NAME}__nuxt
+
+    ports:
+      - "${NUXT_PORT}:${NUXT_PORT}"
+    networks:
+      - prisma-network
+
+    build:
+      context: ./nuxt
+      dockerfile: ./Dockerfile.dev
+      args:
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
+
+    tmpfs: /tmp
+
+    environment:
+      NODE_ENV: development
+      NUXT_URL: ${NUXT_URL}
+      PORT: ${NUXT_PORT}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
+      NUXT_RESEND_API_KEY: ${NUXT_RESEND_API_KEY}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${NUXT_URL}
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    volumes:
+      - ./nuxt:/nuxt
+      - /nuxt/node_modules
+
+  prisma-studio:
+    image: node:lts-alpine3.17
+    working_dir: /usr/src/app
+    volumes:
+      - ./nuxt:/usr/src/app
+    command: npx prisma studio --port 5555 --browser none
+    ports:
+      - "5555:5555"
+    networks:
+      - prisma-network
+
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
+
+    depends_on:
+      database:
+        condition: service_healthy
+      nuxt:
+        condition: service_started
+
+networks:
+  prisma-network:
+    name: prisma-network

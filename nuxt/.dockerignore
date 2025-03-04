@@ -1,0 +1,17 @@
+.dockerignore
+.env
+.git
+.gitignore
+.vscode
+.nuxt
+.cache
+docker-compose*
+compose*
+Dockerfile*
+node_modules
+npm-debug.log
+build
+dist
+LICENSE
+README.md
+.DS_Store

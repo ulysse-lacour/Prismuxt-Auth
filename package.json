@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-generator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bash ./scripts/dev.sh"
+  },
+  "packageManager": "pnpm@9.10.0",
+  "engines": {
+    "node": ">=20.14.0",
+    "pnpm": ">=9"
+  }
+}

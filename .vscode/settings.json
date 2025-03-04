@@ -1,0 +1,29 @@
+{
+  "[markdown]": {
+    "editor.formatOnSave": true
+  },
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/.git": true
+  },
+  "search.exclude": {
+    "**/.nuxt/**": true,
+    "**/.output/**": true,
+    "**/.unlighthouse/**": true,
+    "**/pnpm-lock.yaml": true
+  },
+  // Linter & Formatter
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.fixAll.markdownlint": "explicit"
+  },
+  "editor.formatOnType": false,
+  "editor.formatOnPaste": false,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
+}
