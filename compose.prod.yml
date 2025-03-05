@@ -20,13 +20,6 @@ services:
     volumes:
       - ./postgres/data/database:/var/lib/postgresql/data
 
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   nuxt:
     image: ${PROJECT_NAME}__nuxt
     container_name: ${PROJECT_NAME}__nuxt
@@ -53,8 +46,7 @@ services:
       - prisma-network
 
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
     environment:
       NODE_ENV: production
