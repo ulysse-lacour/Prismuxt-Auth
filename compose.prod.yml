@@ -1,0 +1,88 @@
+services:
+  database:
+    image: postgis/postgis:13-master
+    container_name: ${PROJECT_NAME}__database
+    platform: linux/amd64
+
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
+    command: -p ${DB_PORT}
+    networks:
+      - prisma-network
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+
+    volumes:
+      - ./postgres/data/database:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  nuxt:
+    image: ${PROJECT_NAME}__nuxt
+    container_name: ${PROJECT_NAME}__nuxt
+
+    build:
+      context: ./nuxt
+      dockerfile: ./Dockerfile.prod
+      # Env variables required for build time needs to be passed as args in compose and dockerfile
+      args:
+        NODE_ENV: production
+        NUXT_URL: ${NUXT_URL}
+        PORT: ${NUXT_PORT}
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
+        BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+        BETTER_AUTH_URL: ${NUXT_URL}
+        NUXT_MAIL_USERNAME: ${NUXT_MAIL_USERNAME}
+        NUXT_MAIL_PASSWORD: ${NUXT_MAIL_PASSWORD}
+
+    tmpfs: /tmp
+
+    ports:
+      - ${NUXT_PORT}:${NUXT_PORT}
+    networks:
+      - prisma-network
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    environment:
+      NODE_ENV: production
+      NUXT_URL: ${NUXT_URL}
+      PORT: ${NUXT_PORT}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${NUXT_URL}
+      NUXT_MAIL_USERNAME: ${NUXT_MAIL_USERNAME}
+      NUXT_MAIL_PASSWORD: ${NUXT_MAIL_PASSWORD}
+
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        while ! nc -z database ${DB_PORT}; do
+          sleep 1
+        done &&
+        echo 'Database is ready!' &&
+        pnpx prisma migrate deploy &&
+        node /nuxt/.output/server/index.mjs
+      "
+
+    labels:
+      # Define a middleware to permanently redirect www to non-www
+      - traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.regex=^https?://www\.(.*)
+      - traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.replacement=https://$1
+      - traefik.http.middlewares.redirect-www-to-nonwww.redirectregex.permanent=true
+
+networks:
+  prisma-network:
+    name: prisma-network

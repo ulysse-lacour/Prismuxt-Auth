@@ -8,12 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@nuxt/eslint':
+        specifier: ^1.0.0
+        version: 1.1.0(@vue/compiler-sfc@3.5.13)(eslint@9.21.0(jiti@2.4.2))(magicast@0.3.5)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))
       '@nuxt/fonts':
         specifier: ^0.10.3
         version: 0.10.3(db0@0.2.4(better-sqlite3@11.8.1))(ioredis@5.5.0)(magicast@0.3.5)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))
+      '@nuxt/icon':
+        specifier: ^1.10.3
+        version: 1.10.3(magicast@0.3.5)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
       '@nuxt/image':
         specifier: ^1.9.0
         version: 1.9.0(db0@0.2.4(better-sqlite3@11.8.1))(ioredis@5.5.0)(magicast@0.3.5)
+      '@nuxtjs/color-mode':
+        specifier: ^3.5.2
+        version: 3.5.2(magicast@0.3.5)
       '@nuxtjs/i18n':
         specifier: 9.0.0
         version: 9.0.0(@vue/compiler-dom@3.5.13)(eslint@9.21.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.34.9)(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
@@ -23,6 +32,9 @@ importers:
       '@nuxtjs/sitemap':
         specifier: 6.1.5
         version: 6.1.5(h3@1.15.1)(magicast@0.3.5)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
+      '@nuxtjs/tailwindcss':
+        specifier: ^6.13.1
+        version: 6.13.1(magicast@0.3.5)
       '@pinia/nuxt':
         specifier: ^0.7.0
         version: 0.7.0(magicast@0.3.5)(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
@@ -59,6 +71,9 @@ importers:
       '@vueuse/core':
         specifier: ^11.3.0
         version: 11.3.0(vue@3.5.13(typescript@5.8.2))
+      '@vueuse/nuxt':
+        specifier: ^11.3.0
+        version: 11.3.0(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.1)(@types/node@22.13.9)(better-sqlite3@11.8.1)(db0@0.2.4(better-sqlite3@11.8.1))(eslint@9.21.0(jiti@2.4.2))(ioredis@5.5.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.34.9)(terser@5.39.0)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
       better-auth:
         specifier: ^1.2.2
         version: 1.2.2(typescript@5.8.2)
@@ -74,18 +89,30 @@ importers:
       embla-carousel-vue:
         specifier: ^8.5.1
         version: 8.5.2(vue@3.5.13(typescript@5.8.2))
+      eslint:
+        specifier: ^9.19.0
+        version: 9.21.0(jiti@2.4.2)
       lucide-vue-next:
         specifier: ^0.477.0
         version: 0.477.0(vue@3.5.13(typescript@5.8.2))
+      nodemailer:
+        specifier: ^6.10.0
+        version: 6.10.0
       nuxt:
         specifier: ^3.14.159
         version: 3.15.4(@parcel/watcher@2.5.1)(@types/node@22.13.9)(better-sqlite3@11.8.1)(db0@0.2.4(better-sqlite3@11.8.1))(eslint@9.21.0(jiti@2.4.2))(ioredis@5.5.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.34.9)(terser@5.39.0)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(yaml@2.7.0)
+      nuxt-nodemailer:
+        specifier: ^1.1.2
+        version: 1.1.2(magicast@0.3.5)(nodemailer@6.10.0)
       nuxt-security:
         specifier: ^2.0.0
         version: 2.2.0(magicast@0.3.5)(rollup@4.34.9)
       pinia:
         specifier: ^2.3.0
         version: 2.3.1(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
+      prisma:
+        specifier: ^6.4.1
+        version: 6.4.1(typescript@5.8.2)
       radix-vue:
         specifier: ^1.9.12
         version: 1.9.17(vue@3.5.13(typescript@5.8.2))
@@ -138,21 +165,9 @@ importers:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.4.1
         version: 4.4.1(@vue/compiler-sfc@3.5.13)(prettier@3.5.3)
-      '@nuxt/eslint':
-        specifier: ^1.0.0
-        version: 1.1.0(@vue/compiler-sfc@3.5.13)(eslint@9.21.0(jiti@2.4.2))(magicast@0.3.5)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))
-      '@nuxt/icon':
-        specifier: ^1.10.3
-        version: 1.10.3(magicast@0.3.5)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
       '@nuxt/test-utils':
         specifier: ^3.15.4
         version: 3.17.1(@types/node@22.13.9)(@vue/test-utils@2.4.6)(jiti@2.4.2)(jsdom@25.0.1)(magicast@0.3.5)(playwright-core@1.50.1)(terser@5.39.0)(typescript@5.8.2)(vitest@2.1.9(@types/node@22.13.9)(jsdom@25.0.1)(terser@5.39.0))(yaml@2.7.0)
-      '@nuxtjs/color-mode':
-        specifier: ^3.5.2
-        version: 3.5.2(magicast@0.3.5)
-      '@nuxtjs/tailwindcss':
-        specifier: ^6.13.1
-        version: 6.13.1(magicast@0.3.5)
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
@@ -165,33 +180,18 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
         version: 5.2.1(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
-      '@vueuse/nuxt':
-        specifier: ^11.3.0
-        version: 11.3.0(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.1)(@types/node@22.13.9)(better-sqlite3@11.8.1)(db0@0.2.4(better-sqlite3@11.8.1))(eslint@9.21.0(jiti@2.4.2))(ioredis@5.5.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.34.9)(terser@5.39.0)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.3)
-      eslint:
-        specifier: ^9.19.0
-        version: 9.21.0(jiti@2.4.2)
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
-      nodemailer:
-        specifier: ^6.10.0
-        version: 6.10.0
-      nuxt-nodemailer:
-        specifier: ^1.1.2
-        version: 1.1.2(magicast@0.3.5)(nodemailer@6.10.0)
       prettier:
         specifier: ^3.4.2
         version: 3.5.3
       prettier-plugin-tailwindcss:
         specifier: ^0.6.10
         version: 0.6.11(@ianvs/prettier-plugin-sort-imports@4.4.1(@vue/compiler-sfc@3.5.13)(prettier@3.5.3))(prettier@3.5.3)
-      prisma:
-        specifier: ^6.4.1
-        version: 6.4.1(typescript@5.8.2)
       vite:
         specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0)
