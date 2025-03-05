@@ -3,8 +3,8 @@
 .git
 .gitignore
 .vscode
-.nuxt
 .cache
+.nuxt
 docker-compose*
 compose*
 Dockerfile*

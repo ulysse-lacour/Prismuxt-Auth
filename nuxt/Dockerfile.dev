@@ -1,13 +1,8 @@
 ARG NODE_VERSION=20.14.0
-ARG DATABASE_URL
-
 
 ################################################################################
 # Set the base image
 FROM node:${NODE_VERSION}-alpine AS base
-
-# Redeclare the DATABASE_URL arg in this stage
-ARG DATABASE_URL
 
 # Increase the max heap size
 ENV NODE_OPTIONS=--max-old-space-size=8192
@@ -16,7 +11,6 @@ ENV NODE_OPTIONS=--max-old-space-size=8192
 ENV HOST=0.0.0.0
 ENV NODE_ENV=development
 ENV COREPACK_DEFAULT_TO_LATEST=0
-ENV DATABASE_URL=${DATABASE_URL}
 
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
@@ -30,9 +24,6 @@ WORKDIR /nuxt
 ################################################################################
 # Create a stage for installing depedencies
 FROM base AS dependencies
-
-# Redeclare the DATABASE_URL arg in this stage
-ARG DATABASE_URL
 
 # Copy the package.json and lock file
 COPY ./package.json ./
@@ -56,15 +47,5 @@ RUN pnpx prisma generate
 EXPOSE ${PORT}
 EXPOSE 24678
 
-# Create startup script
-COPY <<-"EOF" /docker-entrypoint.sh
-#!/bin/sh
-set -e
-pnpx prisma migrate deploy
-exec pnpm dev
-EOF
-
-RUN chmod +x /docker-entrypoint.sh
-
-# Run the startup script
-ENTRYPOINT ["/bin/sh", "/docker-entrypoint.sh"]
+# Run the application
+CMD ["pnpm", "dev"]

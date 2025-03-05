@@ -28,7 +28,7 @@
   </NuxtLayout>
 </template>
 
-<style lang="scss">
+<style>
   body:has(#error-page) #burger {
     display: none !important;
   }
