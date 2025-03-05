@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "bash ./scripts/dev.sh"
+    "dev": "bash ./scripts/dev.sh",
+    "prod": "bash ./scripts/prod.sh"
   },
   "packageManager": "pnpm@9.10.0",
   "engines": {

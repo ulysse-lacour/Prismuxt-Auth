@@ -1,0 +1,67 @@
+ARG NODE_VERSION=20.14.0
+
+################################################################################
+# Set the base image
+FROM node:${NODE_VERSION}-alpine AS base
+
+# Add netcat for database connection checking
+RUN apk add --no-cache netcat-openbsd
+
+# Define environment variables
+ENV HOST=0.0.0.0
+ENV NODE_ENV=production
+ENV COREPACK_DEFAULT_TO_LATEST=0
+
+# Enable pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+# Set the working directory
+WORKDIR /nuxt
+
+################################################################################
+# Create a stage for installing dependencies
+FROM base AS dependencies
+
+# Copy the package.json and lock file
+COPY ./package.json ./
+COPY ./pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+################################################################################
+# Create a stage for building the app
+FROM dependencies AS build
+
+# Copy the rest of the app
+COPY . ./
+
+# Pass environment variables to build and run times
+ARG NUXT_URL
+ARG NUXT_PORT
+ARG DATABASE_URL
+ARG BETTER_AUTH_SECRET
+ARG BETTER_AUTH_URL
+ARG NUXT_MAIL_USERNAME
+ARG NUXT_MAIL_PASSWORD
+
+# Generate Prisma client
+RUN pnpx prisma generate
+
+# Build the app with the environment variables
+RUN pnpm build
+
+################################################################################
+# Create a stage for the production image
+FROM build AS production
+
+# Copy the output from the build stage to the working directory
+COPY --from=build /nuxt/.output /nuxt/.output
+
+# Expose the port the application will run on
+EXPOSE ${PORT}
+
+# Start the application
+CMD ["node", "/nuxt/.output/server/index.mjs"]

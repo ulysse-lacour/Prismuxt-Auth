@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #===========================================
-# Scripts to start development environment
+# Scripts to start production environment
 # Version: 1.0
 #===========================================
 
@@ -99,54 +99,11 @@ validate_env_vars
 # Functions
 #-------------------------------------------
 
-# Use the right node version
-use_node_version() {
-    print_header "Node Version"
-    print_message "info" "Using right node version..."
-    . ~/.nvm/nvm.sh
-    nvm use ${NODE_VERSION}
-
-    if [ $? -eq 0 ]; then
-        print_message "success" "Node version set to ${NODE_VERSION}"
-    else
-        print_message "error" "Failed to set node version"
-        exit 1
-    fi
-}
-
-# Install local Nuxt dependencies
-install_dependencies() {
-    print_header "Install Dependencies"
-    print_message "info" "Installing Nuxt dependencies..."
-    pnpm install
-
-    if [ $? -eq 0 ]; then
-        print_message "success" "Dependencies installed successfully"
-    else
-        print_message "error" "Failed to install dependencies"
-        exit 1
-    fi
-}
-
-# Generate local Prisma client from nuxt workspace
-generate_prisma_client() {
-    print_header "Generate Prisma Client"
-    print_message "info" "Generating Prisma client..."
-    cd nuxt && pnpx prisma generate && cd ..
-
-    if [ $? -eq 0 ]; then
-        print_message "success" "Prisma client generated successfully"
-    else
-        print_message "error" "Failed to generate Prisma client"
-        exit 1
-    fi
-}
-
 # Build docker images
 build_images() {
     print_header "Build Docker Images"
     print_message "info" "Building docker images..."
-    docker compose -f compose.dev.yml build --no-cache
+    docker compose -f compose.prod.yml build --no-cache
 
     if [ $? -eq 0 ]; then
         print_message "success" "Docker images built successfully"
@@ -160,7 +117,7 @@ build_images() {
 start_containers() {
     print_header "Start Docker Containers"
     print_message "info" "Starting docker containers..."
-    docker compose -f compose.dev.yml up -d
+    docker compose -f compose.prod.yml up -d
 
     if [ $? -eq 0 ]; then
         print_message "success" "Docker containers started successfully"
@@ -172,16 +129,12 @@ start_containers() {
 
 # Main function to run all tasks
 main() {
-    use_node_version
-    install_dependencies
-    generate_prisma_client
     build_images
     start_containers
 
     echo -e "\n\n"
     if [ $? -eq 0 ]; then
         echo -e "${BLUE}Nuxt running on : ${BOLD}${YELLOW}http://localhost:${NUXT_PORT} ${NC}\n"
-        echo -e "${BLUE}Prisma Studio running on : ${BOLD}${YELLOW}http://localhost:5555 ${NC}\n"
     else
         print_message "error" "Failed to start apps..."
         exit 1

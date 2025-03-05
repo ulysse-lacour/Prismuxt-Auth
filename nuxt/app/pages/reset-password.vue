@@ -28,7 +28,7 @@
           window.location.href = "/sign-in";
         },
         onError(context) {
-          errorMessage.value = context.error.message;
+          errorMessage.value = "Something went wrong, contact support.";
           isErrorDialogOpen.value = true;
         },
       },

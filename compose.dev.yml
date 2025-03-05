@@ -48,9 +48,17 @@ services:
       NUXT_URL: ${NUXT_URL}
       PORT: ${NUXT_PORT}
       DATABASE_URL: postgresql://${DB_USER}:${DB_PWD}@database:${DB_PORT}/${DB_NAME}
-      NUXT_RESEND_API_KEY: ${NUXT_RESEND_API_KEY}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${NUXT_URL}
+      NUXT_MAIL_USERNAME: ${NUXT_MAIL_USERNAME}
+      NUXT_MAIL_PASSWORD: ${NUXT_MAIL_PASSWORD}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pnpx prisma migrate status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
     depends_on:
       database:
@@ -59,6 +67,8 @@ services:
     volumes:
       - ./nuxt:/nuxt
       - /nuxt/node_modules
+
+    command: sh -c "pnpx prisma migrate deploy && pnpm dev"
 
   prisma-studio:
     image: node:lts-alpine3.17

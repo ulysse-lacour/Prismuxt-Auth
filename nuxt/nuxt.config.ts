@@ -12,18 +12,6 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  typescript: {
-    typeCheck: true,
-    strict: true,
-    shim: false,
-    tsConfig: {
-      compilerOptions: {
-        module: "ESNext",
-        strict: true,
-      },
-    },
-  },
-
   runtimeConfig: {
     public: {
       nuxtUrl: process.env.NUXT_URL,
@@ -49,6 +37,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "shadcn-nuxt",
     "nuxt-security",
+    "nuxt-nodemailer",
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
@@ -78,7 +67,7 @@ export default defineNuxtConfig({
       redirectOn: "root",
     },
 
-    langDir: "locales",
+    langDir: "../i18n/locales",
 
     lazy: true,
 
@@ -153,11 +142,7 @@ export default defineNuxtConfig({
     componentDir: "./app/components/ui",
   },
 
-  css: [
-    "@/assets/css/main.css",
-    "@/../node_modules/video.js/dist/video-js.css",
-    "@/../node_modules/vue3-carousel/dist/carousel.css",
-  ],
+  css: ["@/assets/css/main.css"],
 
   tailwindcss: {
     exposeConfig: true,
@@ -169,5 +154,16 @@ export default defineNuxtConfig({
     preference: "system", // default value of $colorMode.preference
     fallback: "light", // fallback value if no system preference found
     storage: "localStorage",
+  },
+
+  nodemailer: {
+    from: `"Support" <${process.env.NUXT_MAIL_USERNAME}>`,
+    host: "smtp.ionos.de",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NUXT_MAIL_USERNAME,
+      pass: process.env.NUXT_MAIL_PASSWORD,
+    },
   },
 });
