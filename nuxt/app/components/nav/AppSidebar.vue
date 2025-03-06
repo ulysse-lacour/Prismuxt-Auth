@@ -6,6 +6,7 @@
     SidebarHeader,
     SidebarTrigger,
   } from "@/components/ui/sidebar";
+  import { useUserDataStore } from "~/stores/userData";
   import { useProjectStore } from "~/stores/userProjects";
   import { Briefcase, FolderKanban } from "lucide-vue-next";
   import type { SidebarProps } from "@/components/ui/sidebar";
@@ -57,7 +58,7 @@
         url: "/portfolios",
         icon: Briefcase,
         isActive: route.path.startsWith("/portfolios"),
-        items: userData.value?.user?.portfolios.map((portfolio) => ({
+        items: userData.value?.user?.portfolios?.map((portfolio) => ({
           title: portfolio.name,
           url: `/portfolios/${portfolio.slug}`,
         })),
