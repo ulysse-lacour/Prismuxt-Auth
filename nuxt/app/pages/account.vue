@@ -1,63 +1,45 @@
 <script setup lang="ts">
-  import { toTypedSchema } from "@vee-validate/zod";
-  import { useForm } from "vee-validate";
-  import * as z from "zod";
-
   definePageMeta({
     layout: "auth",
   });
 
   // Name form
-  const nameFormSchema = z.object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-  });
+  const firstName = ref("");
+  const lastName = ref("");
 
-  const nameForm = useForm({
-    validationSchema: toTypedSchema(nameFormSchema),
-    initialValues: {
-      firstName: "",
-      lastName: "",
-    },
-  });
-
-  const onNameSubmit = nameForm.handleSubmit((values) => {
-    console.log("Name updated:", values);
-  });
+  const handleNameUpdate = () => {
+    if (!firstName.value || !lastName.value) return;
+    console.log("Name updated:", {
+      firstName: firstName.value,
+      lastName: lastName.value,
+    });
+  };
 
   // Email form
-  const emailFormSchema = z.object({
-    email: z.string().min(1, "Email is required").email("Invalid email address"),
-  });
+  const email = ref("");
 
-  const emailForm = useForm({
-    validationSchema: toTypedSchema(emailFormSchema),
-    initialValues: {
-      email: "",
-    },
-  });
-
-  const onEmailSubmit = emailForm.handleSubmit((values) => {
-    console.log("Email updated:", values);
-  });
+  const handleEmailUpdate = () => {
+    if (!email.value) return;
+    console.log("Email updated:", {
+      email: email.value,
+    });
+  };
 
   // Password form
-  const passwordFormSchema = z.object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters"),
-  });
+  const currentPassword = ref("");
+  const newPassword = ref("");
 
-  const passwordForm = useForm({
-    validationSchema: toTypedSchema(passwordFormSchema),
-    initialValues: {
-      currentPassword: "",
-      newPassword: "",
-    },
-  });
-
-  const onPasswordSubmit = passwordForm.handleSubmit((values) => {
-    console.log("Password updated:", values);
-  });
+  const handlePasswordUpdate = () => {
+    if (!currentPassword.value || !newPassword.value) return;
+    if (newPassword.value.length < 8) {
+      // You might want to show an error message here
+      return;
+    }
+    console.log("Password updated:", {
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value,
+    });
+  };
 </script>
 
 <template>
@@ -74,27 +56,17 @@
       </CardHeader>
       <CardContent class="space-y-6">
         <!-- Name Form -->
-        <form @submit="onNameSubmit" class="space-y-4">
+        <form @submit.prevent="handleNameUpdate" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
-            <FormField v-slot="{ componentField }" name="firstName">
-              <FormItem>
-                <FormLabel>First name</FormLabel>
-                <FormControl>
-                  <Input v-bind="componentField" placeholder="Enter your first name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </FormField>
+            <div class="grid gap-2">
+              <Label>First name</Label>
+              <Input v-model="firstName" placeholder="Enter your first name" required />
+            </div>
 
-            <FormField v-slot="{ componentField }" name="lastName">
-              <FormItem>
-                <FormLabel>Last name</FormLabel>
-                <FormControl>
-                  <Input v-bind="componentField" placeholder="Enter your last name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </FormField>
+            <div class="grid gap-2">
+              <Label>Last name</Label>
+              <Input v-model="lastName" placeholder="Enter your last name" required />
+            </div>
           </div>
           <div class="flex justify-end">
             <Button type="submit">Update name</Button>
@@ -104,16 +76,11 @@
         <Separator />
 
         <!-- Email Form -->
-        <form @submit="onEmailSubmit" class="space-y-4">
-          <FormField v-slot="{ componentField }" name="email">
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input v-bind="componentField" type="email" placeholder="Enter your email" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
+        <form @submit.prevent="handleEmailUpdate" class="space-y-4">
+          <div class="grid gap-2">
+            <Label>Email</Label>
+            <Input v-model="email" type="email" placeholder="Enter your email" required />
+          </div>
           <div class="flex justify-end">
             <Button type="submit">Update email</Button>
           </div>
@@ -122,30 +89,28 @@
         <Separator />
 
         <!-- Password Form -->
-        <form @submit="onPasswordSubmit" class="space-y-4">
-          <FormField v-slot="{ componentField }" name="currentPassword">
-            <FormItem>
-              <FormLabel>Current Password</FormLabel>
-              <FormControl>
-                <Input
-                  v-bind="componentField"
-                  type="password"
-                  placeholder="Enter current password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
+        <form @submit.prevent="handlePasswordUpdate" class="space-y-4">
+          <div class="grid gap-4">
+            <div class="grid gap-2">
+              <Label>Current Password</Label>
+              <Input
+                v-model="currentPassword"
+                type="password"
+                placeholder="Enter current password"
+                required
+              />
+            </div>
 
-          <FormField v-slot="{ componentField }" name="newPassword">
-            <FormItem>
-              <FormLabel>New Password</FormLabel>
-              <FormControl>
-                <Input v-bind="componentField" type="password" placeholder="Enter new password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
+            <div class="grid gap-2">
+              <Label>New Password</Label>
+              <Input
+                v-model="newPassword"
+                type="password"
+                placeholder="Enter new password"
+                required
+              />
+            </div>
+          </div>
           <div class="flex justify-end">
             <Button type="submit">Update password</Button>
           </div>
