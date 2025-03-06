@@ -166,4 +166,9 @@ export default defineNuxtConfig({
       pass: process.env.NUXT_MAIL_PASSWORD,
     },
   },
+
+  // To prevent "Uncaught (in promise) ReferenceError: exports is not defined" errors
+  build: {
+    transpile: ["vee-validate"],
+  },
 });
