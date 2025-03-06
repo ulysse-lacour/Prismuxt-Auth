@@ -57,7 +57,7 @@
     "nuxt": "^3.14.159",
     "nuxt-nodemailer": "^1.1.2",
     "nuxt-security": "^2.0.0",
-    "pinia": "^2.3.0",
+    "pinia": "^2.3.1",
     "prisma": "^6.4.1",
     "radix-vue": "^1.9.12",
     "reka-ui": "^2.0.2",

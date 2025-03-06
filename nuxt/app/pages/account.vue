@@ -11,6 +11,10 @@
   const showCurrentPassword = ref(false);
   const showNewPassword = ref(false);
 
+  // Feedback states
+  const successMessage = ref("");
+  const errorMessage = ref("");
+
   // Name form schema
   const nameFormSchema = toTypedSchema(
     z.object({
@@ -37,8 +41,11 @@
         method: "POST",
         body: { name: `${values.firstName} ${values.lastName}` },
       });
-      console.log(response.message);
+      successMessage.value = response.message;
+      errorMessage.value = "";
     } catch (error) {
+      errorMessage.value = "Error updating name.";
+      successMessage.value = "";
       console.error("Error updating name:", error);
     }
   };
@@ -60,8 +67,11 @@
         method: "POST",
         body: { email: values.email },
       });
-      console.log(response.message);
+      successMessage.value = response.message;
+      errorMessage.value = "";
     } catch (error) {
+      errorMessage.value = "Error updating email.";
+      successMessage.value = "";
       console.error("Error updating email:", error);
     }
   };
@@ -88,8 +98,11 @@
         method: "POST",
         body: { currentPassword: values.currentPassword, newPassword: values.newPassword },
       });
-      console.log(response.message);
+      successMessage.value = response.message;
+      errorMessage.value = "";
     } catch (error) {
+      errorMessage.value = "Error updating password.";
+      successMessage.value = "";
       console.error("Error updating password:", error);
     }
   };
@@ -101,6 +114,10 @@
       <h2 class="text-3xl font-bold tracking-tight">Account</h2>
       <p class="text-muted-foreground">Manage your account settings and set your preferences.</p>
     </div>
+
+    <!-- Feedback Messages -->
+    <div v-if="successMessage" class="text-green-500">{{ successMessage }}</div>
+    <div v-if="errorMessage" class="text-red-500">{{ errorMessage }}</div>
 
     <Card>
       <CardHeader>

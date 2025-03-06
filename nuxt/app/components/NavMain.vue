@@ -10,6 +10,7 @@
     SidebarMenuSubButton,
     SidebarMenuSubItem,
   } from "@/components/ui/sidebar";
+  import { useProjectStore } from "~/stores/projectStore";
   import { Briefcase, ChevronRight, FolderKanban } from "lucide-vue-next";
   import type { LucideIcon } from "lucide-vue-next";
 
@@ -27,6 +28,10 @@
   // Fetch menu items
   const { data: menuItems } = await useFetch("/api/user-nav-menu");
 
+  // Set projects store
+  const projectStore = useProjectStore();
+  projectStore.setProjects(menuItems.value?.projects || []);
+
   // Transform navigation data into menu items
   const items = computed<NavItem[]>(() => {
     const route = useRoute();
@@ -37,7 +42,10 @@
         url: "/projects",
         icon: FolderKanban,
         isActive: route.path.startsWith("/projects"),
-        items: menuItems.value?.projects || [],
+        items: projectStore.projects.map((project) => ({
+          title: project.title,
+          url: project.url,
+        })),
       },
       {
         title: "Portfolios",

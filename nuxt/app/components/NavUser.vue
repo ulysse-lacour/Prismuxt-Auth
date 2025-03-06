@@ -14,7 +14,6 @@
     SidebarMenuItem,
     useSidebar,
   } from "@/components/ui/sidebar";
-  import { useSession } from "~/utils/auth-client";
   import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-vue-next";
 
   const props = defineProps<{

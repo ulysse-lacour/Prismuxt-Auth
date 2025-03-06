@@ -38,6 +38,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-security",
     "nuxt-nodemailer",
+    "@pinia/nuxt",
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
