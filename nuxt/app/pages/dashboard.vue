@@ -1,44 +1,16 @@
 <script setup lang="ts">
-  import { useSession } from "~/utils/auth-client";
-
-  const { data: session } = await useSession(useFetch);
-
-  const router = useRouter();
+  definePageMeta({
+    layout: "auth",
+  });
 </script>
 
 <template>
-  <div
-    class="no-visible-scrollbar flex min-h-[80vh] items-center justify-center overflow-hidden px-6 md:px-0"
-  >
-    <Card class="w-[350px]">
-      <CardHeader>
-        <CardTitle> User </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div class="flex items-center gap-2">
-          <div>
-            <p class="text-sm">
-              {{ session?.user?.name }}
-            </p>
-            <p class="text-xs">
-              {{ session?.user?.email }}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button
-          @click="
-            async () => {
-              await signOut();
-              router.push('/');
-            }
-          "
-          variant="secondary"
-        >
-          Sign Out
-        </Button>
-      </CardFooter>
-    </Card>
+  <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
+    <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+      <div class="aspect-video rounded-xl bg-muted/50" />
+      <div class="aspect-video rounded-xl bg-muted/50" />
+      <div class="aspect-video rounded-xl bg-muted/50" />
+    </div>
+    <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
   </div>
 </template>

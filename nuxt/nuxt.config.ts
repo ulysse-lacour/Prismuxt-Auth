@@ -38,6 +38,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-security",
     "nuxt-nodemailer",
+    "@pinia/nuxt",
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
@@ -165,5 +166,10 @@ export default defineNuxtConfig({
       user: process.env.NUXT_MAIL_USERNAME,
       pass: process.env.NUXT_MAIL_PASSWORD,
     },
+  },
+
+  // To prevent "Uncaught (in promise) ReferenceError: exports is not defined" errors
+  build: {
+    transpile: ["vee-validate"],
   },
 });

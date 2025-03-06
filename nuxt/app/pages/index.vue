@@ -19,7 +19,7 @@
         </h3>
 
         <div class="mx-auto mt-2 flex items-center gap-2">
-          <NuxtLink to="/sign-in" v-if="!session">
+          <NuxtLink to="/auth/sign-in" v-if="!session">
             <Button variant="outline" class="rounded-none"> Sign In </Button>
           </NuxtLink>
           <NuxtLink to="/dashboard" v-if="session">

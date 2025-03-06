@@ -1,8 +1,11 @@
 <script lang="ts" setup>
   import { resetPassword } from "~/utils/auth-client";
+  import { Eye, EyeOff } from "lucide-vue-next";
 
   const confirmPassword = ref("");
   const password = ref("");
+  const showPassword = ref(false);
+  const showConfirmPassword = ref(false);
   const isErrorDialogOpen = ref(false);
   const errorMessage = ref("");
 
@@ -25,7 +28,7 @@
       token: token,
       fetchOptions: {
         onSuccess(context) {
-          window.location.href = "/sign-in";
+          window.location.href = "/auth/sign-in";
         },
         onError(context) {
           errorMessage.value = "Something went wrong, contact support.";
@@ -47,23 +50,53 @@
         <div class="grid gap-4">
           <div class="grid gap-2">
             <Label for="password">New Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              v-model="password"
-              placeholder="New Password"
-            />
+            <div class="relative">
+              <Input
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                v-model="password"
+                placeholder="New Password"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="absolute right-0 top-0 h-full px-3 py-1 hover:bg-transparent"
+                @click="showPassword = !showPassword"
+              >
+                <Eye v-if="!showPassword" class="h-4 w-4" />
+                <EyeOff v-else class="h-4 w-4" />
+                <span class="sr-only">
+                  {{ showPassword ? "Hide password" : "Show password" }}
+                </span>
+              </Button>
+            </div>
           </div>
           <div class="grid gap-2">
-            <Label for="password">Confirm Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              placeholder="Confirm Password"
-              v-model="confirmPassword"
-            />
+            <Label for="confirm-password">Confirm Password</Label>
+            <div class="relative">
+              <Input
+                id="confirm-password"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                required
+                placeholder="Confirm Password"
+                v-model="confirmPassword"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="absolute right-0 top-0 h-full px-3 py-1 hover:bg-transparent"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <Eye v-if="!showConfirmPassword" class="h-4 w-4" />
+                <EyeOff v-else class="h-4 w-4" />
+                <span class="sr-only">
+                  {{ showConfirmPassword ? "Hide password" : "Show password" }}
+                </span>
+              </Button>
+            </div>
           </div>
           <Button type="button" class="w-full" @click="handleResetPassword">Reset</Button>
         </div>

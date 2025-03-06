@@ -8,17 +8,21 @@ generator client {
   binaryTargets = ["native", "darwin-arm64"]
 }
 
+// BetterAuth Users Tables
+
 model User {
-  id               String    @id @default(cuid())
+  id               String      @id @default(cuid())
   name             String
   email            String
-  emailVerified    Boolean   @default(false)
+  emailVerified    Boolean     @default(false)
   image            String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  twoFactorEnabled Boolean     @default(false)
   Session          Session[]
   Account          Account[]
+  projects         Project[]
+  portfolios       Portfolio[]
 
   @@unique([email])
   @@map("user")
@@ -68,4 +72,114 @@ model Verification {
   updatedAt  DateTime? @updatedAt
 
   @@map("verification")
+}
+
+// Data tables
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  client      String?
+  date        String?
+  tags        String[]
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  portfolioProjects PortfolioProject[]
+
+  @@map("project")
+}
+
+// Enum for different block types
+enum BlockType {
+  HEADER
+  TEXT
+  IMAGE
+  QUOTE
+}
+
+model Design {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  blocks            DesignBlock[]
+  portfolioProjects PortfolioProject[]
+
+  @@map("design")
+}
+
+// Represents a block within a design
+model DesignBlock {
+  id        String    @id @default(cuid())
+  type      BlockType
+  order     Int // Position of the block in the design
+  config    Json // Flexible configuration for the block (layout, styling, etc.)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  designId String
+  design   Design @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  // Content relation
+  blockContent BlockContent?
+
+  @@map("design_block")
+}
+
+// Stores the actual content for a block
+model BlockContent {
+  id        String   @id @default(cuid())
+  content   Json // Flexible content structure based on block type
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  designBlockId String      @unique
+  designBlock   DesignBlock @relation(fields: [designBlockId], references: [id], onDelete: Cascade)
+
+  @@map("block_content")
+}
+
+model Portfolio {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isPublic    Boolean  @default(false)
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  projects PortfolioProject[]
+
+  @@map("portfolio")
+}
+
+// Junction table for Projects in Portfolios with their specific Design
+model PortfolioProject {
+  id    String @id @default(cuid())
+  order Int // For ordering projects within the portfolio
+
+  // Relations
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  designId    String
+  design      Design    @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, projectId])
+  @@map("portfolio_project")
 }

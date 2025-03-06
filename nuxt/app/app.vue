@@ -7,6 +7,7 @@
         <NuxtLayout>
           <NuxtLoadingIndicator />
           <NuxtPage />
+          <Toaster />
         </NuxtLayout>
       </Body>
     </Html>

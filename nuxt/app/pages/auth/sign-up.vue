@@ -1,10 +1,12 @@
 <script lang="ts" setup>
   import { signUp } from "~/utils/auth-client";
+  import { Eye, EyeOff } from "lucide-vue-next";
 
   const firstName = ref("");
   const lastName = ref("");
   const email = ref("");
   const password = ref("");
+  const showPassword = ref(false);
   const isErrorDialogOpen = ref(false);
   const errorMessage = ref("");
 
@@ -58,13 +60,33 @@
           </div>
           <div class="grid gap-2">
             <Label for="password">Password</Label>
-            <Input id="password" type="password" v-model="password" />
+            <div class="relative">
+              <Input
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                placeholder="Enter your password"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="absolute right-0 top-0 h-full px-3 py-1 hover:bg-transparent"
+                @click="showPassword = !showPassword"
+              >
+                <Eye v-if="!showPassword" class="h-4 w-4" />
+                <EyeOff v-else class="h-4 w-4" />
+                <span class="sr-only">
+                  {{ showPassword ? "Hide password" : "Show password" }}
+                </span>
+              </Button>
+            </div>
           </div>
           <Button type="button" class="w-full" @click="handleSignUp">Create an account</Button>
         </div>
         <div class="mt-4 text-center text-sm">
           Already have an account?
-          <a href="/sign-in" class="underline"> Sign in </a>
+          <a href="/auth/sign-in" class="underline"> Sign in </a>
         </div>
       </CardContent>
     </Card>

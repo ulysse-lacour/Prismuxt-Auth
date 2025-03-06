@@ -12,16 +12,20 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     async sendResetPassword(url, user) {
-      // Debug logs
-      console.log("Reset password url:", url.url);
-      console.log("User:", url.user.email);
-
-      if (url?.user || url?.url) {
-        sendMail({
-          subject: "Reset Password",
-          text: `Click here to reset your password: ${url.url}`,
-          to: url.user?.email,
-        });
+      if (url?.user && url?.url) {
+        try {
+          sendMail({
+            subject: "Reset Password",
+            text: `Click here to reset your password: ${url.url}`,
+            to: url.user?.email,
+          });
+        } catch (error) {
+          console.error("Failed to send reset password email:", error);
+          throw createError({
+            statusCode: 500,
+            statusMessage: "Failed to send reset password email.",
+          });
+        }
       } else {
         throw createError({
           statusCode: 500,

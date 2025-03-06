@@ -61,7 +61,7 @@ FROM build AS production
 COPY --from=build /nuxt/.output /nuxt/.output
 
 # Expose the port the application will run on
-EXPOSE ${PORT}
+EXPOSE ${NUXT_PORT}
 
 # Start the application
 CMD ["node", "/nuxt/.output/server/index.mjs"]
