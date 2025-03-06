@@ -16,20 +16,18 @@
   } from "@/components/ui/sidebar";
   import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-vue-next";
 
-  const props = defineProps<{
-    user: {
-      name: string | undefined;
-      email: string | undefined;
-    };
-  }>();
-
   const { isMobile } = useSidebar();
 
   const router = useRouter();
+
+  const session = useSession();
+
+  const userDataStore = useUserDataStore();
+  const user = computed(() => userDataStore.user);
 </script>
 
 <template>
-  <SidebarMenu v-if="props.user.name && props.user.email">
+  <SidebarMenu v-if="session && user.name && user.email">
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
@@ -59,7 +57,7 @@
           :side-offset="4"
         >
           <DropdownMenuGroup>
-            <NuxtLink to="/account">
+            <NuxtLink to="/auth/account">
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account
@@ -71,6 +69,7 @@
             @click="
               async () => {
                 await signOut();
+                userDataStore.setUser({});
                 router.push('/');
               }
             "

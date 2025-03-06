@@ -28,7 +28,7 @@
       token: token,
       fetchOptions: {
         onSuccess(context) {
-          window.location.href = "/sign-in";
+          window.location.href = "/auth/sign-in";
         },
         onError(context) {
           errorMessage.value = "Something went wrong, contact support.";

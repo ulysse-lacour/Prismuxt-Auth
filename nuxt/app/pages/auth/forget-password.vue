@@ -16,7 +16,7 @@
     await forgetPassword(
       {
         email: email.value,
-        redirectTo: "/reset-password",
+        redirectTo: "/auth/reset-password",
       },
       {
         // onSuccess find the url with token in server console. For detail check forgetPassword section: https://www.better-auth.com/docs/authentication/email-password
@@ -37,7 +37,7 @@
   const handleDialogClose = () => {
     isDialogOpen.value = false;
     if (isSuccess.value) {
-      window.location.href = "/sign-in";
+      window.location.href = "/auth/sign-in";
     }
   };
 </script>
@@ -60,7 +60,7 @@
           </Button>
         </div>
         <div class="mt-4 text-center text-sm">
-          <a href="/sign-in" class="underline">Back to Sign In </a>
+          <a href="/auth/sign-in" class="underline">Back to Sign In </a>
         </div>
       </CardContent>
     </CardRoot>

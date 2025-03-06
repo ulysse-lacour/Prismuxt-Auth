@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
-  import { useProjectStore } from "~/stores/projectStore";
+  import { useProjectStore } from "~/stores/userProjects";
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
@@ -40,7 +40,6 @@
 
   // Rename the local update function to avoid conflict
   const submitUpdateProject = handleSubmit(async (values) => {
-    // console.log(values);
     try {
       const updatedProject = await $fetch(`/api/projects/single`, {
         method: "PUT",
@@ -48,8 +47,8 @@
       });
 
       projectStore.updateProject({
-        url: `/projects/${updatedProject.project.id}`,
-        title: updatedProject.project.name,
+        id: updatedProject.project.id,
+        name: updatedProject.project.name,
       }); // Update the global state with the correct properties
 
       await refresh(); // Refresh the data after update
@@ -70,7 +69,7 @@
 
 <template>
   <div>
-    <h1>Edit Project: {{ id }}</h1>
+    <h1>Edit {{ project?.project?.name ?? id }}</h1>
     <form @submit="submitUpdateProject">
       <FormField v-slot="{ field, errorMessage }" name="name">
         <FormItem>
