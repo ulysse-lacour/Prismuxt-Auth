@@ -34,6 +34,10 @@
   const projectStore = useProjectStore();
   projectStore.setProjects(userData.value?.user?.projects || []);
 
+  // Set portfolios store
+  const portfolioStore = usePortfolioStore();
+  portfolioStore.setPortfolios(userData.value?.user?.portfolios || []);
+
   // Set user data store
   const userDataStore = useUserDataStore();
   userDataStore.setUser(userData.value?.user || {});
@@ -58,7 +62,7 @@
         url: "/portfolios",
         icon: Briefcase,
         isActive: route.path.startsWith("/portfolios"),
-        items: userData.value?.user?.portfolios?.map((portfolio) => ({
+        items: portfolioStore.portfolios.map((portfolio) => ({
           title: portfolio.name,
           url: `/portfolios/${portfolio.slug}`,
         })),
