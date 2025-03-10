@@ -16,9 +16,14 @@ export default defineEventHandler(async (event) => {
   try {
     const portfolio = await prisma.portfolio.findUnique({
       where: { slug: portfolioId },
+      include: {
+        projects: {
+          include: {
+            project: true,
+          },
+        },
+      },
     });
-
-    console.log(portfolio);
 
     if (!portfolio) {
       throw createError({

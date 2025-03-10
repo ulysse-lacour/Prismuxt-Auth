@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-  import { toTypedSchema } from "@vee-validate/zod";
-  import { toast } from "~/components/ui/toast";
-  import { usePortfolioStore } from "~/stores/userPortfolio";
-  import { useForm } from "vee-validate";
-  import * as z from "zod";
+  import { useCurrentPortfolioStore } from "~/stores/currentPortfolio";
 
   definePageMeta({
     layout: "auth",
   });
 
   const { slug } = useRoute().params;
+  const currentPortfolioStore = useCurrentPortfolioStore();
 
   // Fetch portfolio data
   const { data: portfolio, refresh } = await useFetch(`/api/portfolio/single`, {
@@ -17,79 +14,38 @@
     immediate: true, // Ensure fetch is immediate
   });
 
-  // Define validation schema using zod
-  const portfolioFormSchema = toTypedSchema(
-    z.object({
-      name: z.string().min(1, "Name is required"),
-      description: z.string().optional(),
-    })
-  );
+  // Deserialize portfolio data to convert dates to Date objects
+  if (portfolio.value?.portfolio) {
+    const deserializedPortfolio = {
+      ...portfolio.value.portfolio,
+      createdAt: new Date(portfolio.value.portfolio.createdAt),
+      updatedAt: new Date(portfolio.value.portfolio.updatedAt),
+      projects: portfolio.value.portfolio.projects.map((project) => ({
+        ...project,
+        project: {
+          ...project.project,
+          createdAt: new Date(project.project.createdAt),
+          updatedAt: new Date(project.project.updatedAt),
+        },
+      })),
+    };
 
-  // Use useForm for form management
-  const { handleSubmit, resetForm } = useForm({
-    validationSchema: portfolioFormSchema,
-    initialValues: {
-      name: portfolio.value?.portfolio?.name || "",
-      description: portfolio.value?.portfolio?.description || "",
-    },
-  });
+    currentPortfolioStore.setCurrentPortfolio(deserializedPortfolio);
+  }
 
-  const portfolioStore = usePortfolioStore();
-
-  // Rename the local update function to avoid conflict
-  const submitUpdatePortfolio = handleSubmit(async (values) => {
-    try {
-      const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
-        method: "PUT",
-        body: { slug, ...values },
-      });
-
-      portfolioStore.updatePortfolio({
-        slug: updatedPortfolio.portfolio.slug,
-        name: updatedPortfolio.portfolio.name,
-      }); // Update the global state with the correct properties
-
-      await refresh(); // Refresh the data after update
-
-      toast({
-        title: "Portfolio updated",
-        description: "Portfolio updated successfully",
-      });
-    } catch (error) {
-      console.error("Failed to update portfolio:", error);
-      toast({
-        title: "Portfolio update failed",
-        description: "Please try again",
-      });
-    }
-  });
+  const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
 </script>
 
 <template>
   <div>
-    <h1>Edit {{ portfolio?.portfolio?.name ?? slug }}</h1>
-    <form @submit="submitUpdatePortfolio">
-      <FormField v-slot="{ field, errorMessage }" name="name">
-        <FormItem>
-          <FormLabel>Name:</FormLabel>
-          <FormControl>
-            <Input v-bind="field" v-model="field.value" type="text" placeholder="Name" />
-          </FormControl>
-          <FormMessage>{{ errorMessage }}</FormMessage>
-        </FormItem>
-      </FormField>
+    <h1>Current projects :</h1>
 
-      <FormField v-slot="{ field, errorMessage }" name="description">
-        <FormItem>
-          <FormLabel>Description:</FormLabel>
-          <FormControl>
-            <Input v-bind="field" v-model="field.value" placeholder="Description" />
-          </FormControl>
-          <FormMessage>{{ errorMessage }}</FormMessage>
-        </FormItem>
-      </FormField>
+    <pre v-for="project in currentPortfolio.projects" :key="project.id">
+      {{ project.project.name }}
+    </pre>
 
-      <Button type="submit">Update Portfolio</Button>
-    </form>
+    <!-- <GeneralSettingsPortfolio /> -->
+
+    <!-- <ProjectsPortfolio /> -->
   </div>
 </template>

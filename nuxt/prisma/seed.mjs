@@ -183,11 +183,11 @@ async function seed() {
             projectId: projects[0].id,
             designId: designs[0].id,
           },
-          {
-            order: 2,
-            projectId: projects[1].id,
-            designId: designs[1].id,
-          },
+          // {
+          //   order: 2,
+          //   projectId: projects[1].id,
+          //   designId: designs[1].id,
+          // },
         ],
       },
     },

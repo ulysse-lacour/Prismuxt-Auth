@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { slug, name, description } = body;
+    const { slug, name, description, projectId } = body;
 
     // Update portfolio data
     const updatedPortfolio = await prisma.portfolio.update({

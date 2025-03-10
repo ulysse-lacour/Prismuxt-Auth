@@ -29,8 +29,6 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(user);
-
     // Return user data
     return { user };
   } catch (error) {

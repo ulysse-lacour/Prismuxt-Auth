@@ -10,7 +10,6 @@ export const useUserDataStore = defineStore("userDataStore", {
       this.user = newUser;
     },
     updateUser(updatedUser) {
-      console.log(updatedUser);
       this.user = { ...this.user, ...updatedUser };
     },
   },
