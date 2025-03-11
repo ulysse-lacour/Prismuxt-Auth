@@ -1,11 +1,20 @@
 <script setup lang="ts">
+  /**
+   * Name Update Component
+   *
+   * Provides a form for updating the user's first and last name
+   * Handles validation and submission to the API
+   */
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
   import { useUserDataStore } from "~/stores/userData";
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Name form schema
+  /**
+   * Define validation schema using zod
+   * Validates first and last name fields
+   */
   const nameFormSchema = toTypedSchema(
     z.object({
       firstName: z
@@ -25,7 +34,9 @@
     })
   );
 
-  // Use useForm for form management
+  /**
+   * Initialize form with validation and default values
+   */
   const { handleSubmit: handleNameSubmit } = useForm({
     validationSchema: nameFormSchema,
     initialValues: {
@@ -34,22 +45,31 @@
     },
   });
 
+  /**
+   * Handle form submission to update user's name
+   * @param {Object} values - Form values containing firstName and lastName
+   */
   const onNameSubmit = handleNameSubmit(async (values: { firstName: string; lastName: string }) => {
     try {
+      // Send API request to update name
       const response = await $fetch<{ message: string }>("/api/account/update-name", {
         method: "PUT",
         body: { name: `${values.firstName} ${values.lastName}` },
       });
 
+      // Update user data in store
       const userDataStore = useUserDataStore();
-      userDataStore.updateUser({ name: `${values.firstName} ${values.lastName}` });
+      userDataStore.updateUser({ name: `${values.firstName} ${values.lastName}` } as any);
 
+      // Show success notification
       toast({
         title: "Name updated",
         description: response.message,
       });
     } catch (error) {
       console.error("Error updating name:", error);
+
+      // Show error notification
       toast({
         title: "Name update failed",
         description: "Please try again",
@@ -61,6 +81,7 @@
 <template>
   <form @submit="onNameSubmit" class="space-y-8">
     <div class="grid w-full grid-cols-2 gap-4">
+      <!-- First name field -->
       <FormField v-slot="{ field, errorMessage }" name="firstName">
         <FormItem class="max-w-[200px]">
           <FormLabel>First name</FormLabel>
@@ -71,6 +92,7 @@
         </FormItem>
       </FormField>
 
+      <!-- Last name field -->
       <FormField v-slot="{ field, errorMessage }" name="lastName">
         <FormItem class="max-w-[200px]">
           <FormLabel>Last name</FormLabel>
@@ -81,6 +103,8 @@
         </FormItem>
       </FormField>
     </div>
+
+    <!-- Submit button -->
     <div class="flex justify-end">
       <Button type="submit">Update name</Button>
     </div>

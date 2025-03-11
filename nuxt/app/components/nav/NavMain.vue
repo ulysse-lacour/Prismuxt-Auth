@@ -1,4 +1,10 @@
 <script setup lang="ts">
+  /**
+   * Main Navigation Component
+   *
+   * Displays the main navigation menu with collapsible sections
+   * Used in the sidebar to show projects and portfolios
+   */
   import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
   import {
     SidebarGroup,
@@ -11,10 +17,12 @@
     SidebarMenuSubItem,
     useSidebar,
   } from "@/components/ui/sidebar";
-  import { ChevronRight, Folder, Forward, MoreHorizontal, Trash2 } from "lucide-vue-next";
-  import { ref } from "vue";
+  import { ChevronRight } from "lucide-vue-next";
   import type { LucideIcon } from "lucide-vue-next";
 
+  /**
+   * Navigation item interface
+   */
   interface NavItem {
     title: string;
     url: string;
@@ -28,21 +36,30 @@
     }[];
   }
 
+  // Component props
   const props = defineProps<{
     items: NavItem[];
   }>();
 
+  // Sidebar state and controls
   const { isMobile, state, toggleSidebar } = useSidebar();
 
-  // Track open state for each collapsible item
+  /**
+   * Track open state for each collapsible navigation section
+   */
   const openStates = ref<Record<string, boolean>>({});
 
-  // Initialize open states based on isActive
+  // Initialize open states based on isActive property
   props.items.forEach((item) => {
     openStates.value[item.title] = item.isActive || false;
   });
 
-  // Handle click on collapsible trigger
+  /**
+   * Handle click on collapsible trigger
+   * Expands sidebar if collapsed and toggles section visibility
+   *
+   * @param {string} itemTitle - Title of the clicked navigation item
+   */
   const handleTriggerClick = (itemTitle: string) => {
     if (state.value === "collapsed") {
       // If sidebar is collapsed, expand it and ensure the item is open
@@ -57,8 +74,12 @@
 
 <template>
   <SidebarGroup>
+    <!-- Navigation group label -->
     <SidebarGroupLabel>Content</SidebarGroupLabel>
+
+    <!-- Main navigation menu -->
     <SidebarMenu>
+      <!-- Collapsible section for each navigation item -->
       <Collapsible
         v-for="item in items"
         :key="item.title"
@@ -67,6 +88,7 @@
         class="group/collapsible"
       >
         <SidebarMenuItem>
+          <!-- Collapsible trigger with icon and label -->
           <CollapsibleTrigger as-child @click.prevent="handleTriggerClick(item.title)">
             <SidebarMenuButton :tooltip="item.title">
               <component :is="item.icon" v-if="item.icon" />
@@ -76,8 +98,11 @@
               />
             </SidebarMenuButton>
           </CollapsibleTrigger>
+
+          <!-- Collapsible content with sub-items -->
           <CollapsibleContent>
             <SidebarMenuSub>
+              <!-- Sub-item for each child navigation item -->
               <SidebarMenuSubItem
                 v-for="subItem in item.items"
                 :key="subItem.title"

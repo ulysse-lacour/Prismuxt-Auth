@@ -1,4 +1,11 @@
 <script setup lang="ts">
+  /**
+   * Portfolio Projects Component
+   *
+   * Displays and manages projects associated with a portfolio
+   * Provides functionality to add and remove projects from the portfolio
+   */
+
   // Shadcn UI components
   import {
     AlertDialog,
@@ -43,14 +50,17 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Route
-  const { slug } = useRoute().params;
+  // Route parameters
+  const route = useRoute();
+  const { slug } = route.params;
 
   // Stores & Composables
   const currentPortfolioStore = useCurrentPortfolioStore();
   const { processPortfolioData } = usePortfolioData();
 
-  // Fetch portfolio data
+  /**
+   * Fetch portfolio data from API
+   */
   const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
     params: { slug },
     immediate: true, // Ensure fetch is immediate
@@ -61,9 +71,12 @@
     currentPortfolioStore.setCurrentPortfolio(processPortfolioData(portfolio.value.portfolio));
   }
 
+  // Computed property for current portfolio data
   const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
 
-  // Fetch all projects for the dropdown
+  /**
+   * Fetch all projects for the dropdown
+   */
   const { data: projects, refresh: refreshProjects } = await useFetch(
     `/api/portfolio/all-projects`,
     {
@@ -71,10 +84,14 @@
     }
   );
 
-  // Get not linked to portfolio projects
+  /**
+   * Filter projects not linked to the portfolio
+   */
   const unlinkedProjects = computed(() => projects.value?.filter((project) => !project.isLinked));
 
-  // Structure projects for the dropdown
+  /**
+   * Structure projects for the dropdown
+   */
   const availableProjects = computed(() =>
     unlinkedProjects.value?.map((project) => ({
       value: project.id,
@@ -82,17 +99,18 @@
     }))
   );
 
-  // Selected project
+  // UI state
   const selectedProject = ref({
     value: "",
     label: "",
   });
-
-  // Project to delete
   const projectToDelete = ref(null);
   const isDeleteDialogOpen = ref(false);
 
-  // Form schema
+  /**
+   * Define validation schema using zod
+   * Validates form fields before submission
+   */
   const formSchema = toTypedSchema(
     z.object({
       relatedProject: z.string({
@@ -101,7 +119,9 @@
     })
   );
 
-  // Form
+  /**
+   * Initialize form with validation
+   */
   const { handleSubmit, setFieldValue } = useForm({
     validationSchema: formSchema,
     initialValues: {
@@ -109,10 +129,10 @@
     },
   });
 
-  // Submit form
+  /**
+   * Handle form submission to add project to portfolio
+   */
   const onSubmit = handleSubmit(async (values) => {
-    console.log(values);
-
     try {
       // Add project to portfolio
       const updatedPortfolio = await $fetch(`/api/portfolio/add-project`, {
@@ -138,6 +158,8 @@
         description: "The project has been added to your portfolio.",
       });
     } catch (error) {
+      console.error("Error adding project:", error);
+
       // Show error toast
       toast({
         title: "Error adding project",
@@ -147,13 +169,18 @@
     }
   });
 
-  // Open delete confirmation dialog
+  /**
+   * Open delete confirmation dialog
+   * @param {string} id - ID of the project to delete
+   */
   const openDeleteDialog = (id) => {
     projectToDelete.value = id;
     isDeleteDialogOpen.value = true;
   };
 
-  // Delete project
+  /**
+   * Delete project from portfolio after confirmation
+   */
   const deleteProject = async () => {
     if (!projectToDelete.value) return;
 
@@ -186,6 +213,7 @@
       });
     } catch (error) {
       console.error("Error removing project:", error);
+
       // Show error toast
       toast({
         title: "Error removing project",
@@ -194,8 +222,6 @@
       });
     }
   };
-
-  console.log(availableProjects.value);
 </script>
 
 <template>
@@ -207,6 +233,7 @@
         v-if="currentPortfolio?.portfolioProjects?.length > 0"
         class="grid grid-cols-1 gap-4 xl:grid-cols-2"
       >
+        <!-- Project card for each project in portfolio -->
         <div
           v-for="portfolioProject in currentPortfolio.portfolioProjects"
           :key="portfolioProject.id"
@@ -214,12 +241,14 @@
         >
           <h3 class="text-lg font-medium">{{ portfolioProject.project.name }}</h3>
           <div class="flex items-center gap-2">
+            <!-- Edit project button -->
             <NuxtLink :to="`/projects/${portfolioProject.project.id}`">
               <Button variant="outline" size="icon">
                 <Edit class="size-4" />
               </Button>
             </NuxtLink>
 
+            <!-- Remove project button -->
             <Button
               variant="outline"
               size="icon"
@@ -240,6 +269,7 @@
       <form @submit="onSubmit">
         <FormField name="relatedProject">
           <FormItem class="flex flex-col">
+            <!-- Project selection dropdown -->
             <Combobox v-model="selectedProject" by="label" :disabled="!availableProjects?.length">
               <FormControl>
                 <ComboboxAnchor as-child>
@@ -258,6 +288,7 @@
               </FormControl>
 
               <ComboboxList>
+                <!-- Search input for projects -->
                 <div class="relative w-full max-w-sm items-center">
                   <ComboboxInput
                     class="h-10 rounded-none border-0 border-b pl-9 focus-visible:ring-0"
@@ -270,6 +301,7 @@
 
                 <ComboboxEmpty> No project found. </ComboboxEmpty>
 
+                <!-- Project options -->
                 <ComboboxGroup>
                   <ComboboxItem
                     v-for="project in availableProjects"
@@ -295,10 +327,12 @@
           </FormItem>
         </FormField>
 
+        <!-- Submit button -->
         <Button type="submit" class="mt-4" :disabled="!availableProjects?.length">
           Add Project
         </Button>
 
+        <!-- Message when no projects are available -->
         <p v-if="!availableProjects?.length" class="mt-2 text-sm text-muted-foreground">
           No available projects to add. Create a new project first.
         </p>

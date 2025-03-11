@@ -1,4 +1,10 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+  /**
+   * Portfolio General Settings Component
+   *
+   * Provides a form for updating portfolio information and settings
+   * Handles portfolio update and deletion functionality
+   */
   import {
     AlertDialog,
     AlertDialogAction,
@@ -19,14 +25,21 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  const { slug } = useRoute().params;
+  // Route parameters and navigation
+  const route = useRoute();
   const router = useRouter();
+  const { slug } = route.params;
+
+  // UI state
   const isDeleteDialogOpen = ref(false);
 
   // Composables
   const { processPortfolioData } = usePortfolioData();
+  const portfolioStore = usePortfolioStore();
 
-  // Fetch portfolio data
+  /**
+   * Fetch portfolio data from API
+   */
   const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
     params: { slug },
     immediate: true, // Ensure fetch is immediate
@@ -37,7 +50,10 @@
     processPortfolioData(portfolio.value.portfolio);
   }
 
-  // Define validation schema using zod
+  /**
+   * Define validation schema using zod
+   * Validates form fields before submission
+   */
   const portfolioFormSchema = toTypedSchema(
     z.object({
       name: z.string().min(1, "Name is required"),
@@ -45,7 +61,9 @@
     })
   );
 
-  // Use useForm for form management
+  /**
+   * Initialize form with validation and portfolio data
+   */
   const { handleSubmit, resetForm } = useForm({
     validationSchema: portfolioFormSchema,
     initialValues: {
@@ -54,11 +72,13 @@
     },
   });
 
-  const portfolioStore = usePortfolioStore();
-
-  // Rename the local update function to avoid conflict
+  /**
+   * Handle portfolio update form submission
+   * Updates portfolio data and refreshes the view
+   */
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
+      // Send API request to update portfolio
       const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
         method: "PUT",
         body: { slug, ...values },
@@ -73,14 +93,18 @@
         portfolioStore.updatePortfolio(processedData);
       }
 
-      await refreshPortfolio(); // Refresh the data after update
+      // Refresh the data after update
+      await refreshPortfolio();
 
+      // Show success notification
       toast({
         title: "Portfolio updated",
         description: "Portfolio updated successfully",
       });
     } catch (error) {
       console.error("Failed to update portfolio:", error);
+
+      // Show error notification
       toast({
         title: "Portfolio update failed",
         description: "Please try again",
@@ -89,14 +113,20 @@
     }
   });
 
-  // Open delete confirmation dialog
+  /**
+   * Open delete confirmation dialog
+   */
   const openDeleteDialog = () => {
     isDeleteDialogOpen.value = true;
   };
 
-  // Delete portfolio after confirmation
+  /**
+   * Delete portfolio after confirmation
+   * Removes portfolio and navigates away
+   */
   const deletePortfolio = async () => {
     try {
+      // Send API request to delete portfolio
       const deletedPortfolio = await $fetch(`/api/portfolio/single`, {
         method: "DELETE",
         body: { slug },
@@ -125,6 +155,8 @@
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to delete portfolio:", error);
+
+      // Show error notification
       toast({
         title: "Portfolio deletion failed",
         description: "Please try again",
@@ -136,13 +168,16 @@
 
 <template>
   <div class="w-full space-y-6 rounded-lg border p-6 shadow-sm">
+    <!-- Page header -->
     <div class="space-y-2">
       <h2 class="text-2xl font-semibold">Portfolio Settings</h2>
       <p class="text-sm text-muted-foreground">Update your portfolio information and settings.</p>
     </div>
 
+    <!-- Portfolio update form -->
     <form @submit="submitUpdatePortfolio" class="space-y-4">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <!-- Portfolio name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
             <FormLabel>Name</FormLabel>
@@ -159,6 +194,7 @@
           </FormItem>
         </FormField>
 
+        <!-- Portfolio description field -->
         <FormField v-slot="{ field, errorMessage }" name="description">
           <FormItem>
             <FormLabel>Description</FormLabel>
@@ -175,7 +211,9 @@
         </FormField>
       </div>
 
+      <!-- Form action buttons -->
       <div class="flex justify-between pt-2">
+        <!-- Delete button -->
         <div>
           <Button
             type="button"
@@ -186,6 +224,8 @@
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>
+
+        <!-- Update button -->
         <div>
           <Button type="submit" class="w-full sm:w-auto">Update Portfolio</Button>
         </div>
