@@ -1,14 +1,27 @@
 <script lang="ts" setup>
+  import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from "@/components/ui/alert-dialog";
   import { Button } from "@/components/ui/button";
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
+  import { Trash2 } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
   const { slug } = useRoute().params;
+  const router = useRouter();
+  const isDeleteDialogOpen = ref(false);
 
   // Composables
   const { processPortfolioData } = usePortfolioData();
@@ -46,14 +59,14 @@
   // Rename the local update function to avoid conflict
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
-      const updatedPortfolio = await $fetch(`/api/portfolio/edit-infos`, {
+      const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
         method: "PUT",
         body: { slug, ...values },
       });
 
       // Update the global state with the portfolio data
       if (updatedPortfolio.portfolio) {
-        // Process the updated portfolio data
+        // Process the updated portfolio data with updateStore set to false
         const processedData = processPortfolioData(updatedPortfolio.portfolio);
 
         // Update the portfolio store with the processed data
@@ -75,6 +88,50 @@
       });
     }
   });
+
+  // Open delete confirmation dialog
+  const openDeleteDialog = () => {
+    isDeleteDialogOpen.value = true;
+  };
+
+  // Delete portfolio after confirmation
+  const deletePortfolio = async () => {
+    try {
+      const deletedPortfolio = await $fetch(`/api/portfolio/single`, {
+        method: "DELETE",
+        body: { slug },
+      });
+
+      // Close dialog
+      isDeleteDialogOpen.value = false;
+
+      // Update store with processed data to ensure correct types
+      if (deletedPortfolio.portfolio) {
+        const processedData = {
+          ...deletedPortfolio.portfolio,
+          createdAt: new Date(deletedPortfolio.portfolio.createdAt),
+          updatedAt: new Date(deletedPortfolio.portfolio.updatedAt),
+        };
+        portfolioStore.deletePortfolio(processedData);
+      }
+
+      // Show success toast
+      toast({
+        title: "Portfolio deleted",
+        description: "Portfolio deleted successfully",
+      });
+
+      // Navigate away from the deleted portfolio
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Failed to delete portfolio:", error);
+      toast({
+        title: "Portfolio deletion failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 </script>
 
 <template>
@@ -118,10 +175,44 @@
         </FormField>
       </div>
 
-      <div class="flex justify-end pt-2">
-        <Button type="submit" class="w-full sm:w-auto"> Update Portfolio </Button>
+      <div class="flex justify-between pt-2">
+        <div>
+          <Button
+            type="button"
+            variant="destructive"
+            class="flex items-center gap-2"
+            @click="openDeleteDialog"
+          >
+            <Trash2 class="h-4 w-4" />
+          </Button>
+        </div>
+        <div>
+          <Button type="submit" class="w-full sm:w-auto">Update Portfolio</Button>
+        </div>
       </div>
     </form>
+
+    <!-- Delete confirmation dialog -->
+    <AlertDialog v-model:open="isDeleteDialogOpen">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Portfolio</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this portfolio? This action cannot be undone and will
+            remove all associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="isDeleteDialogOpen = false">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            @click="deletePortfolio"
+            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 

@@ -8,7 +8,7 @@
   } from "@/components/ui/sidebar";
   import { useUserDataStore } from "~/stores/userData";
   import { useProjectStore } from "~/stores/userProjects";
-  import { Briefcase, FolderKanban } from "lucide-vue-next";
+  import { Briefcase, FolderKanban, Frame, Map, PieChart, Plus } from "lucide-vue-next";
   import type { SidebarProps } from "@/components/ui/sidebar";
   import type { LucideIcon } from "lucide-vue-next";
 
@@ -24,6 +24,8 @@
     items?: {
       title: string;
       url: string;
+      icon?: LucideIcon;
+      className?: string;
     }[];
   }
 
@@ -55,23 +57,57 @@
         url: "/projects",
         icon: FolderKanban,
         isActive: route.path.startsWith("/projects"),
-        items: projectStore.projects.map((project) => ({
-          title: project.name,
-          url: `/projects/${project.id}`,
-        })),
+        items: [
+          ...projectStore.projects.map((project) => ({
+            title: project.name,
+            url: `/projects/${project.id}`,
+          })),
+          {
+            title: "New",
+            url: "/projects/new",
+            icon: Plus,
+          },
+        ],
       },
       {
         title: "Portfolios",
         url: "/portfolios",
         icon: Briefcase,
         isActive: route.path.startsWith("/portfolios"),
-        items: portfolioStore.portfolios.map((portfolio) => ({
-          title: portfolio.name,
-          url: `/portfolios/${portfolio.slug}`,
-        })),
+        items: [
+          ...portfolioStore.portfolios.map((portfolio) => ({
+            title: portfolio.name,
+            url: `/portfolios/${portfolio.slug}`,
+          })),
+          {
+            title: "New",
+            url: "/portfolios/new",
+            icon: Plus,
+          },
+        ],
       },
     ];
   });
+
+  // const data = {
+  //   projects: [
+  //     {
+  //       name: "Design Engineering",
+  //       url: "#",
+  //       icon: Frame,
+  //     },
+  //     {
+  //       name: "Sales & Marketing",
+  //       url: "#",
+  //       icon: PieChart,
+  //     },
+  //     {
+  //       name: "Travel",
+  //       url: "#",
+  //       icon: Map,
+  //     },
+  //   ],
+  // };
 </script>
 
 <template>

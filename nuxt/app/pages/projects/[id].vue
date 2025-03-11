@@ -1,4 +1,16 @@
 <script lang="ts" setup>
+  // Shadcn UI components
+  import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog";
   import { Button } from "@/components/ui/button";
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
@@ -6,6 +18,7 @@
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
   import { useProjectStore } from "~/stores/userProjects";
+  import { Trash2 } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
@@ -14,7 +27,9 @@
   });
 
   const { id } = useRoute().params;
+  const router = useRouter();
   const { processProjectData } = useProjectData();
+  const isDeleteDialogOpen = ref(false);
 
   // Fetch project data
   const { data: project, refresh } = await useFetch(`/api/projects/single`, {
@@ -68,6 +83,43 @@
       });
     }
   });
+
+  // Open delete confirmation dialog
+  const openDeleteDialog = () => {
+    isDeleteDialogOpen.value = true;
+  };
+
+  // Delete project after confirmation
+  const deleteProject = async () => {
+    try {
+      const deletedProject = await $fetch(`/api/projects/single`, {
+        method: "DELETE",
+        body: { id },
+      });
+
+      // Close dialog
+      isDeleteDialogOpen.value = false;
+
+      // Update store
+      projectStore.deleteProject(processProjectData(deletedProject.project));
+
+      // Show success toast
+      toast({
+        title: "Project deleted",
+        description: "Project deleted successfully",
+      });
+
+      // Navigate away from the deleted project
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+      toast({
+        title: "Project deletion failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 </script>
 
 <template>
@@ -127,9 +179,43 @@
         </FormItem>
       </FormField>
 
-      <div class="flex justify-end pt-2">
-        <Button type="submit" class="w-full sm:w-auto"> Update Project </Button>
+      <div class="flex justify-between pt-2">
+        <div>
+          <Button
+            type="button"
+            variant="destructive"
+            class="flex items-center gap-2"
+            @click="openDeleteDialog"
+          >
+            <Trash2 class="h-4 w-4" />
+          </Button>
+        </div>
+        <div>
+          <Button type="submit" class="w-full sm:w-auto">Update Project</Button>
+        </div>
       </div>
     </form>
+
+    <!-- Delete confirmation dialog -->
+    <AlertDialog v-model:open="isDeleteDialogOpen">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Project</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this project? This action cannot be undone and will
+            remove all associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="isDeleteDialogOpen = false">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            @click="deleteProject"
+            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
