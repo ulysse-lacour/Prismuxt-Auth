@@ -232,27 +232,13 @@
       </div>
     </form>
 
-    <!-- Delete confirmation dialog -->
-    <AlertDialog v-model:open="isDeleteDialogOpen">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Portfolio</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this portfolio? This action cannot be undone and will
-            remove all associated data.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel @click="isDeleteDialogOpen = false">Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            @click="deletePortfolio"
-            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <!-- Using DeleteConfirmDialog component -->
+    <DeleteConfirmDialog
+      v-model:open="isDeleteDialogOpen"
+      title="Delete Portfolio"
+      description="Are you sure you want to delete this portfolio? This action cannot be undone and will remove all associated data."
+      @confirm="deletePortfolio"
+    />
   </div>
 </template>
 
