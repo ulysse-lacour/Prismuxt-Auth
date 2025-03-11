@@ -46,8 +46,9 @@
   // Route
   const { slug } = useRoute().params;
 
-  // Stores
+  // Stores & Composables
   const currentPortfolioStore = useCurrentPortfolioStore();
+  const { processPortfolioData } = usePortfolioData();
 
   // Fetch portfolio data
   const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
@@ -56,31 +57,8 @@
   });
 
   // Set the current portfolio in the store with proper date conversion
-  const processPortfolioData = (portfolioData) => {
-    // Convert date strings to Date objects
-    const portfolioWithDates = {
-      ...portfolioData,
-      createdAt: new Date(portfolioData.createdAt),
-      updatedAt: new Date(portfolioData.updatedAt),
-      // Process portfolioProjects if they exist
-      portfolioProjects: (portfolioData.portfolioProjects || []).map((pp) => ({
-        ...pp,
-        createdAt: pp.createdAt ? new Date(pp.createdAt) : new Date(),
-        updatedAt: pp.updatedAt ? new Date(pp.updatedAt) : new Date(),
-        project: {
-          ...pp.project,
-          createdAt: new Date(pp.project.createdAt),
-          updatedAt: new Date(pp.project.updatedAt),
-        },
-        contentBlocks: pp.contentBlocks || [],
-      })),
-    };
-
-    currentPortfolioStore.setCurrentPortfolio(portfolioWithDates);
-  };
-
   if (portfolio.value?.portfolio) {
-    processPortfolioData(portfolio.value.portfolio);
+    currentPortfolioStore.setCurrentPortfolio(processPortfolioData(portfolio.value.portfolio));
   }
 
   const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
@@ -147,7 +125,7 @@
 
       // Set the current portfolio in the store with proper date conversion
       if (updatedPortfolio.portfolio) {
-        processPortfolioData(updatedPortfolio.portfolio);
+        currentPortfolioStore.setCurrentPortfolio(processPortfolioData(updatedPortfolio.portfolio));
       }
 
       // Refresh projects list
@@ -188,7 +166,9 @@
 
       // Set the current portfolio in the store with proper date conversion
       if (updatedPortfolio.portfolio) {
-        processPortfolioData(updatedPortfolio.portfolio);
+        currentPortfolioStore.updateCurrentPortfolio(
+          processPortfolioData(updatedPortfolio.portfolio)
+        );
       }
 
       // Refresh projects list
@@ -219,7 +199,7 @@
 </script>
 
 <template>
-  <div class="flex w-full flex-col gap-8 space-y-6 rounded-lg border p-6 shadow-sm md:flex-row">
+  <div class="flex w-full flex-col gap-8 rounded-lg border p-6 shadow-sm md:flex-row">
     <!-- Display current projects section -->
     <div class="mb-8 w-full max-w-2xl">
       <h2 class="mb-4 text-2xl font-semibold">Current Projects</h2>
@@ -257,7 +237,7 @@
     <!-- Add project form -->
     <div class="w-full">
       <h2 class="text-2xl font-semibold">Add Project to Portfolio</h2>
-      <form class="space-y-6" @submit="onSubmit">
+      <form @submit="onSubmit">
         <FormField name="relatedProject">
           <FormItem class="flex flex-col">
             <Combobox v-model="selectedProject" by="label" :disabled="!availableProjects?.length">

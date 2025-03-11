@@ -10,11 +10,19 @@
 
   const { slug } = useRoute().params;
 
+  // Composables
+  const { processPortfolioData } = usePortfolioData();
+
   // Fetch portfolio data
   const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
     params: { slug },
     immediate: true, // Ensure fetch is immediate
   });
+
+  // Process portfolio data if needed
+  if (portfolio.value?.portfolio) {
+    processPortfolioData(portfolio.value.portfolio);
+  }
 
   // Define validation schema using zod
   const portfolioFormSchema = toTypedSchema(
@@ -43,10 +51,14 @@
         body: { slug, ...values },
       });
 
-      portfolioStore.updatePortfolio({
-        slug: updatedPortfolio.portfolio.slug,
-        name: updatedPortfolio.portfolio.name,
-      }); // Update the global state with the correct properties
+      // Update the global state with the portfolio data
+      if (updatedPortfolio.portfolio) {
+        // Process the updated portfolio data
+        const processedData = processPortfolioData(updatedPortfolio.portfolio);
+
+        // Update the portfolio store with the processed data
+        portfolioStore.updatePortfolio(processedData);
+      }
 
       await refreshPortfolio(); // Refresh the data after update
 

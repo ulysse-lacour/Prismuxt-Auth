@@ -6,10 +6,10 @@ export const usePortfolioStore = defineStore("portfolioStore", {
     portfolios: [] as Array<Portfolio>,
   }),
   actions: {
-    setPortfolios(newPortfolios) {
+    setPortfolios(newPortfolios: Array<Portfolio>) {
       this.portfolios = newPortfolios;
     },
-    updatePortfolio(updatedPortfolio) {
+    updatePortfolio(updatedPortfolio: Portfolio) {
       const index = this.portfolios.findIndex((p) => p.slug === updatedPortfolio.slug);
       if (index !== -1) {
         this.portfolios[index] = { ...this.portfolios[index], ...updatedPortfolio };

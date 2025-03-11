@@ -14,6 +14,7 @@
   });
 
   const { id } = useRoute().params;
+  const { processProjectData } = useProjectData();
 
   // Fetch project data
   const { data: project, refresh } = await useFetch(`/api/projects/single`, {
@@ -50,10 +51,7 @@
         body: { id, ...values },
       });
 
-      projectStore.updateProject({
-        id: updatedProject.project.id,
-        name: updatedProject.project.name,
-      }); // Update the global state with the correct properties
+      projectStore.updateProject(processProjectData(updatedProject.project)); // Update the global state with the correct properties
 
       await refresh(); // Refresh the data after update
 

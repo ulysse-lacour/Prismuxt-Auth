@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Design, Portfolio, PortfolioProject, Project } from "@prisma/client";
 
-// Define the ExtendedPortfolio type here to ensure it's available
+// Extend Portfolio type to include portfolioProjects
 interface ExtendedPortfolio extends Portfolio {
   portfolioProjects: (PortfolioProject & {
     project: Project;

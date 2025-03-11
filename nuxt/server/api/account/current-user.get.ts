@@ -26,6 +26,9 @@ export default defineEventHandler(async (event) => {
         email: true,
         projects: true,
         portfolios: true,
+        emailVerified: true,
+        image: true,
+        twoFactorEnabled: true,
       },
     });
 
