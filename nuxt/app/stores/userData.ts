@@ -6,11 +6,10 @@ export const useUserDataStore = defineStore("userDataStore", {
     user: {} as User,
   }),
   actions: {
-    setUser(newUser) {
+    setUser(newUser: User) {
       this.user = newUser;
     },
-    updateUser(updatedUser) {
-      console.log(updatedUser);
+    updateUser(updatedUser: User) {
       this.user = { ...this.user, ...updatedUser };
     },
   },

@@ -31,12 +31,19 @@
   const { data: userData } = await useFetch("/api/account/current-user");
 
   // Set projects store
+  const { processProjectData } = useProjectData();
   const projectStore = useProjectStore();
-  projectStore.setProjects(userData.value?.user?.projects || []);
+  projectStore.setProjects(processProjectData(userData.value?.user?.projects || []));
+
+  // Set portfolios store
+  const { processPortfolioData } = usePortfolioData();
+  const portfolioStore = usePortfolioStore();
+  portfolioStore.setPortfolios(processPortfolioData(userData.value?.user?.portfolios || []));
 
   // Set user data store
+  const { processUserData } = useUserData();
   const userDataStore = useUserDataStore();
-  userDataStore.setUser(userData.value?.user || {});
+  userDataStore.setUser(processUserData(userData.value?.user || {}));
 
   // Transform navigation data into menu items
   const items = computed<NavItem[]>(() => {
@@ -58,7 +65,7 @@
         url: "/portfolios",
         icon: Briefcase,
         isActive: route.path.startsWith("/portfolios"),
-        items: userData.value?.user?.portfolios?.map((portfolio) => ({
+        items: portfolioStore.portfolios.map((portfolio) => ({
           title: portfolio.name,
           url: `/portfolios/${portfolio.slug}`,
         })),

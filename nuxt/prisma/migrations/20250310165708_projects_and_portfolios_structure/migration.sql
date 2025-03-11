@@ -70,11 +70,27 @@ CREATE TABLE "portfolio" (
 CREATE TABLE "portfolio_project" (
     "id" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "portfolioId" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
-    "designId" TEXT NOT NULL,
+    "designId" TEXT,
 
     CONSTRAINT "portfolio_project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "portfolio_project_block" (
+    "id" TEXT NOT NULL,
+    "type" "BlockType" NOT NULL,
+    "order" INTEGER NOT NULL,
+    "config" JSONB NOT NULL,
+    "content" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "portfolioProjectId" TEXT NOT NULL,
+
+    CONSTRAINT "portfolio_project_block_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -105,4 +121,7 @@ ALTER TABLE "portfolio_project" ADD CONSTRAINT "portfolio_project_portfolioId_fk
 ALTER TABLE "portfolio_project" ADD CONSTRAINT "portfolio_project_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "portfolio_project" ADD CONSTRAINT "portfolio_project_designId_fkey" FOREIGN KEY ("designId") REFERENCES "design"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "portfolio_project" ADD CONSTRAINT "portfolio_project_designId_fkey" FOREIGN KEY ("designId") REFERENCES "design"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "portfolio_project_block" ADD CONSTRAINT "portfolio_project_block_portfolioProjectId_fkey" FOREIGN KEY ("portfolioProjectId") REFERENCES "portfolio_project"("id") ON DELETE CASCADE ON UPDATE CASCADE;

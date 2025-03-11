@@ -6,10 +6,10 @@ export const useProjectStore = defineStore("projectStore", {
     projects: [] as Array<Project>,
   }),
   actions: {
-    setProjects(newProjects) {
+    setProjects(newProjects: Array<Project>) {
       this.projects = newProjects;
     },
-    updateProject(updatedProject) {
+    updateProject(updatedProject: Project) {
       const index = this.projects.findIndex((p) => p.id === updatedProject.id);
       if (index !== -1) {
         this.projects[index] = { ...this.projects[index], ...updatedProject };
