@@ -17,9 +17,13 @@ export default defineEventHandler(async (event) => {
     const portfolio = await prisma.portfolio.findUnique({
       where: { slug: portfolioId },
       include: {
-        projects: {
+        portfolioProjects: {
           include: {
             project: true,
+            contentBlocks: true,
+          },
+          orderBy: {
+            order: "asc",
           },
         },
       },

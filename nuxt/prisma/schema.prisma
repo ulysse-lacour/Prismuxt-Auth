@@ -162,24 +162,46 @@ model Portfolio {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Relations
-  projects PortfolioProject[]
+  portfolioProjects PortfolioProject[]
 
   @@map("portfolio")
 }
 
-// Junction table for Projects in Portfolios with their specific Design
+// Junction table for Projects in Portfolios with their content blocks
 model PortfolioProject {
-  id    String @id @default(cuid())
-  order Int // For ordering projects within the portfolio
+  id        String   @id @default(cuid())
+  order     Int // For ordering projects within the portfolio
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   portfolioId String
   portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   projectId   String
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  designId    String
-  design      Design    @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  // Content blocks for this project in this portfolio
+  contentBlocks PortfolioProjectBlock[]
+  Design        Design?                 @relation(fields: [designId], references: [id])
+  designId      String?
 
   @@unique([portfolioId, projectId])
   @@map("portfolio_project")
+}
+
+// Content blocks for a project within a portfolio
+model PortfolioProjectBlock {
+  id        String    @id @default(cuid())
+  type      BlockType
+  order     Int // Position of the block
+  config    Json // Flexible configuration for the block (layout, styling, etc.)
+  content   Json // The actual content of the block
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  portfolioProjectId String
+  portfolioProject   PortfolioProject @relation(fields: [portfolioProjectId], references: [id], onDelete: Cascade)
+
+  @@map("portfolio_project_block")
 }

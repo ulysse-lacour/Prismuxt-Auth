@@ -7,10 +7,5 @@ declare global {
   interface ProjectWithLinkStatus extends Project {
     isLinked: boolean;
   }
-
-  // Extend the Portfolio type with a projects property
-  interface ExtendedPortfolio extends Portfolio {
-    projects: (PortfolioProject & { project: Project })[];
-  }
 }
 export {};

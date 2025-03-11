@@ -1,5 +1,6 @@
 <script lang="ts" setup>
   import { useCurrentPortfolioStore } from "~/stores/currentPortfolio";
+  import type { Portfolio, PortfolioProject, Project } from "@prisma/client";
 
   definePageMeta({
     layout: "auth",
@@ -14,23 +15,30 @@
     immediate: true, // Ensure fetch is immediate
   });
 
-  // Deserialize portfolio data to convert dates to Date objects
+  // Set the current portfolio in the store with proper date conversion
   if (portfolio.value?.portfolio) {
-    const deserializedPortfolio = {
-      ...portfolio.value.portfolio,
-      createdAt: new Date(portfolio.value.portfolio.createdAt),
-      updatedAt: new Date(portfolio.value.portfolio.updatedAt),
-      projects: portfolio.value.portfolio.projects.map((project) => ({
-        ...project,
+    const portfolioData = portfolio.value.portfolio;
+
+    // Convert date strings to Date objects
+    const portfolioWithDates = {
+      ...portfolioData,
+      createdAt: new Date(portfolioData.createdAt),
+      updatedAt: new Date(portfolioData.updatedAt),
+      // Process portfolioProjects if they exist
+      portfolioProjects: (portfolioData.portfolioProjects || []).map((pp) => ({
+        ...pp,
+        createdAt: pp.createdAt ? new Date(pp.createdAt) : new Date(),
+        updatedAt: pp.updatedAt ? new Date(pp.updatedAt) : new Date(),
         project: {
-          ...project.project,
-          createdAt: new Date(project.project.createdAt),
-          updatedAt: new Date(project.project.updatedAt),
+          ...pp.project,
+          createdAt: new Date(pp.project.createdAt),
+          updatedAt: new Date(pp.project.updatedAt),
         },
+        contentBlocks: pp.contentBlocks || [],
       })),
     };
 
-    currentPortfolioStore.setCurrentPortfolio(deserializedPortfolio);
+    currentPortfolioStore.setCurrentPortfolio(portfolioWithDates);
   }
 
   const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
@@ -38,14 +46,20 @@
 
 <template>
   <div>
-    <h1>Current projects :</h1>
+    <GeneralSettingsPortfolio />
 
-    <pre v-for="project in currentPortfolio.projects" :key="project.id">
-      {{ project.project.name }}
-    </pre>
+    <h1>Current projects:</h1>
 
-    <!-- <GeneralSettingsPortfolio /> -->
+    <div v-if="currentPortfolio.portfolioProjects && currentPortfolio.portfolioProjects.length > 0">
+      <pre
+        v-for="portfolioProject in currentPortfolio.portfolioProjects"
+        :key="portfolioProject.id"
+      >
+        {{ portfolioProject.project.name }}
+      </pre>
+    </div>
+    <p v-else>No projects in this portfolio yet.</p>
 
-    <!-- <ProjectsPortfolio /> -->
+    <ProjectsPortfolio />
   </div>
 </template>

@@ -7,7 +7,7 @@
   const { slug } = useRoute().params;
 
   // Fetch portfolio data
-  const { data: portfolio, refresh } = await useFetch(`/api/portfolio/single`, {
+  const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
     params: { slug },
     immediate: true, // Ensure fetch is immediate
   });
@@ -34,7 +34,7 @@
   // Rename the local update function to avoid conflict
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
-      const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
+      const updatedPortfolio = await $fetch(`/api/portfolio/edit-infos`, {
         method: "PUT",
         body: { slug, ...values },
       });
@@ -44,7 +44,7 @@
         name: updatedPortfolio.portfolio.name,
       }); // Update the global state with the correct properties
 
-      await refresh(); // Refresh the data after update
+      await refreshPortfolio(); // Refresh the data after update
 
       toast({
         title: "Portfolio updated",

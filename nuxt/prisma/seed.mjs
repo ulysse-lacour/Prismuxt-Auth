@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 
 async function seed() {
   // Create a test user with hashed password
-
   const user = await prisma.user.create({
     data: {
       name: "Ulysse Lacour",
@@ -44,150 +43,71 @@ async function seed() {
         userId: user.id,
       },
     }),
-  ]);
-
-  // Create design templates
-  const designs = await Promise.all([
-    prisma.design.create({
+    prisma.project.create({
       data: {
-        name: "Minimal",
-        description: "Clean and minimalistic design layout",
-        blocks: {
-          create: [
-            {
-              type: BlockType.HEADER,
-              order: 1,
-              config: {
-                layout: "centered",
-                spacing: { top: 8, bottom: 6 },
-                typography: { size: "2xl", weight: "bold" },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    title: "Project Overview",
-                    subtitle: "Key Details",
-                  },
-                },
-              },
-            },
-            {
-              type: BlockType.IMAGE,
-              order: 2,
-              config: {
-                layout: "full-width",
-                spacing: { top: 4, bottom: 4 },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    imageUrl: "{project.imageUrl}",
-                    alt: "Project Preview",
-                  },
-                },
-              },
-            },
-            {
-              type: BlockType.TEXT,
-              order: 3,
-              config: {
-                layout: "narrow",
-                spacing: { top: 6, bottom: 6 },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    text: "{project.description}",
-                    alignment: "left",
-                  },
-                },
-              },
-            },
-          ],
-        },
+        name: "Healthcare Dashboard",
+        description: "Interactive dashboard for healthcare professionals",
+        client: "MediCare Solutions",
+        date: "2023",
+        tags: ["Dashboard", "Healthcare", "Data Visualization"],
+        imageUrl: "/images/projects/healthcare.jpg",
+        userId: user.id,
       },
     }),
-    prisma.design.create({
+    prisma.project.create({
       data: {
-        name: "Modern",
-        description: "Contemporary design with bold elements",
-        blocks: {
-          create: [
-            {
-              type: BlockType.HEADER,
-              order: 1,
-              config: {
-                layout: "full-width",
-                spacing: { top: 0, bottom: 8 },
-                background: { color: "gray-900" },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    title: "{project.name}",
-                    subtitle: "Client: {project.client}",
-                  },
-                },
-              },
-            },
-            {
-              type: BlockType.QUOTE,
-              order: 2,
-              config: {
-                layout: "centered",
-                spacing: { top: 8, bottom: 8 },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    quote: "Project highlight or key achievement",
-                    author: "{project.client}",
-                  },
-                },
-              },
-            },
-            {
-              type: BlockType.TEXT,
-              order: 3,
-              config: {
-                layout: "wide",
-                spacing: { top: 6, bottom: 6 },
-              },
-              blockContent: {
-                create: {
-                  content: {
-                    text: "{project.description}",
-                    alignment: "justify",
-                  },
-                },
-              },
-            },
-          ],
-        },
+        name: "Travel Booking Platform",
+        description: "Comprehensive travel booking solution with real-time availability",
+        client: "Wanderlust Travels",
+        date: "2024",
+        tags: ["Travel", "Booking", "Maps Integration"],
+        imageUrl: "/images/projects/travel.jpg",
+        userId: user.id,
       },
     }),
   ]);
 
   // Create a portfolio
-  const portfolio = await prisma.portfolio.create({
+  const mainPortfolio = await prisma.portfolio.create({
     data: {
       name: "Main Portfolio",
       description: "Showcase of my best work",
       isPublic: true,
       slug: "ulysse-portfolio",
       userId: user.id,
-      projects: {
+      portfolioProjects: {
         create: [
           {
             order: 1,
             projectId: projects[0].id,
-            designId: designs[0].id,
           },
-          // {
-          //   order: 2,
-          //   projectId: projects[1].id,
-          //   designId: designs[1].id,
-          // },
+          {
+            order: 2,
+            projectId: projects[1].id,
+          },
+        ],
+      },
+    },
+  });
+
+  // Create a second portfolio
+  const designPortfolio = await prisma.portfolio.create({
+    data: {
+      name: "Design Portfolio",
+      description: "Showcasing my design-focused projects",
+      isPublic: true,
+      slug: "ulysse-design-portfolio",
+      userId: user.id,
+      portfolioProjects: {
+        create: [
+          {
+            order: 1,
+            projectId: projects[2].id,
+          },
+          {
+            order: 2,
+            projectId: projects[3].id,
+          },
         ],
       },
     },

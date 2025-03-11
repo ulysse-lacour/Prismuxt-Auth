@@ -4,9 +4,32 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  const portfolioId = query.portfolioId as string;
+  const slug = query.slug as string;
+
+  if (!slug) {
+    throw createError({
+      statusCode: 400,
+      message: "Portfolio slug is required",
+    });
+  }
 
   try {
+    // First, get the portfolio ID from the slug
+    const portfolio = await prisma.portfolio.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!portfolio) {
+      throw createError({
+        statusCode: 404,
+        message: "Portfolio not found",
+      });
+    }
+
+    const portfolioId = portfolio.id;
+
+    // Then fetch all projects and check if they're linked to this portfolio
     const projects = await prisma.project.findMany({
       include: {
         portfolioProjects: {
@@ -17,8 +40,6 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(projects);
-
     const projectsWithLinkStatus = projects.map((project) => ({
       ...project,
       isLinked: project.portfolioProjects.length > 0,
@@ -26,6 +47,10 @@ export default defineEventHandler(async (event) => {
 
     return projectsWithLinkStatus;
   } catch (error) {
-    return { error: "Failed to fetch projects" };
+    console.error("Error fetching projects:", error);
+    throw createError({
+      statusCode: 500,
+      message: "Failed to fetch projects",
+    });
   }
 });
