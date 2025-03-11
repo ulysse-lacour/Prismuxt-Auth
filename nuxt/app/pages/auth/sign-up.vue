@@ -1,7 +1,19 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+  /**
+   * Sign Up Page
+   *
+   * Provides a form for users to create a new account
+   * Handles user registration and error display
+   */
   import { signUp } from "~/utils/auth-client";
   import { Eye, EyeOff } from "lucide-vue-next";
 
+  // Define page metadata
+  definePageMeta({
+    layout: "default",
+  });
+
+  // Form state
   const firstName = ref("");
   const lastName = ref("");
   const email = ref("");
@@ -10,6 +22,10 @@
   const isErrorDialogOpen = ref(false);
   const errorMessage = ref("");
 
+  /**
+   * Handle sign up form submission
+   * Creates a new user account with the provided information
+   */
   const handleSignUp = async () => {
     const user = {
       firstName: firstName.value,
@@ -17,6 +33,7 @@
       email: email.value,
       password: password.value,
     };
+
     await signUp.email({
       email: user.email,
       password: user.password,
@@ -37,6 +54,7 @@
 
 <template>
   <div class="flex h-screen items-center justify-center">
+    <!-- Sign up card -->
     <Card class="mx-auto max-w-sm">
       <CardHeader>
         <CardTitle class="text-xl">Sign Up</CardTitle>
@@ -44,6 +62,7 @@
       </CardHeader>
       <CardContent>
         <div class="grid gap-4">
+          <!-- Name fields (first and last name) -->
           <div class="grid grid-cols-2 gap-4">
             <div class="grid gap-2">
               <Label for="first-name">First name</Label>
@@ -54,10 +73,14 @@
               <Input id="last-name" placeholder="Robinson" required v-model="lastName" />
             </div>
           </div>
+
+          <!-- Email field -->
           <div class="grid gap-2">
             <Label for="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" required v-model="email" />
           </div>
+
+          <!-- Password field with show/hide toggle -->
           <div class="grid gap-2">
             <Label for="password">Password</Label>
             <div class="relative">
@@ -82,8 +105,12 @@
               </Button>
             </div>
           </div>
+
+          <!-- Submit button -->
           <Button type="button" class="w-full" @click="handleSignUp">Create an account</Button>
         </div>
+
+        <!-- Sign in link -->
         <div class="mt-4 text-center text-sm">
           Already have an account?
           <a href="/auth/sign-in" class="underline"> Sign in </a>
@@ -91,6 +118,7 @@
       </CardContent>
     </Card>
 
+    <!-- Error dialog -->
     <AlertDialog :open="isErrorDialogOpen" @update:open="isErrorDialogOpen = $event">
       <AlertDialogContent>
         <AlertDialogHeader>

@@ -1,21 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 
+/**
+ * API endpoint to fetch a single portfolio by slug
+ * GET /api/portfolio/single?slug=<portfolioSlug>
+ *
+ * Returns the portfolio with all related projects and content blocks
+ */
+
+// Initialize Prisma client
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
+  // Extract portfolio slug from query parameters
   const { slug } = getQuery(event);
-  const portfolioId = Array.isArray(slug) ? slug[0] : slug;
+  const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
 
-  if (!portfolioId) {
+  // Validate portfolio slug
+  if (!portfolioSlug) {
     throw createError({
       statusCode: 400,
-      message: "Portfolio ID is required",
+      message: "Portfolio slug is required",
     });
   }
 
   try {
+    // Fetch portfolio with related data from database
     const portfolio = await prisma.portfolio.findUnique({
-      where: { slug: portfolioId },
+      where: { slug: portfolioSlug },
       include: {
         portfolioProjects: {
           include: {
@@ -29,6 +40,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    // Return 404 if portfolio not found
     if (!portfolio) {
       throw createError({
         statusCode: 404,
@@ -36,8 +48,10 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Return portfolio data
     return { portfolio };
   } catch (error) {
+    // Log error and return appropriate error response
     console.error("Error fetching portfolio:", error);
     throw createError({
       statusCode: 500,

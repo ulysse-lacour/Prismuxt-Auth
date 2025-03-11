@@ -1,4 +1,11 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+  /**
+   * Project Detail Page
+   *
+   * Displays and manages a specific project identified by its ID
+   * Provides form for updating project details and option to delete the project
+   */
+
   // Shadcn UI components
   import {
     AlertDialog,
@@ -22,22 +29,37 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
+  // Define page metadata
   definePageMeta({
     layout: "auth",
   });
 
-  const { id } = useRoute().params;
+  // Route parameters and navigation
+  const route = useRoute();
   const router = useRouter();
+  const { id } = route.params;
+
+  // Composables
   const { processProjectData } = useProjectData();
+
+  // Project store for state management
+  const projectStore = useProjectStore();
+
+  // UI state
   const isDeleteDialogOpen = ref(false);
 
-  // Fetch project data
+  /**
+   * Fetch project data from API
+   */
   const { data: project, refresh } = await useFetch(`/api/projects/single`, {
     params: { id },
     immediate: true, // Ensure fetch is immediate
   });
 
-  // Define validation schema using zod
+  /**
+   * Define validation schema using zod
+   * Validates form fields before submission
+   */
   const projectFormSchema = toTypedSchema(
     z.object({
       name: z.string().min(1, "Name is required"),
@@ -46,7 +68,9 @@
     })
   );
 
-  // Use useForm for form management
+  /**
+   * Initialize form with validation and project data
+   */
   const { handleSubmit, resetForm } = useForm({
     validationSchema: projectFormSchema,
     initialValues: {
@@ -56,26 +80,33 @@
     },
   });
 
-  const projectStore = useProjectStore();
-
-  // Rename the local update function to avoid conflict
+  /**
+   * Handle project update form submission
+   * Updates project data and refreshes the view
+   */
   const submitUpdateProject = handleSubmit(async (values) => {
     try {
+      // Send API request to update project
       const updatedProject = await $fetch(`/api/projects/single`, {
         method: "PUT",
         body: { id, ...values },
       });
 
-      projectStore.updateProject(processProjectData(updatedProject.project)); // Update the global state with the correct properties
+      // Update the global state with the correct properties
+      projectStore.updateProject(processProjectData(updatedProject.project));
 
-      await refresh(); // Refresh the data after update
+      // Refresh the data after update
+      await refresh();
 
+      // Show success notification
       toast({
         title: "Project updated",
         description: "Project updated successfully",
       });
     } catch (error) {
       console.error("Failed to update project:", error);
+
+      // Show error notification
       toast({
         title: "Project update failed",
         description: "Please try again",
@@ -84,14 +115,20 @@
     }
   });
 
-  // Open delete confirmation dialog
+  /**
+   * Open delete confirmation dialog
+   */
   const openDeleteDialog = () => {
     isDeleteDialogOpen.value = true;
   };
 
-  // Delete project after confirmation
+  /**
+   * Delete project after confirmation
+   * Removes project and navigates away
+   */
   const deleteProject = async () => {
     try {
+      // Send API request to delete project
       const deletedProject = await $fetch(`/api/projects/single`, {
         method: "DELETE",
         body: { id },
@@ -113,6 +150,8 @@
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to delete project:", error);
+
+      // Show error notification
       toast({
         title: "Project deletion failed",
         description: "Please try again",
@@ -124,13 +163,16 @@
 
 <template>
   <div class="w-full max-w-4xl space-y-6 rounded-lg border p-6 shadow-sm">
+    <!-- Page header -->
     <div class="space-y-2">
       <h2 class="text-2xl font-semibold">Project Settings</h2>
       <p class="text-sm text-muted-foreground">Update your project information and settings.</p>
     </div>
 
+    <!-- Project update form -->
     <form @submit="submitUpdateProject" class="space-y-4">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <!-- Project name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
             <FormLabel>Name</FormLabel>
@@ -147,6 +189,7 @@
           </FormItem>
         </FormField>
 
+        <!-- Client name field -->
         <FormField v-slot="{ field, errorMessage }" name="client">
           <FormItem>
             <FormLabel>Client</FormLabel>
@@ -164,6 +207,7 @@
         </FormField>
       </div>
 
+      <!-- Project description field -->
       <FormField v-slot="{ field, errorMessage }" name="description">
         <FormItem>
           <FormLabel>Description</FormLabel>
@@ -179,7 +223,9 @@
         </FormItem>
       </FormField>
 
+      <!-- Form action buttons -->
       <div class="flex justify-between pt-2">
+        <!-- Delete button -->
         <div>
           <Button
             type="button"
@@ -190,6 +236,8 @@
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>
+
+        <!-- Update button -->
         <div>
           <Button type="submit" class="w-full sm:w-auto">Update Project</Button>
         </div>

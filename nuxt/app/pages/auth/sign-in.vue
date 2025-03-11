@@ -1,13 +1,29 @@
 <script setup lang="ts">
+  /**
+   * Sign In Page
+   *
+   * Provides a form for users to sign in to their account
+   * Handles authentication and error display
+   */
   import { signIn } from "~/utils/auth-client";
   import { Eye, EyeOff } from "lucide-vue-next";
 
+  // Define page metadata
+  definePageMeta({
+    layout: "default",
+  });
+
+  // Form state
   const email = ref("");
   const password = ref("");
   const showPassword = ref(false);
   const isErrorDialogOpen = ref(false);
   const errorMessage = ref("");
 
+  /**
+   * Handle sign in form submission
+   * Attempts to authenticate the user with provided credentials
+   */
   const handleSignIn = async () => {
     await signIn.email(
       {
@@ -27,6 +43,7 @@
 
 <template>
   <div class="flex h-screen items-center justify-center">
+    <!-- Sign in card -->
     <Card class="mx-auto max-w-sm">
       <CardHeader>
         <CardTitle class="text-2xl"> Login </CardTitle>
@@ -34,10 +51,13 @@
       </CardHeader>
       <CardContent>
         <div class="grid gap-4">
+          <!-- Email input field -->
           <div class="grid gap-2">
             <Label for="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />
           </div>
+
+          <!-- Password input field with show/hide toggle -->
           <div class="grid gap-2">
             <div class="flex items-center">
               <Label for="password">Password</Label>
@@ -68,7 +88,11 @@
               </Button>
             </div>
           </div>
+
+          <!-- Submit button -->
           <Button type="submit" class="w-full" @click="handleSignIn"> Login </Button>
+
+          <!-- Sign up link -->
           <div class="mt-4 text-center text-sm">
             Don't have an account?
             <a href="/auth/sign-up" class="underline"> Sign up </a>
@@ -77,6 +101,7 @@
       </CardContent>
     </Card>
 
+    <!-- Error dialog -->
     <AlertDialog :open="isErrorDialogOpen" @update:open="isErrorDialogOpen = $event">
       <AlertDialogContent>
         <AlertDialogHeader>

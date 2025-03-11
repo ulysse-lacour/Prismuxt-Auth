@@ -1,46 +1,70 @@
 import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
+/**
+ * API endpoint to update the current user's name
+ * PUT /api/account/update-name
+ *
+ * Request body:
+ * {
+ *   name: string;
+ * }
+ *
+ * Requires authentication
+ */
+
+// Initialize Prisma client
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  // Get user session
-  const session = await auth.api.getSession(event);
-
-  if (!session) {
-    throw createError({
-      statusCode: 401,
-      message: "Unauthorized",
-    });
-  }
-
   try {
-    const body = await readBody(event);
-    const { name } = body;
+    // Get user session
+    const session = await auth.api.getSession(event);
 
-    if (!name) {
+    // Verify authentication
+    if (!session) {
       throw createError({
-        statusCode: 400,
-        message: "Name is required",
+        statusCode: 401,
+        message: "Unauthorized",
       });
     }
 
-    // Update user's name
+    // Parse request body
+    const body = await readBody(event);
+    const { name } = body;
+
+    // Validate name
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      throw createError({
+        statusCode: 400,
+        message: "Valid name is required",
+      });
+    }
+
+    // Update user's name in database
     await prisma.user.update({
       where: {
         id: session.user.id,
       },
       data: {
-        name,
+        name: name.trim(),
       },
     });
 
+    // Return success response
     return {
       success: true,
       message: "Name updated successfully",
     };
-  } catch (error) {
+  } catch (error: any) {
+    // Log error and return appropriate error response
     console.error("Error updating name:", error);
+
+    // Return the error if it's already a handled error
+    if (error.statusCode) {
+      throw error;
+    }
+
     throw createError({
       statusCode: 500,
       message: "Error updating name",

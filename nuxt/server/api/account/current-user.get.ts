@@ -1,21 +1,31 @@
 import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
+/**
+ * API endpoint to fetch the current authenticated user's data
+ * GET /api/account/current-user
+ *
+ * Returns the user's profile data including projects and portfolios
+ * Requires authentication
+ */
+
+// Initialize Prisma client
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  // Get user session
-  const session = await auth.api.getSession(event);
-
-  if (!session) {
-    throw createError({
-      statusCode: 401,
-      message: "Unauthorized",
-    });
-  }
-
   try {
-    // Fetch user's data
+    // Get user session
+    const session = await auth.api.getSession(event);
+
+    // Verify authentication
+    if (!session) {
+      throw createError({
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    // Fetch user's data with related entities
     const user = await prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -32,10 +42,25 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    // Handle case where user is not found
+    if (!user) {
+      throw createError({
+        statusCode: 404,
+        message: "User not found",
+      });
+    }
+
     // Return user data
     return { user };
-  } catch (error) {
+  } catch (error: any) {
+    // Log error and return appropriate error response
     console.error("Error fetching user data:", error);
+
+    // Return the error if it's already a handled error
+    if (error.statusCode) {
+      throw error;
+    }
+
     throw createError({
       statusCode: 500,
       message: "Error fetching user data",
