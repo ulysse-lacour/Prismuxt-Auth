@@ -103,53 +103,6 @@ enum BlockType {
   QUOTE
 }
 
-model Design {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  blocks            DesignBlock[]
-  portfolioProjects PortfolioProject[]
-
-  @@map("design")
-}
-
-// Represents a block within a design
-model DesignBlock {
-  id        String    @id @default(cuid())
-  type      BlockType
-  order     Int // Position of the block in the design
-  config    Json // Flexible configuration for the block (layout, styling, etc.)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  // Relations
-  designId String
-  design   Design @relation(fields: [designId], references: [id], onDelete: Cascade)
-
-  // Content relation
-  blockContent BlockContent?
-
-  @@map("design_block")
-}
-
-// Stores the actual content for a block
-model BlockContent {
-  id        String   @id @default(cuid())
-  content   Json // Flexible content structure based on block type
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  designBlockId String      @unique
-  designBlock   DesignBlock @relation(fields: [designBlockId], references: [id], onDelete: Cascade)
-
-  @@map("block_content")
-}
-
 model Portfolio {
   id          String   @id @default(cuid())
   name        String
@@ -182,8 +135,6 @@ model PortfolioProject {
 
   // Content blocks for this project in this portfolio
   contentBlocks PortfolioProjectBlock[]
-  Design        Design?                 @relation(fields: [designId], references: [id])
-  designId      String?
 
   @@unique([portfolioId, projectId])
   @@map("portfolio_project")
@@ -194,8 +145,8 @@ model PortfolioProjectBlock {
   id        String    @id @default(cuid())
   type      BlockType
   order     Int // Position of the block
-  config    Json // Flexible configuration for the block (layout, styling, etc.)
-  content   Json // The actual content of the block
+  config    Json? // Flexible configuration for the block (layout, styling, etc.)
+  content   Json? // The actual content of the block
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

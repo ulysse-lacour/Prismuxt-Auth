@@ -6,8 +6,6 @@ interface ExtendedPortfolio extends Portfolio {
   portfolioProjects: (PortfolioProject & {
     project: Project;
     contentBlocks?: any[];
-    Design?: Design | null;
-    designId?: string | null;
   })[];
 }
 

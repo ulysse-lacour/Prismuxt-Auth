@@ -15,5 +15,11 @@ export const useProjectStore = defineStore("projectStore", {
         this.projects[index] = { ...this.projects[index], ...updatedProject };
       }
     },
+    addProject(newProject: Project) {
+      this.projects.push(newProject);
+    },
+    deleteProject(deletedProject: Project) {
+      this.projects = this.projects.filter((p) => p.id !== deletedProject.id);
+    },
   },
 });

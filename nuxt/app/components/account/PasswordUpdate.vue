@@ -1,15 +1,24 @@
 <script setup lang="ts">
+  /**
+   * Password Update Component
+   *
+   * Provides a form for updating the user's password
+   * Handles validation and submission to the API
+   */
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
   import { Eye, EyeOff } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Password visibility states
+  // UI state for password visibility
   const showCurrentPassword = ref(false);
   const showNewPassword = ref(false);
 
-  // Password form schema
+  /**
+   * Define validation schema using zod
+   * Validates current and new password fields
+   */
   const passwordFormSchema = toTypedSchema(
     z.object({
       currentPassword: z
@@ -25,7 +34,9 @@
     })
   );
 
-  // Use useForm for form management
+  /**
+   * Initialize form with validation and default values
+   */
   const { handleSubmit: handlePasswordSubmit } = useForm({
     validationSchema: passwordFormSchema,
     initialValues: {
@@ -34,19 +45,28 @@
     },
   });
 
+  /**
+   * Handle form submission to update user's password
+   * @param {Object} values - Form values containing currentPassword and newPassword
+   */
   const onPasswordSubmit = handlePasswordSubmit(
     async (values: { currentPassword: string; newPassword: string }) => {
       try {
+        // Send API request to update password
         const response = await $fetch<{ message: string }>("/api/account/update-password", {
           method: "PUT",
           body: { currentPassword: values.currentPassword, newPassword: values.newPassword },
         });
+
+        // Show success notification
         toast({
           title: "Password updated",
           description: response.message,
         });
       } catch (error) {
         console.error("Error updating password:", error);
+
+        // Show error notification
         toast({
           title: "Password update failed",
           description: "Please try again",
@@ -59,6 +79,7 @@
 <template>
   <form @submit="onPasswordSubmit" class="space-y-8">
     <div class="grid gap-4">
+      <!-- Current password field with show/hide toggle -->
       <FormField v-slot="{ field, errorMessage }" name="currentPassword">
         <FormItem>
           <FormLabel>Current Password</FormLabel>
@@ -88,6 +109,7 @@
         </FormItem>
       </FormField>
 
+      <!-- New password field with show/hide toggle -->
       <FormField v-slot="{ field, errorMessage }" name="newPassword">
         <FormItem>
           <FormLabel>New Password</FormLabel>
@@ -117,6 +139,8 @@
         </FormItem>
       </FormField>
     </div>
+
+    <!-- Submit button -->
     <div class="flex justify-end">
       <Button type="submit">Update password</Button>
     </div>

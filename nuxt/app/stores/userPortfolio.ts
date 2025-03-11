@@ -15,5 +15,11 @@ export const usePortfolioStore = defineStore("portfolioStore", {
         this.portfolios[index] = { ...this.portfolios[index], ...updatedPortfolio };
       }
     },
+    addPortfolio(newPortfolio: Portfolio) {
+      this.portfolios.push(newPortfolio);
+    },
+    deletePortfolio(deletedPortfolio: Portfolio) {
+      this.portfolios = this.portfolios.filter((p) => p.id !== deletedPortfolio.id);
+    },
   },
 });

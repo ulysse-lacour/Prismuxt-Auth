@@ -1,15 +1,13 @@
+import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * API endpoint to update a project
- * PUT /api/projects/single
+ * API endpoint to delete a project
+ * DELETE /api/projects/single
  *
  * Request body:
  * {
  *   id: string;
- *   name?: string;
- *   description?: string;
- *   client?: string;
  * }
  */
 
@@ -18,9 +16,19 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
+    // Verify user authentication
+    const session = await auth.api.getSession(event);
+
+    if (!session) {
+      throw createError({
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
     // Parse request body
     const body = await readBody(event);
-    const { id, name, description, client } = body;
+    const { id } = body;
 
     // Validate project ID
     if (!id) {
@@ -30,20 +38,15 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Update project data in database
-    const updatedProject = await prisma.project.update({
+    // Delete project from database
+    const deletedProject = await prisma.project.delete({
       where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(client !== undefined && { client }),
-      },
     });
 
-    // Return success response with updated project
+    // Return success response with deleted project data
     return {
       success: true,
-      project: updatedProject,
+      project: deletedProject,
     };
   } catch (error: any) {
     // Handle specific Prisma errors
@@ -55,10 +58,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // Log error and return appropriate error response
-    console.error("Error updating project:", error);
+    console.error("Error deleting project:", error);
     throw createError({
       statusCode: 500,
-      message: "Error updating project",
+      message: "Error deleting project",
     });
   }
 });
