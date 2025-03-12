@@ -1,37 +1,22 @@
-import vue from "@vitejs/plugin-vue";
-import { defineConfig } from "vite";
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
-export default defineConfig({
-  plugins: [vue()],
+export default defineVitestConfig({
   test: {
-    globals: true,
-    environment: "jsdom",
+    environment: "nuxt",
+
     coverage: {
-      enabled: true,
+      provider: "v8",
       reporter: ["text"],
+      include: ["**/*.ts", "**/*.vue"],
       exclude: [
         "node_modules",
         "dist",
         "public",
-        "i18n",
-        "**/assets",
-        "lib",
-        "plugins",
-        "prisma",
-        "types",
-        "eslint.config.mjs",
-        "nuxt.config.ts",
-        "tailwind.config.js",
-        "vitest.config.js",
-        "i18n.config.ts",
-        "**/.nuxt",
-        "**/.output",
-        "**/.vscode",
-        "**/.git",
-        "**/.github",
-        "**/.husky",
-        "**/.pnpm-store",
+        "**/*.config.ts",
+        "**/*.spec.ts",
         "**/ui/**",
+        "**/lib/**",
+        "**/utils/**",
       ],
     },
   },
