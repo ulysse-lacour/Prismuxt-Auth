@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     "nuxt-nodemailer",
     "@pinia/nuxt",
+    "@nuxt/test-utils/module",
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
