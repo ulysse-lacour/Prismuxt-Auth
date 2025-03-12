@@ -17,6 +17,7 @@ export default defineVitestConfig({
         "**/ui/**",
         "**/lib/**",
         "**/utils/**",
+        "test/**",
       ],
     },
   },
