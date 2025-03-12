@@ -6,7 +6,7 @@ export default defineVitestConfig({
 
     coverage: {
       provider: "v8",
-      reporter: ["text"],
+      reporter: ["text", "json", "html"],
       include: ["**/*.ts", "**/*.vue"],
       exclude: [
         "node_modules",
@@ -17,7 +17,8 @@ export default defineVitestConfig({
         "**/ui/**",
         "**/lib/**",
         "**/utils/**",
-        "test/**",
+        "**/test/**",
+        "**/coverage/**",
       ],
     },
   },
