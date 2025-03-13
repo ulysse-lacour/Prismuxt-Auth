@@ -22,9 +22,16 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Fetch project from database
+    // Fetch project from database with tags
     const project = await prisma.project.findUnique({
       where: { id: projectId },
+      include: {
+        projectTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
     });
 
     // Return 404 if project not found
@@ -35,8 +42,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Transform project data to include tags in a more accessible format
+    const projectWithTags = {
+      ...project,
+      tags: project.projectTags.map((pt) => pt.tag),
+    };
+
     // Return project data
-    return { project };
+    return { project: projectWithTags };
   } catch (error) {
     // Log error and return appropriate error response
     console.error("Error fetching project:", error);

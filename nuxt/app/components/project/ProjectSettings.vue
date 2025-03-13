@@ -6,6 +6,7 @@
    * Provides form for updating project details and option to delete the project
    */
 
+  import ProjectTagSelector from "@/components/project/ProjectTagSelector.vue";
   import { Button } from "@/components/ui/button";
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@
   const route = useRoute();
   const router = useRouter();
   const { id } = route.params;
+  const projectId = typeof id === "string" ? id : "";
 
   // Composables
   const { processProjectData } = useProjectData();
@@ -205,6 +207,11 @@
           <FormMessage>{{ errorMessage }}</FormMessage>
         </FormItem>
       </FormField>
+
+      <!-- Project Tags Section -->
+      <div class="mt-4 border-t pt-4">
+        <ProjectTagSelector :project-id="projectId" />
+      </div>
 
       <!-- Form action buttons -->
       <div class="flex justify-between pt-2">
