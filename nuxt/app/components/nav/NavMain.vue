@@ -115,33 +115,6 @@
                     <span>{{ subItem.title }}</span>
                   </NuxtLink>
                 </SidebarMenuSubButton>
-                <!-- <DropdownMenu>
-                  <DropdownMenuTrigger as-child>
-                    <SidebarMenuAction>
-                      <MoreHorizontal />
-                      <span class="sr-only">More</span>
-                    </SidebarMenuAction>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    class="w-48 rounded-lg"
-                    :side="isMobile ? 'bottom' : 'right'"
-                    :align="isMobile ? 'end' : 'start'"
-                  >
-                    <DropdownMenuItem>
-                      <Folder class="text-muted-foreground" />
-                      <span>View Project</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Forward class="text-muted-foreground" />
-                      <span>Share Project</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Trash2 class="text-muted-foreground" />
-                      <span>Delete Project</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu> -->
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           </CollapsibleContent>
