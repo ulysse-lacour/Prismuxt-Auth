@@ -54,9 +54,17 @@ export function useProjectManagement() {
   };
 
   const fetchAllTags = async () => {
-    const { data: allTags } = await useFetch(`/api/projects/tags`);
+    try {
+      const allTags = await $fetch(`/api/projects/tags`, {
+        method: "GET",
+      });
 
-    return { allTags };
+      return { allTags };
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      // Return an empty tags array to prevent errors
+      return { allTags: { tags: [] } };
+    }
   };
 
   const createTag = async (name: string) => {
@@ -76,13 +84,13 @@ export function useProjectManagement() {
     return { deletedTag };
   };
 
-  const addTagsToProject = async (projectId: string, tagIds: string[]) => {
-    const addedTags = await $fetch(`/api/project/${projectId}/tags`, {
+  const addTagToProject = async (projectId: string, tagId: string) => {
+    const addedTag = await $fetch(`/api/project/${projectId}/tags`, {
       method: "POST",
-      body: { tagIds },
+      body: { tagId },
     });
 
-    return { addedTags };
+    return { addedTag };
   };
 
   const removeTagFromProject = async (projectId: string, tagId: string) => {
@@ -101,7 +109,7 @@ export function useProjectManagement() {
     fetchAllTags,
     createTag,
     deleteTag,
-    addTagsToProject,
+    addTagToProject,
     removeTagFromProject,
   };
 }

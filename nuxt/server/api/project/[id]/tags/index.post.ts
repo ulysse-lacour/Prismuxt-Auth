@@ -2,7 +2,7 @@ import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * API endpoint to update a project's tags
+ * API endpoint add a new tag to a project
  * POST /api/project/:id/tags
  *
  * Request body:
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     // Parse request body
     const body = await readBody(event);
-    const { tagIds } = body;
+    const { tagId } = body;
 
     // Check if project exists and belongs to the user
     const project = await prisma.project.findFirst({
@@ -56,16 +56,18 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Update project tags
-    const projectTags = await prisma.projectTag.updateMany({
-      where: { projectId },
-      data: { tagId: tagIds },
+    // Add tag to project
+    const addedTag = await prisma.projectTag.create({
+      data: {
+        projectId,
+        tagId,
+      },
     });
 
     // Return success response
     return {
       success: true,
-      projectTags,
+      addedTag,
     };
   } catch (error: any) {
     // Log error and return appropriate error response
