@@ -28,7 +28,7 @@ const generateSlug = (input: string): string => {
     .toLowerCase()
     .trim()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/\p{M}/gu, "") // Remove diacritics using Unicode Mark property
     .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with dash
     .replace(/^-+|-+$/g, "") // Remove leading/trailing dashes
     .slice(0, 50); // Limit slug length to 50 characters

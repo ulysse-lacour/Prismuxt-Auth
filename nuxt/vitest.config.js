@@ -1,10 +1,25 @@
-import vue from "@vitejs/plugin-vue";
-import { defineConfig } from "vite";
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
-export default defineConfig({
-  plugins: [vue()],
+export default defineVitestConfig({
   test: {
-    globals: true,
-    environment: "jsdom",
+    environment: "nuxt",
+
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["**/*.ts", "**/*.vue"],
+      exclude: [
+        "node_modules",
+        "dist",
+        "public",
+        "**/*.config.ts",
+        "**/*.spec.ts",
+        "**/ui/**",
+        "**/lib/**",
+        "**/utils/**",
+        "**/test/**",
+        "**/coverage/**",
+      ],
+    },
   },
 });
