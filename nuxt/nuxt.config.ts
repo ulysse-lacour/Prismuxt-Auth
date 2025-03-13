@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     "nuxt-nodemailer",
     "@pinia/nuxt",
+    "@nuxt/test-utils/module",
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
@@ -109,6 +110,7 @@ export default defineNuxtConfig({
     // },
   },
 
+  // Nuxt Security - https://nuxt-security.vercel.app/
   security: {
     headers: {
       contentSecurityPolicy: {
@@ -122,6 +124,9 @@ export default defineNuxtConfig({
     url: process.env.NUXT_URL || "http://localhost:3003",
   },
 
+  // Og Image - https://nuxtseo.com/docs/og-image/getting-started/introduction
+  ogImage: { enabled: false },
+
   // Link checker - https://nuxtseo.com/link-checker/guides/build-scans
   linkChecker: {
     failOnError: true,
@@ -131,6 +136,7 @@ export default defineNuxtConfig({
     },
   },
 
+  // Shadcn - https://www.shadcn-vue.com/
   shadcn: {
     /**
      * Prefix for all the imported component

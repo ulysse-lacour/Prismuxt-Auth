@@ -14,7 +14,7 @@
   } from "@/components/ui/sidebar";
   import { useUserDataStore } from "~/stores/userData";
   import { useProjectStore } from "~/stores/userProjects";
-  import { Briefcase, FolderKanban, Frame, Map, PieChart, Plus } from "lucide-vue-next";
+  import { Briefcase, FolderKanban, Plus } from "lucide-vue-next";
   import type { SidebarProps } from "@/components/ui/sidebar";
   import type { LucideIcon } from "lucide-vue-next";
 

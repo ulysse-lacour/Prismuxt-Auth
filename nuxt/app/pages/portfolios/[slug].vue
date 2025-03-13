@@ -15,9 +15,9 @@
 <template>
   <div class="flex w-full flex-col gap-4">
     <!-- Portfolio general settings component -->
-    <GeneralSettingsPortfolio />
+    <PortfolioSettings />
 
     <!-- Portfolio projects management component -->
-    <ProjectsPortfolio />
+    <PortfolioProjects />
   </div>
 </template>
