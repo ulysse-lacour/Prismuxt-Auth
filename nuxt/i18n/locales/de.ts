@@ -1,6 +1,6 @@
 export default {
   nuxtSiteConfig: {
-    name: "felixstumpf",
+    name: "Eps51",
     description: "Meine site description",
   },
   messages: {
