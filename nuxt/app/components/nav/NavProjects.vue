@@ -12,6 +12,9 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
+  import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-vue-next";
+  import type { LucideIcon } from "lucide-vue-next";
+
   import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -20,9 +23,7 @@
     SidebarMenuButton,
     SidebarMenuItem,
     useSidebar,
-  } from "@/components/ui/sidebar";
-  import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-vue-next";
-  import type { LucideIcon } from "lucide-vue-next";
+  } from "../../components/ui/sidebar";
 
   // Component props
   defineProps<{

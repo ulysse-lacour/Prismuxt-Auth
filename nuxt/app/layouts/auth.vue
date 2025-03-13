@@ -5,7 +5,7 @@
    * Provides the authenticated application layout with sidebar navigation
    * Used for all authenticated routes in the application
    */
-  import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+  import { SidebarInset, SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 </script>
 
 <template>

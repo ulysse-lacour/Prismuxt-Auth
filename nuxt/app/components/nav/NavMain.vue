@@ -6,6 +6,9 @@
    * Used in the sidebar to show projects and portfolios
    */
   import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+  import { ChevronRight } from "lucide-vue-next";
+  import type { LucideIcon } from "lucide-vue-next";
+
   import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -16,9 +19,7 @@
     SidebarMenuSubButton,
     SidebarMenuSubItem,
     useSidebar,
-  } from "@/components/ui/sidebar";
-  import { ChevronRight } from "lucide-vue-next";
-  import type { LucideIcon } from "lucide-vue-next";
+  } from "../../components/ui/sidebar";
 
   /**
    * Navigation item interface

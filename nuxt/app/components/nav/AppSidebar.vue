@@ -1,22 +1,24 @@
 <script setup lang="ts">
-  /**
-   * App Sidebar Component
-   *
-   * Main navigation sidebar for the application
-   * Displays projects, portfolios, and user navigation
-   */
+  import { Briefcase, FolderKanban, Plus } from "lucide-vue-next";
+  import type { SidebarProps } from "../../components/ui/sidebar";
+  import type { LucideIcon } from "lucide-vue-next";
+
   import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
     SidebarTrigger,
-  } from "@/components/ui/sidebar";
-  import { useUserDataStore } from "~/stores/userData";
-  import { useProjectStore } from "~/stores/userProjects";
-  import { Briefcase, FolderKanban, Plus } from "lucide-vue-next";
-  import type { SidebarProps } from "@/components/ui/sidebar";
-  import type { LucideIcon } from "lucide-vue-next";
+  } from "../../components/ui/sidebar";
+  import { useUserDataStore } from "../../stores/userData";
+  import { useProjectStore } from "../../stores/userProjects";
+
+  /**
+   * App Sidebar Component
+   *
+   * Main navigation sidebar for the application
+   * Displays projects, portfolios, and user navigation
+   */
 
   // Component props with defaults
   const props = withDefaults(defineProps<SidebarProps>(), {

@@ -13,13 +13,14 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
+  import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-vue-next";
+
   import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
     useSidebar,
-  } from "@/components/ui/sidebar";
-  import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-vue-next";
+  } from "../../components/ui/sidebar";
 
   // Get sidebar state for responsive dropdown positioning
   const { isMobile } = useSidebar();
