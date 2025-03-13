@@ -2,8 +2,13 @@ import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * API endpoint to fetch tags for a specific project
- * GET /api/projects/:id/tags
+ * API endpoint to update a project's tags
+ * POST /api/project/:id/tags
+ *
+ * Request body:
+ * {
+ *   tagId: string;
+ * }
  */
 
 // Initialize Prisma client
@@ -32,24 +37,15 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Find the user by email
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    // Check if user exists
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        message: "User not found",
-      });
-    }
+    // Parse request body
+    const body = await readBody(event);
+    const { tagIds } = body;
 
     // Check if project exists and belongs to the user
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
-        userId: user.id,
+        userId: session.user.id,
       },
     });
 
@@ -60,27 +56,23 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Fetch tags for the project
-    const projectTags = await prisma.projectTag.findMany({
-      where: {
-        projectId,
-      },
-      include: {
-        tag: true,
-      },
+    // Update project tags
+    const projectTags = await prisma.projectTag.updateMany({
+      where: { projectId },
+      data: { tagId: tagIds },
     });
 
-    // Extract tag data from project tags
-    const tags = projectTags.map((pt) => pt.tag);
-
-    // Return tags
-    return { tags };
-  } catch (error) {
+    // Return success response
+    return {
+      success: true,
+      projectTags,
+    };
+  } catch (error: any) {
     // Log error and return appropriate error response
-    console.error("Error fetching project tags:", error);
+    console.error("Error adding tags to project:", error);
     throw createError({
       statusCode: 500,
-      message: "Error fetching project tags",
+      message: "Error adding tags to project",
     });
   }
 });

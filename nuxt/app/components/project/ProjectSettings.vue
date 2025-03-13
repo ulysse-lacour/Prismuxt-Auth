@@ -11,12 +11,13 @@
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
+  import { useProjectManagement } from "@/composables/useProjectManagement";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
-  import { useProjectStore } from "~/stores/userProjects";
   import { Trash2 } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
+  import type { Project } from "@prisma/client";
 
   // Route parameters and navigation
   const route = useRoute();
@@ -24,22 +25,14 @@
   const { id } = route.params;
   const projectId = typeof id === "string" ? id : "";
 
-  // Composables
-  const { processProjectData } = useProjectData();
-
-  // Project store for state management
-  const projectStore = useProjectStore();
-
   // UI state
   const isDeleteDialogOpen = ref(false);
 
-  /**
-   * Fetch project data from API
-   */
-  const { data: project, refresh } = await useFetch(`/api/projects/single`, {
-    params: { id },
-    immediate: true, // Ensure fetch is immediate
-  });
+  // Composables
+  const { fetchProject, updateProject, deleteProject } = useProjectManagement();
+
+  // Fetch project data
+  const { project } = await fetchProject(projectId);
 
   /**
    * Define validation schema using zod
@@ -71,17 +64,10 @@
    */
   const submitUpdateProject = handleSubmit(async (values) => {
     try {
-      // Send API request to update project
-      const updatedProject = await $fetch(`/api/projects/single`, {
-        method: "PUT",
-        body: { id, ...values },
-      });
-
-      // Update the global state with the correct properties
-      projectStore.updateProject(processProjectData(updatedProject.project));
-
-      // Refresh the data after update
-      await refresh();
+      const { updatedProject } = await updateProject(projectId, {
+        id: projectId,
+        ...values,
+      } as Project);
 
       // Show success notification
       toast({
@@ -111,19 +97,12 @@
    * Delete project after confirmation
    * Removes project and navigates away
    */
-  const deleteProject = async () => {
+  const deleteCurrentProject = async () => {
     try {
-      // Send API request to delete project
-      const deletedProject = await $fetch(`/api/projects/single`, {
-        method: "DELETE",
-        body: { id },
-      });
+      const { deletedProject } = await deleteProject(projectId);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
-
-      // Update store
-      projectStore.deleteProject(processProjectData(deletedProject.project));
 
       // Show success toast
       toast({
@@ -239,7 +218,7 @@
       v-model:open="isDeleteDialogOpen"
       title="Delete Project"
       description="Are you sure you want to delete this project? This action cannot be undone and will remove all associated data."
-      @confirm="deleteProject"
+      @confirm="deleteCurrentProject"
     />
   </div>
 </template>

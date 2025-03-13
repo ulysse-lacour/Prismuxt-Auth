@@ -2,16 +2,15 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to fetch a single project by ID
- * GET /api/projects/single?id=<projectId>
+ * GET /api/project/<id>
  */
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  // Extract project ID from query parameters
-  const { id } = getQuery(event);
-  const projectId = Array.isArray(id) ? id[0] : id;
+  // Get project ID from route params
+  const projectId = event.context.params?.id;
 
   // Validate project ID
   if (!projectId) {

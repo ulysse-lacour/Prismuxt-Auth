@@ -9,18 +9,18 @@
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
+  import { useProjectManagement } from "@/composables/useProjectManagement";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
-  import { useProjectStore } from "~/stores/userProjects";
   import { useForm } from "vee-validate";
   import * as z from "zod";
+  import type { Project } from "@prisma/client";
 
   // Router for navigation
   const router = useRouter();
 
   // Composables
-  const { processProjectData } = useProjectData();
-
+  const { createProject } = useProjectManagement();
   /**
    * Define validation schema using zod
    * Validates form fields before submission
@@ -45,23 +45,13 @@
     },
   });
 
-  // Project store for state management
-  const projectStore = useProjectStore();
-
   /**
    * Handle form submission
    * Creates a new project and updates the store
    */
   const submitCreateProject = handleSubmit(async (values) => {
     try {
-      // Send API request to create project
-      const updatedProject = await $fetch(`/api/projects/create`, {
-        method: "POST",
-        body: { ...values },
-      });
-
-      // Update the global state with the new project
-      projectStore.addProject(processProjectData(updatedProject.project));
+      const { createdProject } = await createProject(values as Project);
 
       // Show success notification
       toast({
@@ -70,7 +60,7 @@
       });
 
       // Navigate to the new project page
-      router.push(`/projects/${updatedProject.project.id}`);
+      router.push(`/projects/${createdProject.project.id}`);
     } catch (error) {
       console.error("Failed to create project:", error);
 

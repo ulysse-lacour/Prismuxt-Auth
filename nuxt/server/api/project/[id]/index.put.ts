@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to update a project
- * PUT /api/projects/single
+ * PUT /api/project/<id>
  *
  * Request body:
  * {
@@ -18,21 +18,23 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse request body
-    const body = await readBody(event);
-    const { id, name, description, client } = body;
+    // Get project ID from route params
+    const projectId = event.context.params?.id;
 
-    // Validate project ID
-    if (!id) {
+    if (!projectId) {
       throw createError({
         statusCode: 400,
         message: "Project ID is required",
       });
     }
 
+    // Parse request body
+    const body = await readBody(event);
+    const { name, description, client } = body;
+
     // Update project data in database
     const updatedProject = await prisma.project.update({
-      where: { id },
+      where: { id: projectId },
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),

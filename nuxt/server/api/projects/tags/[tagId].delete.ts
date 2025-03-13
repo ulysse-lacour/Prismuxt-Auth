@@ -2,8 +2,8 @@ import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * API endpoint to fetch all tags for the current user
- * GET /api/tags
+ * API endpoint to remove a tag from a user
+ * DELETE /api/projects/tags/:tagId
  */
 
 // Initialize Prisma client
@@ -22,6 +22,16 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Get tag ID from route params
+    const tagId = event.context.params?.tagId;
+
+    if (!tagId) {
+      throw createError({
+        statusCode: 400,
+        message: "Tag ID are required",
+      });
+    }
+
     // Find the user by email
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -35,20 +45,25 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Fetch all tags for the user
-    const tags = await prisma.tag.findMany({
-      where: { userId: user.id },
-      orderBy: { name: "asc" },
+    // Delete the project tag
+    await prisma.tag.deleteMany({
+      where: {
+        id: tagId,
+        userId: user.id,
+      },
     });
 
-    // Return tags
-    return { tags };
+    // Return success response
+    return {
+      success: true,
+      message: "Tag removed",
+    };
   } catch (error) {
     // Log error and return appropriate error response
-    console.error("Error fetching tags:", error);
+    console.error("Error removing tag", error);
     throw createError({
       statusCode: 500,
-      message: "Error fetching tags",
+      message: "Error removing tag",
     });
   }
 });
