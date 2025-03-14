@@ -51,7 +51,7 @@
    */
   const submitCreateProject = handleSubmit(async (values) => {
     try {
-      const { createdProject } = await createProject(values as Project);
+      const { createdProject } = await createProject(values);
 
       // Show success notification
       toast({
@@ -75,7 +75,7 @@
 </script>
 
 <template>
-  <div class="w-full max-w-4xl space-y-6 rounded-lg border p-6 shadow-sm">
+  <div class="w-full space-y-6 rounded-lg border p-6 shadow-sm">
     <!-- Page header -->
     <div class="space-y-2">
       <h2 class="text-2xl font-semibold">Add project</h2>
@@ -84,7 +84,7 @@
 
     <!-- Project creation form -->
     <form @submit="submitCreateProject" class="space-y-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Project name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
@@ -129,7 +129,7 @@
               v-bind="field"
               v-model="field.value"
               placeholder="Enter project description"
-              class="min-h-[100px] w-full resize-y"
+              class="min-h-[100px] w-full max-w-6xl resize-none"
             />
           </FormControl>
           <FormMessage>{{ errorMessage }}</FormMessage>

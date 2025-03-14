@@ -9,6 +9,7 @@
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
+  import { usePortfolioManagement } from "@/composables/usePortfolioManagement";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
   import { useForm } from "vee-validate";
@@ -18,7 +19,6 @@
   const router = useRouter();
 
   // Composables
-  const { processPortfolioData } = usePortfolioData();
   const { createPortfolio } = usePortfolioManagement();
 
   /**
@@ -42,9 +42,6 @@
       description: "",
     },
   });
-
-  // Portfolio store for state management
-  const portfolioStore = usePortfolioStore();
 
   /**
    * Handle form submission

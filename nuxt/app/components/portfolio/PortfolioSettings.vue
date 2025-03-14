@@ -15,34 +15,26 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Route parameters and navigation
-  const route = useRoute();
-  const router = useRouter();
-  const { slug: routeSlug } = route.params;
-  const slug = Array.isArray(routeSlug) ? routeSlug[0] : (routeSlug as string);
+  // Define props
+  const props = defineProps({
+    portfolioData: {
+      type: Object,
+      required: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+  });
 
-  // Validate slug
-  if (!slug) {
-    throw createError({
-      statusCode: 400,
-      message: "Portfolio slug is required",
-    });
-  }
+  // Route parameters and navigation
+  const router = useRouter();
 
   // UI state
   const isDeleteDialogOpen = ref(false);
 
   // Composables
-  const {
-    fetchPortfolio,
-    updatePortfolio,
-    deletePortfolio: removePortfolio,
-  } = usePortfolioManagement();
-
-  /**
-   * Fetch portfolio data from API
-   */
-  const portfolio = await fetchPortfolio(slug);
+  const { updatePortfolio, deletePortfolio: removePortfolio } = usePortfolioManagement();
 
   /**
    * Define validation schema using zod
@@ -61,8 +53,8 @@
   const { handleSubmit, resetForm } = useForm({
     validationSchema: portfolioFormSchema,
     initialValues: {
-      name: portfolio.portfolio.portfolio.name || "",
-      description: portfolio.portfolio.portfolio.description || "",
+      name: props.portfolioData.portfolio.name || "",
+      description: props.portfolioData.portfolio.description || "",
     },
   });
 
@@ -73,7 +65,7 @@
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
       // Use the composable to update the portfolio
-      await updatePortfolio(slug, values);
+      await updatePortfolio(props.slug, values);
 
       // Show success notification
       toast({
@@ -106,7 +98,7 @@
   const deletePortfolio = async () => {
     try {
       // Use the composable to delete the portfolio
-      await removePortfolio(slug);
+      await removePortfolio(props.slug);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
@@ -145,7 +137,7 @@
 
     <!-- Portfolio update form -->
     <form @submit="submitUpdatePortfolio" class="space-y-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Portfolio name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
@@ -172,7 +164,7 @@
                 v-bind="field"
                 v-model="field.value"
                 placeholder="Enter portfolio description"
-                class="min-h-[100px] w-full resize-y"
+                class="min-h-[100px] w-full resize-none"
               />
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>

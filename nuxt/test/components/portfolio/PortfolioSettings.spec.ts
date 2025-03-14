@@ -100,7 +100,7 @@ vi.mock("vee-validate", () => {
 });
 
 // Mock the portfolio store
-const mockPortfolioStore = {
+const mockportfoliosStore = {
   updatePortfolio: vi.fn(),
   deletePortfolio: vi.fn(),
   currentPortfolio: {
@@ -113,8 +113,8 @@ const mockPortfolioStore = {
 };
 
 // Mock imports
-mockNuxtImport("usePortfolioStore", () => {
-  return () => mockPortfolioStore;
+mockNuxtImport("usePortfoliosStore", () => {
+  return () => mockportfoliosStore;
 });
 
 // Mock the router

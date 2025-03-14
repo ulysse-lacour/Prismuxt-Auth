@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to delete a portfolio
- * DELETE /api/portfolio/single
+ * DELETE /api/portfolio
  *
  * Returns the deleted portfolio data
  * Requires authentication

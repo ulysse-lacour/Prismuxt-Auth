@@ -64,10 +64,7 @@
    */
   const submitUpdateProject = handleSubmit(async (values) => {
     try {
-      const { updatedProject } = await updateProject(projectId, {
-        id: projectId,
-        ...values,
-      } as Project);
+      await updateProject(projectId, values);
 
       // Show success notification
       toast({
@@ -99,7 +96,7 @@
    */
   const deleteCurrentProject = async () => {
     try {
-      const { deletedProject } = await deleteProject(projectId);
+      await deleteProject(projectId);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
@@ -126,7 +123,7 @@
 </script>
 
 <template>
-  <div class="w-full max-w-4xl space-y-6 rounded-lg border p-6 shadow-sm">
+  <div class="w-full rounded-lg border p-6 shadow-sm">
     <!-- Page header -->
     <div class="space-y-2">
       <h2 class="text-2xl font-semibold">Project Settings</h2>
@@ -135,7 +132,7 @@
 
     <!-- Project update form -->
     <form @submit="submitUpdateProject" class="space-y-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Project name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
@@ -180,17 +177,12 @@
               v-bind="field"
               v-model="field.value"
               placeholder="Enter project description"
-              class="min-h-[100px] w-full resize-y"
+              class="min-h-[100px] w-full max-w-6xl resize-none"
             />
           </FormControl>
           <FormMessage>{{ errorMessage }}</FormMessage>
         </FormItem>
       </FormField>
-
-      <!-- Project Tags Section -->
-      <div class="mt-4 border-t pt-4">
-        <ProjectTagSelector :project-id="projectId" />
-      </div>
 
       <!-- Form action buttons -->
       <div class="flex justify-between pt-2">
@@ -210,6 +202,11 @@
         <div>
           <Button type="submit" class="w-full sm:w-auto">Update Project</Button>
         </div>
+      </div>
+
+      <!-- Project Tags Section -->
+      <div class="border-t pt-4">
+        <ProjectTagSelector :project-id="projectId" />
       </div>
     </form>
 

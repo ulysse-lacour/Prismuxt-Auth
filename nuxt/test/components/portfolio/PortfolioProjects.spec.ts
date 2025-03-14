@@ -283,7 +283,7 @@ mockNuxtImport("usePortfolioData", () => {
 // Mock useFetch for portfolio data
 mockNuxtImport("useFetch", () => {
   return (url, options) => {
-    if (url === "/api/portfolio/single") {
+    if (url === "/api/portfolio") {
       return {
         data: ref(mockPortfolioData),
         refresh: vi.fn(),

@@ -1,15 +1,15 @@
-import { usePortfolioData } from "@/composables/usePortfolioData";
+import { usePortfolioData } from "@/composables/useJsonDateConverter";
 import { useCurrentPortfolioStore } from "@/stores/currentPortfolio";
-import { usePortfolioStore } from "~/stores/userPortfolio";
+import { usePortfoliosStore } from "~/stores/userPortfolios";
 import type { Portfolio } from "@prisma/client";
 
 export function usePortfolioManagement() {
-  const portfolioStore = usePortfolioStore();
+  const portfoliosStore = usePortfoliosStore();
   const currentPortfolioStore = useCurrentPortfolioStore();
   const { processPortfolioData } = usePortfolioData();
 
   const fetchPortfolio = async (slug: string) => {
-    const portfolio = await $fetch(`/api/portfolio/single`, {
+    const portfolio = await $fetch(`/api/portfolio`, {
       params: { slug },
     });
 
@@ -21,22 +21,22 @@ export function usePortfolioManagement() {
     return { portfolio };
   };
 
-  const createPortfolio = async (data: Portfolio) => {
-    const createdPortfolio = await $fetch(`/api/portfolio/single`, {
+  const createPortfolio = async (data: Partial<Portfolio>) => {
+    const createdPortfolio = await $fetch(`/api/portfolio`, {
       method: "POST",
       body: data,
     });
 
     if (createdPortfolio) {
       // Update the portfolios store with the new portfolio
-      portfolioStore.addPortfolio(processPortfolioData(createdPortfolio.portfolio));
+      portfoliosStore.addPortfolio(processPortfolioData(createdPortfolio.portfolio));
     }
 
     return { createdPortfolio };
   };
 
   const updatePortfolio = async (slug: string, data: Partial<Portfolio>) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
+    const updatedPortfolio = await $fetch(`/api/portfolio`, {
       method: "PUT",
       params: { slug },
       body: { ...data },
@@ -44,21 +44,21 @@ export function usePortfolioManagement() {
 
     if (updatedPortfolio) {
       // Update the portfolios store with updated portfolio
-      portfolioStore.updatePortfolio(processPortfolioData(updatedPortfolio.portfolio));
+      portfoliosStore.updatePortfolio(processPortfolioData(updatedPortfolio.portfolio));
     }
 
     return { updatedPortfolio };
   };
 
   const deletePortfolio = async (slug: string) => {
-    const deletedPortfolio = await $fetch(`/api/portfolio/single`, {
+    const deletedPortfolio = await $fetch(`/api/portfolio`, {
       method: "DELETE",
       params: { slug },
     });
 
     if (deletedPortfolio) {
       // Update the portfolios store with deleted portfolio
-      portfolioStore.deletePortfolio(processPortfolioData(deletedPortfolio.portfolio));
+      portfoliosStore.deletePortfolio(processPortfolioData(deletedPortfolio.portfolio));
     }
 
     return { deletedPortfolio };
@@ -66,7 +66,7 @@ export function usePortfolioManagement() {
 
   // Projects
   const addProjectToPortfolio = async (slug: string, projectId: string) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio/single/project`, {
+    const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
       method: "POST",
       body: { slug, relatedProject: projectId },
     });
@@ -76,7 +76,7 @@ export function usePortfolioManagement() {
       const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
 
       // Update the portfolios store with the updated portfolio
-      portfolioStore.updatePortfolio(processedPortfolio);
+      portfoliosStore.updatePortfolio(processedPortfolio);
 
       // Also update the current portfolio store
       currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
@@ -86,7 +86,7 @@ export function usePortfolioManagement() {
   };
 
   const removeProjectFromPortfolio = async (slug: string, portfolioProjectId: string) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio/single/project`, {
+    const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
       method: "DELETE",
       body: { slug, relatedProject: portfolioProjectId },
     });
@@ -96,7 +96,7 @@ export function usePortfolioManagement() {
       const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
 
       // Update the portfolios store with the updated portfolio
-      portfolioStore.updatePortfolio(processedPortfolio);
+      portfoliosStore.updatePortfolio(processedPortfolio);
 
       // Also update the current portfolio store
       currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
@@ -106,7 +106,7 @@ export function usePortfolioManagement() {
   };
 
   const fetchAllProjects = async (slug: string) => {
-    const { data: projects } = await useFetch(`/api/portfolio/single/projects`, {
+    const { data: projects } = await useFetch(`/api/portfolio/projects`, {
       method: "GET",
       params: { slug },
     });

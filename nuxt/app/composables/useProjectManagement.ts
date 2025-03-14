@@ -1,4 +1,4 @@
-import { useProjectData } from "@/composables/useProjectData";
+import { useProjectData } from "@/composables/useJsonDateConverter";
 import { useProjectStore } from "~/stores/userProjects";
 import type { Project } from "@prisma/client";
 
@@ -12,7 +12,7 @@ export function useProjectManagement() {
     return { project };
   };
 
-  const createProject = async (data: Project) => {
+  const createProject = async (data: Partial<Project>) => {
     const createdProject = await $fetch(`/api/project`, {
       method: "POST",
       body: data,
@@ -26,7 +26,7 @@ export function useProjectManagement() {
     return { createdProject };
   };
 
-  const updateProject = async (id: string, data: Project) => {
+  const updateProject = async (id: string, data: Partial<Project>) => {
     const updatedProject = await $fetch(`/api/project/${id}`, {
       method: "PUT",
       body: data,

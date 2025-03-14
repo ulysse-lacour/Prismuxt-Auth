@@ -209,7 +209,7 @@
     <div v-else class="text-sm text-gray-500">No tags added to this project yet.</div>
 
     <!-- Add tag form -->
-    <div class="mt-4">
+    <div class="mt-4 max-w-6xl">
       <h3 class="mb-2 text-lg font-medium">Add Tags</h3>
 
       <div class="flex flex-col gap-4">

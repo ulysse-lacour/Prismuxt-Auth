@@ -51,40 +51,71 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Route parameters
-  const route = useRoute();
-  const { slug: routeSlug } = route.params;
-  const slug = Array.isArray(routeSlug) ? routeSlug[0] : (routeSlug as string);
-
-  // Validate slug
-  if (!slug) {
-    throw createError({
-      statusCode: 400,
-      message: "Portfolio slug is required",
-    });
+  // Define project type interface
+  interface ProjectWithLinkStatus {
+    id: string;
+    name: string;
+    isLinked: boolean;
+    portfolioProjects?: any[];
+    [key: string]: any;
   }
+
+  // Define props
+  const props = defineProps({
+    portfolioData: {
+      type: Object,
+      required: true,
+    },
+    projects: {
+      type: Array as PropType<ProjectWithLinkStatus[]>,
+      required: true,
+      default: () => [],
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+  });
+
+  // Create a local ref for projects data with proper typing
+  const localProjects = ref<ProjectWithLinkStatus[]>(props.projects);
+
+  // Watch for changes in props.projects
+  watch(
+    () => props.projects,
+    (newProjects) => {
+      localProjects.value = newProjects;
+    },
+    { immediate: true }
+  );
 
   // Composables
   const { addProjectToPortfolio, removeProjectFromPortfolio, fetchAllProjects } =
     usePortfolioManagement();
 
-  // Fetch all projects
-  const { projects } = await fetchAllProjects(slug);
-
   //  Current portfolio projects
   const currentPortfolioStore = useCurrentPortfolioStore();
   const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
 
+  // Set current portfolio from props
+  onMounted(() => {
+    if (props.portfolioData) {
+      currentPortfolioStore.setCurrentPortfolio(props.portfolioData.portfolio);
+    }
+  });
+
   /**
    * Filter projects not linked to the portfolio
    */
-  const unlinkedProjects = computed(() => projects.value?.filter((project) => !project.isLinked));
+  const unlinkedProjects = computed(() =>
+    localProjects.value.filter((project) => !project.isLinked)
+  );
 
   /**
    * Structure projects for the dropdown
    */
   const availableProjects = computed(() =>
-    unlinkedProjects.value?.map((project) => ({
+    unlinkedProjects.value.map((project) => ({
       value: project.id,
       label: project.name,
     }))
@@ -125,16 +156,17 @@
    */
   const onSubmit = handleSubmit(async (values) => {
     try {
-      // Use the composable to add project to portfolio
-      const { updatedPortfolio } = await addProjectToPortfolio(slug, values.relatedProject);
+      await addProjectToPortfolio(props.slug, values.relatedProject);
 
       // Reset form values
       selectedProject.value = { value: "", label: "" };
       setFieldValue("relatedProject", "");
 
       // Refresh the projects list
-      const { projects: refreshedProjects } = await fetchAllProjects(slug);
-      projects.value = refreshedProjects.value;
+      const { projects: refreshedProjects } = await fetchAllProjects(props.slug);
+      if (refreshedProjects.value) {
+        localProjects.value = refreshedProjects.value;
+      }
 
       // Show success toast
       toast({
@@ -168,14 +200,16 @@
 
     try {
       // Use the composable to remove project from portfolio
-      const { updatedPortfolio } = await removeProjectFromPortfolio(slug, projectToDelete.value);
+      await removeProjectFromPortfolio(props.slug, projectToDelete.value);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
 
       // Refresh the projects list
-      const { projects: refreshedProjects } = await fetchAllProjects(slug);
-      projects.value = refreshedProjects.value;
+      const { projects: refreshedProjects } = await fetchAllProjects(props.slug);
+      if (refreshedProjects.value) {
+        localProjects.value = refreshedProjects.value;
+      }
 
       // Show success toast
       toast({

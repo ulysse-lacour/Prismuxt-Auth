@@ -25,19 +25,26 @@
     });
   }
 
-  // Fetch portfolio data
-  // const { fetchPortfolio } = usePortfolioManagement();
-  // const { portfolio } = await fetchPortfolio(slug);
+  // Fetch portfolio data centrally
+  const { fetchPortfolio, fetchAllProjects } = usePortfolioManagement();
 
-  // TODO : pass portfolio as props to the components ?
+  // Fetch both portfolio and projects data in parallel
+  const [portfolioData, projectsData] = await Promise.all([
+    fetchPortfolio(slug),
+    fetchAllProjects(slug),
+  ]);
+
+  // Extract the data
+  const { portfolio } = portfolioData;
+  const projectsList = projectsData.projects.value || [];
 </script>
 
 <template>
-  <div class="flex w-full flex-col gap-4">
+  <div class="flex w-full max-w-6xl flex-col gap-4">
     <!-- Portfolio general settings component -->
-    <PortfolioSettings />
+    <PortfolioSettings :portfolio-data="portfolio" :slug="slug" />
 
     <!-- Portfolio projects management component -->
-    <PortfolioProjects />
+    <PortfolioProjects :portfolio-data="portfolio" :projects="projectsList" :slug="slug" />
   </div>
 </template>
