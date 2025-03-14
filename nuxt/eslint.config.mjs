@@ -1,7 +1,29 @@
+import typescriptPlugin from "@typescript-eslint/eslint-plugin";
+import typescriptParser from "@typescript-eslint/parser";
+
 import withNuxt from "./.nuxt/eslint.config.mjs";
 
 export default withNuxt({
-  ignores: ["**/node_modules/", "**/.nuxt/", "**/.output/"],
+  ignores: [
+    "**/node_modules/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "./app/components/ui/**/*.vue",
+    "./app/components/ui/**/*.ts",
+  ],
+
+  plugins: {
+    "@typescript-eslint": typescriptPlugin,
+  },
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      parser: {
+        ts: typescriptParser,
+      },
+    },
+  },
   rules: {
     "no-console": "off",
     "prettier/prettier": "off",
