@@ -77,7 +77,7 @@
 </script>
 
 <template>
-  <form @submit="onPasswordSubmit" class="space-y-8">
+  <form class="space-y-8" @submit="onPasswordSubmit">
     <div class="grid gap-4">
       <!-- Current password field with show/hide toggle -->
       <FormField v-slot="{ field, errorMessage }" name="currentPassword">

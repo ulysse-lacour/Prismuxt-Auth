@@ -256,8 +256,8 @@
             <Button
               variant="outline"
               size="icon"
-              @click="openDeleteDialog(portfolioProject.id)"
               class="hover:bg-red-500 hover:text-white"
+              @click="openDeleteDialog(portfolioProject.id)"
             >
               <Trash class="size-4" />
             </Button>
@@ -356,8 +356,8 @@
         <AlertDialogFooter>
           <AlertDialogCancel @click="isDeleteDialogOpen = false">Cancel</AlertDialogCancel>
           <AlertDialogAction
-            @click="deleteProject"
             class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            @click="deleteProject"
           >
             Remove
           </AlertDialogAction>

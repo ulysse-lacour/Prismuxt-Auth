@@ -59,7 +59,7 @@
           >
             <!-- User avatar -->
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarFallback class="rounded-lg" v-if="user.name">{{
+              <AvatarFallback v-if="user.name" class="rounded-lg">{{
                 user.name
                   .split(" ")
                   .map((n) => n[0])

@@ -64,7 +64,7 @@
       <!-- New password field with show/hide toggle -->
       <div class="grid gap-2">
         <Label for="password">New Password</Label>
-        <PasswordInput id="password" v-model="password" placeholder="New Password" noLabel />
+        <PasswordInput id="password" v-model="password" placeholder="New Password" no-label />
       </div>
 
       <!-- Confirm password field with show/hide toggle -->
@@ -74,7 +74,7 @@
           id="confirm-password"
           v-model="confirmPassword"
           placeholder="Confirm Password"
-          noLabel
+          no-label
         />
       </div>
 

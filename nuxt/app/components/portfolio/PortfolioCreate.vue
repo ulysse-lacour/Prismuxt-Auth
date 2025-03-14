@@ -83,7 +83,7 @@
         <p class="text-sm text-muted-foreground">Add a new portfolio to your dashboard.</p>
       </div>
 
-      <form @submit="submitCreatePortfolio" class="space-y-4">
+      <form class="space-y-4" @submit="submitCreatePortfolio">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <!-- Portfolio name field -->
           <FormField v-slot="{ field, errorMessage }" name="name">

@@ -136,7 +136,7 @@
     </div>
 
     <!-- Portfolio update form -->
-    <form @submit="submitUpdatePortfolio" class="space-y-4">
+    <form class="space-y-4" @submit="submitUpdatePortfolio">
       <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Portfolio name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">

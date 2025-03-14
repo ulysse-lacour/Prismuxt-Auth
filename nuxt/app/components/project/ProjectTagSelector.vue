@@ -189,7 +189,7 @@
     <h3 class="text-lg font-medium">Project Tags</h3>
 
     <!-- Display current project tags -->
-    <div class="flex flex-wrap gap-2" v-if="projectTags.length > 0">
+    <div v-if="projectTags.length > 0" class="flex flex-wrap gap-2">
       <div
         v-for="tag in projectTags"
         :key="tag.id"
@@ -197,10 +197,10 @@
       >
         {{ tag.name }}
         <button
-          @click="handleRemoveTag(tag.id)"
           class="ml-1 rounded-full p-0.5"
           aria-label="Remove tag"
           :disabled="isRemoving === tag.id"
+          @click="handleRemoveTag(tag.id)"
         >
           <X class="h-3.5 w-3.5" />
         </button>
@@ -216,7 +216,7 @@
         <!-- Tag selection dropdown -->
         <div class="flex items-end gap-2">
           <div class="flex-1">
-            <Combobox v-model="selectedTag" by="value" v-model:open="open">
+            <Combobox v-model="selectedTag" v-model:open="open" by="value">
               <ComboboxAnchor as-child>
                 <ComboboxTrigger as-child>
                   <Button variant="outline" class="w-full justify-between" :disabled="isLoading">
@@ -250,11 +250,11 @@
                       >"?
                     </div>
                     <Button
-                      @click="handleCreateTag"
                       variant="outline"
                       size="sm"
                       class="mt-2"
                       :disabled="isLoading"
+                      @click="handleCreateTag"
                     >
                       <span v-if="isLoading" class="mr-2 h-4 w-4 animate-spin">•</span>
                       <PlusCircle v-else class="mr-2 h-4 w-4" />
