@@ -1,5 +1,5 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to create a new portfolio
@@ -14,9 +14,6 @@ import { PrismaClient } from "@prisma/client";
  * Returns the created portfolio
  * Requires authentication
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 /**
  * Generate a URL-friendly slug from a string

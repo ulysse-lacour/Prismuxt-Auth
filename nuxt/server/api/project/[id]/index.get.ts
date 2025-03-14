@@ -1,12 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch a single project by ID
  * GET /api/project/<id>
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   // Get project ID from route params

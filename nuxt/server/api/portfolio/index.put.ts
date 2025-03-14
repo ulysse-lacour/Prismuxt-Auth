@@ -1,5 +1,5 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to update a portfolio's basic information
@@ -14,9 +14,6 @@ import { PrismaClient } from "@prisma/client";
  * Returns the updated portfolio
  * Requires authentication
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {

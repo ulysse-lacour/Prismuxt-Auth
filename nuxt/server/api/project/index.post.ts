@@ -1,5 +1,5 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to create a new project
@@ -12,9 +12,6 @@ import { PrismaClient } from "@prisma/client";
  *   client?: string;
  * }
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {

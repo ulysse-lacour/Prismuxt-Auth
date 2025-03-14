@@ -1,13 +1,10 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to remove a tag from a project
  * DELETE /api/projects/:id/tags/:tagId
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {

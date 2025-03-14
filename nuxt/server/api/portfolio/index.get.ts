@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch a single portfolio by slug
@@ -7,9 +7,6 @@ import { PrismaClient } from "@prisma/client";
  * Returns the portfolio with all related projects and content blocks
  * Requires authentication
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   // Extract portfolio slug from query parameters

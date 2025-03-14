@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to add a project to a portfolio
@@ -12,9 +12,6 @@ import { PrismaClient } from "@prisma/client";
  *
  * Returns the updated portfolio with all related projects
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {

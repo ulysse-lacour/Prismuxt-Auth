@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
-const prisma = new PrismaClient();
 const { sendMail } = useNodeMailer();
 
 export const auth = betterAuth({

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch all projects with their link status to a specific portfolio
@@ -6,9 +6,6 @@ import { PrismaClient } from "@prisma/client";
  *
  * Returns all projects with a flag indicating if they are linked to the specified portfolio
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {

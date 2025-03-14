@@ -1,5 +1,5 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch the current authenticated user's data
@@ -8,9 +8,6 @@ import { PrismaClient } from "@prisma/client";
  * Returns the user's profile data including projects and portfolios
  * Requires authentication
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
