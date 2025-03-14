@@ -46,11 +46,11 @@
       <!-- Email input field -->
       <div class="grid gap-2">
         <Label for="email">Email</Label>
-        <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />
+        <Input id="email" v-model="email" type="email" placeholder="m@example.com" required />
       </div>
 
       <!-- Using PasswordInput component -->
-      <PasswordInput v-model="password" forgotPasswordLink placeholder="password" />
+      <PasswordInput v-model="password" forgot-password-link placeholder="password" />
 
       <!-- Submit button -->
       <Button type="submit" class="w-full" @click="handleSignIn">Login</Button>

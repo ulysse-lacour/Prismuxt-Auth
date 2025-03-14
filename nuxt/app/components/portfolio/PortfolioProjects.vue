@@ -2,8 +2,8 @@
   /**
    * Portfolio Projects Component
    *
-   * Displays and manages projects associated with a portfolio
-   * Provides functionality to add and remove projects from the portfolio
+   * Displays and manages projects in a portfolio
+   * Allows adding and removing projects
    */
 
   // Shadcn UI components
@@ -38,61 +38,84 @@
     FormMessage,
   } from "@/components/ui/form";
   import { toast } from "@/components/ui/toast";
+  // Composables
+  import { usePortfolioManagement } from "@/composables/usePortfolioManagement";
   // Utils
   import { cn } from "@/lib/utils";
-  import { toTypedSchema } from "@vee-validate/zod";
   // Stores
-  import { useCurrentPortfolioStore } from "~/stores/currentPortfolio";
+  import { useCurrentPortfolioStore } from "@/stores/currentPortfolio";
+  import { toTypedSchema } from "@vee-validate/zod";
   // Icons
   import { Check, ChevronsUpDown, Edit, Search, Trash } from "lucide-vue-next";
   // Form
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
-  // Route parameters
-  const route = useRoute();
-  const { slug } = route.params;
-
-  // Stores & Composables
-  const currentPortfolioStore = useCurrentPortfolioStore();
-  const { processPortfolioData } = usePortfolioData();
-
-  /**
-   * Fetch portfolio data from API
-   */
-  const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
-    params: { slug },
-    immediate: true, // Ensure fetch is immediate
-  });
-
-  // Set the current portfolio in the store with proper date conversion
-  if (portfolio.value?.portfolio) {
-    currentPortfolioStore.setCurrentPortfolio(processPortfolioData(portfolio.value.portfolio));
+  // Define project type interface
+  interface ProjectWithLinkStatus {
+    id: string;
+    name: string;
+    isLinked: boolean;
+    portfolioProjects?: any[];
+    [key: string]: any;
   }
 
-  // Computed property for current portfolio data
+  // Define props
+  const props = defineProps({
+    portfolioData: {
+      type: Object,
+      required: true,
+    },
+    projects: {
+      type: Array as PropType<ProjectWithLinkStatus[]>,
+      required: true,
+      default: () => [],
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+  });
+
+  // Create a local ref for projects data with proper typing
+  const localProjects = ref<ProjectWithLinkStatus[]>(props.projects);
+
+  // Watch for changes in props.projects
+  watch(
+    () => props.projects,
+    (newProjects) => {
+      localProjects.value = newProjects;
+    },
+    { immediate: true }
+  );
+
+  // Composables
+  const { addProjectToPortfolio, removeProjectFromPortfolio, fetchAllProjects } =
+    usePortfolioManagement();
+
+  //  Current portfolio projects
+  const currentPortfolioStore = useCurrentPortfolioStore();
   const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
 
-  /**
-   * Fetch all projects for the dropdown
-   */
-  const { data: projects, refresh: refreshProjects } = await useFetch(
-    `/api/portfolio/all-projects`,
-    {
-      params: { slug },
+  // Set current portfolio from props
+  onMounted(() => {
+    if (props.portfolioData) {
+      currentPortfolioStore.setCurrentPortfolio(props.portfolioData.portfolio);
     }
-  );
+  });
 
   /**
    * Filter projects not linked to the portfolio
    */
-  const unlinkedProjects = computed(() => projects.value?.filter((project) => !project.isLinked));
+  const unlinkedProjects = computed(() =>
+    localProjects.value.filter((project) => !project.isLinked)
+  );
 
   /**
    * Structure projects for the dropdown
    */
   const availableProjects = computed(() =>
-    unlinkedProjects.value?.map((project) => ({
+    unlinkedProjects.value.map((project) => ({
       value: project.id,
       label: project.name,
     }))
@@ -133,36 +156,28 @@
    */
   const onSubmit = handleSubmit(async (values) => {
     try {
-      // Add project to portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/add-project`, {
-        method: "PUT",
-        body: { slug, ...values },
-      });
+      await addProjectToPortfolio(props.slug, values.relatedProject);
 
       // Reset form values
       selectedProject.value = { value: "", label: "" };
+      setFieldValue("relatedProject", "");
 
-      // Set the current portfolio in the store with proper date conversion
-      if (updatedPortfolio.portfolio) {
-        currentPortfolioStore.setCurrentPortfolio(processPortfolioData(updatedPortfolio.portfolio));
+      // Refresh the projects list
+      const { projects: refreshedProjects } = await fetchAllProjects(props.slug);
+      if (refreshedProjects.value) {
+        localProjects.value = refreshedProjects.value;
       }
-
-      // Refresh projects list
-      await refreshProjects();
-      await refreshPortfolio();
 
       // Show success toast
       toast({
-        title: "Project added successfully",
-        description: "The project has been added to your portfolio.",
+        title: "Project added",
+        description: "Project has been added to your portfolio",
       });
     } catch (error) {
-      console.error("Error adding project:", error);
-
-      // Show error toast
+      console.error("Failed to add project:", error);
       toast({
-        title: "Error adding project",
-        description: "There was an error adding the project to your portfolio.",
+        title: "Failed to add project",
+        description: "Please try again",
         variant: "destructive",
       });
     }
@@ -184,41 +199,31 @@
     if (!projectToDelete.value) return;
 
     try {
-      // Remove project from portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/remove-project`, {
-        method: "PUT",
-        body: { slug, relatedProject: projectToDelete.value },
-      });
-
-      // Set the current portfolio in the store with proper date conversion
-      if (updatedPortfolio.portfolio) {
-        currentPortfolioStore.updateCurrentPortfolio(
-          processPortfolioData(updatedPortfolio.portfolio)
-        );
-      }
-
-      // Refresh projects list
-      await refreshProjects();
-      await refreshPortfolio();
+      // Use the composable to remove project from portfolio
+      await removeProjectFromPortfolio(props.slug, projectToDelete.value);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
-      projectToDelete.value = null;
+
+      // Refresh the projects list
+      const { projects: refreshedProjects } = await fetchAllProjects(props.slug);
+      if (refreshedProjects.value) {
+        localProjects.value = refreshedProjects.value;
+      }
 
       // Show success toast
       toast({
-        title: "Project removed successfully",
-        description: "The project has been removed from your portfolio.",
+        title: "Project removed",
+        description: "Project has been removed from your portfolio",
       });
     } catch (error) {
-      console.error("Error removing project:", error);
-
-      // Show error toast
+      console.error("Failed to remove project:", error);
       toast({
-        title: "Error removing project",
-        description: "There was an error removing the project from your portfolio.",
+        title: "Failed to remove project",
+        description: "Please try again",
         variant: "destructive",
       });
+      isDeleteDialogOpen.value = false;
     }
   };
 </script>
@@ -251,8 +256,8 @@
             <Button
               variant="outline"
               size="icon"
-              @click="openDeleteDialog(portfolioProject.id)"
               class="hover:bg-red-500 hover:text-white"
+              @click="openDeleteDialog(portfolioProject.id)"
             >
               <Trash class="size-4" />
             </Button>
@@ -351,8 +356,8 @@
         <AlertDialogFooter>
           <AlertDialogCancel @click="isDeleteDialogOpen = false">Cancel</AlertDialogCancel>
           <AlertDialogAction
-            @click="deleteProject"
             class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            @click="deleteProject"
           >
             Remove
           </AlertDialogAction>

@@ -30,12 +30,12 @@
         <!-- Navigation buttons based on authentication status -->
         <div class="mx-auto mt-2 flex items-center gap-2">
           <!-- Sign in button for unauthenticated users -->
-          <NuxtLink to="/auth/sign-in" v-if="!session">
+          <NuxtLink v-if="!session" to="/auth/sign-in">
             <Button variant="outline" class="rounded-none"> Sign In </Button>
           </NuxtLink>
 
           <!-- Dashboard button for authenticated users -->
-          <NuxtLink to="/dashboard" v-if="session">
+          <NuxtLink v-if="session" to="/dashboard">
             <Button variant="outline" class="rounded-none"> Dashboard </Button>
           </NuxtLink>
         </div>

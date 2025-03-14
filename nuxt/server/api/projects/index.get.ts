@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to fetch all projects with their link status to a specific portfolio
- * GET /api/portfolio/all-projects?slug=<portfolioSlug>
+ * GET /api/portfolio/projects?slug=<portfolioSlug>
  *
  * Returns all projects with a flag indicating if they are linked to the specified portfolio
  */

@@ -9,6 +9,7 @@
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
+  import { usePortfolioManagement } from "@/composables/usePortfolioManagement";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
   import { useForm } from "vee-validate";
@@ -18,7 +19,7 @@
   const router = useRouter();
 
   // Composables
-  const { processPortfolioData } = usePortfolioData();
+  const { createPortfolio } = usePortfolioManagement();
 
   /**
    * Define validation schema using zod
@@ -42,45 +43,30 @@
     },
   });
 
-  // Portfolio store for state management
-  const portfolioStore = usePortfolioStore();
-
   /**
    * Handle form submission
    * Creates a new portfolio and updates the store
    */
   const submitCreatePortfolio = handleSubmit(async (values) => {
     try {
-      // Send API request to create portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/create`, {
-        method: "POST",
-        body: { ...values },
-      });
+      // Use the composable to create the portfolio
+      const { createdPortfolio } = await createPortfolio(values);
 
-      // Update the global state with the portfolio data
-      if (updatedPortfolio.portfolio) {
-        // Process the updated portfolio data
-        const processedData = processPortfolioData(updatedPortfolio.portfolio);
-
-        // Update the portfolio store with the processed data
-        portfolioStore.addPortfolio(processedData);
+      // Show success message
+      if (createdPortfolio?.portfolio) {
+        toast({
+          title: "Portfolio Created",
+          description: `Your portfolio "${values.name}" has been created successfully.`,
+        });
 
         // Navigate to the new portfolio page
-        router.push(`/portfolios/${updatedPortfolio.portfolio.slug}`);
+        router.push(`/portfolios/${createdPortfolio.portfolio.slug}`);
       }
-
-      // Show success notification
-      toast({
-        title: "Portfolio created",
-        description: "Portfolio created successfully",
-      });
     } catch (error) {
-      console.error("Failed to create portfolio:", error);
-
-      // Show error notification
+      console.error("Error creating portfolio:", error);
       toast({
-        title: "Portfolio creation failed",
-        description: "Please try again",
+        title: "Error",
+        description: "Failed to create portfolio. Please try again.",
         variant: "destructive",
       });
     }
@@ -97,7 +83,7 @@
         <p class="text-sm text-muted-foreground">Add a new portfolio to your dashboard.</p>
       </div>
 
-      <form @submit="submitCreatePortfolio" class="space-y-4">
+      <form class="space-y-4" @submit="submitCreatePortfolio">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <!-- Portfolio name field -->
           <FormField v-slot="{ field, errorMessage }" name="name">

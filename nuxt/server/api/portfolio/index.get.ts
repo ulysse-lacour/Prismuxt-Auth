@@ -2,9 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to fetch a single portfolio by slug
- * GET /api/portfolio/single?slug=<portfolioSlug>
+ * GET /api/portfolio/[slug]
  *
  * Returns the portfolio with all related projects and content blocks
+ * Requires authentication
  */
 
 // Initialize Prisma client
@@ -14,6 +15,8 @@ export default defineEventHandler(async (event) => {
   // Extract portfolio slug from query parameters
   const { slug } = getQuery(event);
   const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
+
+  console.log(portfolioSlug);
 
   // Validate portfolio slug
   if (!portfolioSlug) {
@@ -31,7 +34,6 @@ export default defineEventHandler(async (event) => {
         portfolioProjects: {
           include: {
             project: true,
-            contentBlocks: true,
           },
           orderBy: {
             order: "asc",

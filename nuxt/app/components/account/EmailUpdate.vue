@@ -71,7 +71,7 @@
 </script>
 
 <template>
-  <form @submit="onEmailSubmit" class="space-y-8">
+  <form class="space-y-8" @submit="onEmailSubmit">
     <!-- Email field -->
     <FormField v-slot="{ field, errorMessage }" name="email">
       <FormItem>

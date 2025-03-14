@@ -68,8 +68,8 @@
         :type="showPassword ? 'text' : 'password'"
         :placeholder="placeholder"
         :value="modelValue"
-        @input="updateValue"
         :required="required"
+        @input="updateValue"
       />
       <Button
         type="button"

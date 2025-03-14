@@ -23,6 +23,7 @@ model User {
   Account          Account[]
   projects         Project[]
   portfolios       Portfolio[]
+  tags             Tag[]
 
   @@unique([email])
   @@map("user")
@@ -82,7 +83,6 @@ model Project {
   description String?
   client      String?
   date        String?
-  tags        String[]
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -91,6 +91,7 @@ model Project {
 
   // Relations
   portfolioProjects PortfolioProject[]
+  projectTags       ProjectTag[]
 
   @@map("project")
 }
@@ -155,4 +156,35 @@ model PortfolioProjectBlock {
   portfolioProject   PortfolioProject @relation(fields: [portfolioProjectId], references: [id], onDelete: Cascade)
 
   @@map("portfolio_project_block")
+}
+
+// Tag system models
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String // The user who created this tag
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  projectTags ProjectTag[]
+
+  @@unique([name, userId]) // Each user can have unique tag names
+  @@map("tag")
+}
+
+// Junction table for Projects and Tags
+model ProjectTag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, tagId])
+  @@map("project_tag")
 }

@@ -9,18 +9,18 @@
   import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
   import { Input } from "@/components/ui/input";
   import { Textarea } from "@/components/ui/textarea";
+  import { useProjectManagement } from "@/composables/useProjectManagement";
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
-  import { useProjectStore } from "~/stores/userProjects";
   import { useForm } from "vee-validate";
   import * as z from "zod";
+  import type { Project } from "@prisma/client";
 
   // Router for navigation
   const router = useRouter();
 
   // Composables
-  const { processProjectData } = useProjectData();
-
+  const { createProject } = useProjectManagement();
   /**
    * Define validation schema using zod
    * Validates form fields before submission
@@ -45,23 +45,13 @@
     },
   });
 
-  // Project store for state management
-  const projectStore = useProjectStore();
-
   /**
    * Handle form submission
    * Creates a new project and updates the store
    */
   const submitCreateProject = handleSubmit(async (values) => {
     try {
-      // Send API request to create project
-      const updatedProject = await $fetch(`/api/projects/create`, {
-        method: "POST",
-        body: { ...values },
-      });
-
-      // Update the global state with the new project
-      projectStore.addProject(processProjectData(updatedProject.project));
+      const { createdProject } = await createProject(values);
 
       // Show success notification
       toast({
@@ -70,7 +60,7 @@
       });
 
       // Navigate to the new project page
-      router.push(`/projects/${updatedProject.project.id}`);
+      router.push(`/projects/${createdProject.project.id}`);
     } catch (error) {
       console.error("Failed to create project:", error);
 
@@ -85,7 +75,7 @@
 </script>
 
 <template>
-  <div class="w-full max-w-4xl space-y-6 rounded-lg border p-6 shadow-sm">
+  <div class="w-full space-y-6 rounded-lg border p-6 shadow-sm">
     <!-- Page header -->
     <div class="space-y-2">
       <h2 class="text-2xl font-semibold">Add project</h2>
@@ -93,8 +83,8 @@
     </div>
 
     <!-- Project creation form -->
-    <form @submit="submitCreateProject" class="space-y-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <form class="space-y-4" @submit="submitCreateProject">
+      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Project name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
@@ -139,7 +129,7 @@
               v-bind="field"
               v-model="field.value"
               placeholder="Enter project description"
-              class="min-h-[100px] w-full resize-y"
+              class="min-h-[100px] w-full max-w-6xl resize-none"
             />
           </FormControl>
           <FormMessage>{{ errorMessage }}</FormMessage>

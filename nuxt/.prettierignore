@@ -4,3 +4,5 @@ node_modules
 coverage
 package.json
 pnpm-lock.yaml
+dist
+app/components/ui/

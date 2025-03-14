@@ -38,7 +38,6 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-security",
     "nuxt-nodemailer",
-    "@pinia/nuxt",
     "@nuxt/test-utils/module",
   ],
 

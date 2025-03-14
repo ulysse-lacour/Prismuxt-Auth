@@ -71,7 +71,7 @@
       <!-- Email input field -->
       <div class="grid gap-2">
         <Label for="email">Email</Label>
-        <Input id="email" type="email" placeholder="m@example.com" required v-model="email" />
+        <Input id="email" v-model="email" type="email" placeholder="m@example.com" required />
       </div>
 
       <!-- Submit button -->

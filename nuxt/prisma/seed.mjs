@@ -25,7 +25,83 @@ async function seed() {
     },
   });
 
-  // Create some projects
+  // Create tags first
+  const tags = await Promise.all([
+    prisma.tag.create({
+      data: {
+        name: "Vue",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Nuxt",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "E-commerce",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Mobile",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Fintech",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "UX Design",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Dashboard",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Healthcare",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Data Visualization",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Travel",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Booking",
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: "Maps Integration",
+        userId: user.id,
+      },
+    }),
+  ]);
+
+  // Create projects with tag connections
   const projects = await Promise.all([
     prisma.project.create({
       data: {
@@ -33,9 +109,15 @@ async function seed() {
         description: "A modern e-commerce platform built with Vue and Nuxt",
         client: "Fashion Store Inc.",
         date: "2023",
-        tags: ["Vue", "Nuxt", "E-commerce"],
         imageUrl: "/images/projects/ecommerce.jpg",
         userId: user.id,
+        projectTags: {
+          create: [
+            { tagId: tags[0].id }, // Vue
+            { tagId: tags[1].id }, // Nuxt
+            { tagId: tags[2].id }, // E-commerce
+          ],
+        },
       },
     }),
     prisma.project.create({
@@ -44,9 +126,15 @@ async function seed() {
         description: "Secure and intuitive mobile banking application",
         client: "Digital Bank Ltd",
         date: "2024",
-        tags: ["Mobile", "Fintech", "UX Design"],
         imageUrl: "/images/projects/banking.jpg",
         userId: user.id,
+        projectTags: {
+          create: [
+            { tagId: tags[3].id }, // Mobile
+            { tagId: tags[4].id }, // Fintech
+            { tagId: tags[5].id }, // UX Design
+          ],
+        },
       },
     }),
     prisma.project.create({
@@ -55,9 +143,15 @@ async function seed() {
         description: "Interactive dashboard for healthcare professionals",
         client: "MediCare Solutions",
         date: "2023",
-        tags: ["Dashboard", "Healthcare", "Data Visualization"],
         imageUrl: "/images/projects/healthcare.jpg",
         userId: user.id,
+        projectTags: {
+          create: [
+            { tagId: tags[6].id }, // Dashboard
+            { tagId: tags[7].id }, // Healthcare
+            { tagId: tags[8].id }, // Data Visualization
+          ],
+        },
       },
     }),
     prisma.project.create({
@@ -66,9 +160,15 @@ async function seed() {
         description: "Comprehensive travel booking solution with real-time availability",
         client: "Wanderlust Travels",
         date: "2024",
-        tags: ["Travel", "Booking", "Maps Integration"],
         imageUrl: "/images/projects/travel.jpg",
         userId: user.id,
+        projectTags: {
+          create: [
+            { tagId: tags[9].id }, // Travel
+            { tagId: tags[10].id }, // Booking
+            { tagId: tags[11].id }, // Maps Integration
+          ],
+        },
       },
     }),
   ]);

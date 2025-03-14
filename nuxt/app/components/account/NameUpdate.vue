@@ -79,7 +79,7 @@
 </script>
 
 <template>
-  <form @submit="onNameSubmit" class="space-y-8">
+  <form class="space-y-8" @submit="onNameSubmit">
     <div class="grid w-full grid-cols-2 gap-4">
       <!-- First name field -->
       <FormField v-slot="{ field, errorMessage }" name="firstName">

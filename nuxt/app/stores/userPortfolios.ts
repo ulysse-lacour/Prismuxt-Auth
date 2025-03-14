@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Portfolio } from "@prisma/client";
 
-export const usePortfolioStore = defineStore("portfolioStore", {
+export const usePortfoliosStore = defineStore("portfoliosStore", {
   state: () => ({
     portfolios: [] as Array<Portfolio>,
   }),

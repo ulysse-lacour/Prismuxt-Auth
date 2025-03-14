@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to create a new project
- * POST /api/projects/create
+ * POST /api/project
  *
  * Request body:
  * {

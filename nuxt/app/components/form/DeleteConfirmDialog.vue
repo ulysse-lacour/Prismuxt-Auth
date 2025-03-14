@@ -63,8 +63,8 @@
       <AlertDialogFooter>
         <AlertDialogCancel @click="handleCancel">{{ cancelText }}</AlertDialogCancel>
         <AlertDialogAction
-          @click="handleConfirm"
           class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          @click="handleConfirm"
         >
           {{ confirmText }}
         </AlertDialogAction>

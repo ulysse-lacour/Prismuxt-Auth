@@ -3,12 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to delete a project
- * DELETE /api/projects/single
- *
- * Request body:
- * {
- *   id: string;
- * }
+ * DELETE /api/project/<id>
  */
 
 // Initialize Prisma client
@@ -26,12 +21,11 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Parse request body
-    const body = await readBody(event);
-    const { id } = body;
+    // Get project ID from route params
+    const projectId = event.context.params?.id;
 
     // Validate project ID
-    if (!id) {
+    if (!projectId) {
       throw createError({
         statusCode: 400,
         message: "Project ID is required",
@@ -40,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     // Delete project from database
     const deletedProject = await prisma.project.delete({
-      where: { id },
+      where: { id: projectId },
     });
 
     // Return success response with deleted project data

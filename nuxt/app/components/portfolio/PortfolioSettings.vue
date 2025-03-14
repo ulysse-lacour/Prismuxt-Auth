@@ -15,30 +15,26 @@
   import { useForm } from "vee-validate";
   import * as z from "zod";
 
+  // Define props
+  const props = defineProps({
+    portfolioData: {
+      type: Object,
+      required: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+  });
+
   // Route parameters and navigation
-  const route = useRoute();
   const router = useRouter();
-  const { slug } = route.params;
 
   // UI state
   const isDeleteDialogOpen = ref(false);
 
   // Composables
-  const { processPortfolioData } = usePortfolioData();
-  const portfolioStore = usePortfolioStore();
-
-  /**
-   * Fetch portfolio data from API
-   */
-  const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
-    params: { slug },
-    immediate: true, // Ensure fetch is immediate
-  });
-
-  // Process portfolio data if needed
-  if (portfolio.value?.portfolio) {
-    processPortfolioData(portfolio.value.portfolio);
-  }
+  const { updatePortfolio, deletePortfolio: removePortfolio } = usePortfolioManagement();
 
   /**
    * Define validation schema using zod
@@ -57,8 +53,8 @@
   const { handleSubmit, resetForm } = useForm({
     validationSchema: portfolioFormSchema,
     initialValues: {
-      name: portfolio.value?.portfolio?.name || "",
-      description: portfolio.value?.portfolio?.description || "",
+      name: props.portfolioData.portfolio.name || "",
+      description: props.portfolioData.portfolio.description || "",
     },
   });
 
@@ -68,35 +64,20 @@
    */
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
-      // Send API request to update portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
-        method: "PUT",
-        body: { slug, ...values },
-      });
-
-      // Update the global state with the portfolio data
-      if (updatedPortfolio.portfolio) {
-        // Process the updated portfolio data with updateStore set to false
-        const processedData = processPortfolioData(updatedPortfolio.portfolio);
-
-        // Update the portfolio store with the processed data
-        portfolioStore.updatePortfolio(processedData);
-      }
-
-      // Refresh the data after update
-      await refreshPortfolio();
+      // Use the composable to update the portfolio
+      await updatePortfolio(props.slug, values);
 
       // Show success notification
       toast({
         title: "Portfolio updated",
-        description: "Portfolio updated successfully",
+        description: "Portfolio settings have been updated successfully",
       });
     } catch (error) {
       console.error("Failed to update portfolio:", error);
 
       // Show error notification
       toast({
-        title: "Portfolio update failed",
+        title: "Update failed",
         description: "Please try again",
         variant: "destructive",
       });
@@ -116,42 +97,32 @@
    */
   const deletePortfolio = async () => {
     try {
-      // Send API request to delete portfolio
-      const deletedPortfolio = await $fetch(`/api/portfolio/single`, {
-        method: "DELETE",
-        body: { slug },
-      });
+      // Use the composable to delete the portfolio
+      await removePortfolio(props.slug);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
 
-      // Update store with processed data to ensure correct types
-      if (deletedPortfolio.portfolio) {
-        const processedData = {
-          ...deletedPortfolio.portfolio,
-          createdAt: new Date(deletedPortfolio.portfolio.createdAt),
-          updatedAt: new Date(deletedPortfolio.portfolio.updatedAt),
-        };
-        portfolioStore.deletePortfolio(processedData);
-      }
-
       // Show success toast
       toast({
         title: "Portfolio deleted",
-        description: "Portfolio deleted successfully",
+        description: "Your portfolio has been deleted successfully",
       });
 
-      // Navigate away from the deleted portfolio
+      // Navigate away
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to delete portfolio:", error);
 
       // Show error notification
       toast({
-        title: "Portfolio deletion failed",
+        title: "Delete failed",
         description: "Please try again",
         variant: "destructive",
       });
+
+      // Close dialog
+      isDeleteDialogOpen.value = false;
     }
   };
 </script>
@@ -165,8 +136,8 @@
     </div>
 
     <!-- Portfolio update form -->
-    <form @submit="submitUpdatePortfolio" class="space-y-4">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <form class="space-y-4" @submit="submitUpdatePortfolio">
+      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Portfolio name field -->
         <FormField v-slot="{ field, errorMessage }" name="name">
           <FormItem>
@@ -193,7 +164,7 @@
                 v-bind="field"
                 v-model="field.value"
                 placeholder="Enter portfolio description"
-                class="min-h-[100px] w-full resize-y"
+                class="min-h-[100px] w-full resize-none"
               />
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>

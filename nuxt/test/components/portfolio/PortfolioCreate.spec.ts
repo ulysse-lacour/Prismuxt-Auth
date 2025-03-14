@@ -110,8 +110,8 @@ mockNuxtImport("usePortfolioData", () => {
   });
 });
 
-// Mock the usePortfolioStore composable
-mockNuxtImport("usePortfolioStore", () => {
+// Mock the usePortfoliosStore composable
+mockNuxtImport("usePortfoliosStore", () => {
   return () => ({
     addPortfolio: mockAddPortfolio,
   });

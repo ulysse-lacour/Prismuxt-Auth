@@ -3,12 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to delete a portfolio
- * DELETE /api/portfolio/single
- *
- * Request body:
- * {
- *   slug: string;  // Portfolio slug to delete
- * }
+ * DELETE /api/portfolio
  *
  * Returns the deleted portfolio data
  * Requires authentication
@@ -29,12 +24,12 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Parse request body
-    const body = await readBody(event);
-    const { slug } = body;
+    // Extract portfolio slug from query parameters
+    const { slug } = getQuery(event);
+    const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
 
     // Validate required fields
-    if (!slug || typeof slug !== "string") {
+    if (!portfolioSlug || typeof portfolioSlug !== "string") {
       throw createError({
         statusCode: 400,
         message: "Portfolio slug is required",
@@ -43,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
     // Check if the portfolio exists and belongs to the user
     const portfolio = await prisma.portfolio.findUnique({
-      where: { slug },
+      where: { slug: portfolioSlug },
       select: { id: true, userId: true },
     });
 
@@ -64,7 +59,7 @@ export default defineEventHandler(async (event) => {
 
     // Delete the portfolio from database
     const deletedPortfolio = await prisma.portfolio.delete({
-      where: { slug },
+      where: { slug: portfolioSlug },
     });
 
     // Return success response with deleted portfolio data

@@ -58,18 +58,18 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="grid gap-2">
           <Label for="first-name">First name</Label>
-          <Input id="first-name" placeholder="Max" required v-model="firstName" />
+          <Input id="first-name" v-model="firstName" placeholder="Max" required />
         </div>
         <div class="grid gap-2">
           <Label for="last-name">Last name</Label>
-          <Input id="last-name" placeholder="Robinson" required v-model="lastName" />
+          <Input id="last-name" v-model="lastName" placeholder="Robinson" required />
         </div>
       </div>
 
       <!-- Email field -->
       <div class="grid gap-2">
         <Label for="email">Email</Label>
-        <Input id="email" type="email" placeholder="m@example.com" required v-model="email" />
+        <Input id="email" v-model="email" type="email" placeholder="m@example.com" required />
       </div>
 
       <!-- Using PasswordInput component -->
