@@ -53,6 +53,8 @@ export function useProjectManagement() {
     return { deletedProject };
   };
 
+  // Tags
+
   const fetchAllTags = async () => {
     try {
       const allTags = await $fetch(`/api/projects/tags`, {

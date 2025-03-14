@@ -1,3 +1,4 @@
+import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
@@ -6,12 +7,12 @@ import { PrismaClient } from "@prisma/client";
  *
  * Request body:
  * {
- *   slug: string;        // Current portfolio slug
  *   name?: string;       // New portfolio name
  *   description?: string; // New portfolio description
  * }
  *
  * Returns the updated portfolio
+ * Requires authentication
  */
 
 // Initialize Prisma client
@@ -19,17 +20,31 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse request body
-    const body = await readBody(event);
-    const { slug, name, description } = body;
+    // Verify user authentication
+    const session = await auth.api.getSession(event);
+
+    if (!session) {
+      throw createError({
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    // Extract portfolio slug from query parameters
+    const { slug } = getQuery(event);
+    const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
 
     // Validate required fields
-    if (!slug || typeof slug !== "string") {
+    if (!portfolioSlug || typeof portfolioSlug !== "string") {
       throw createError({
         statusCode: 400,
         message: "Portfolio slug is required",
       });
     }
+
+    // Parse request body
+    const body = await readBody(event);
+    const { name, description } = body;
 
     // Ensure at least one field to update is provided
     if ((!name || name.trim() === "") && description === undefined) {
@@ -41,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     // Check if the portfolio exists
     const portfolio = await prisma.portfolio.findUnique({
-      where: { slug },
+      where: { slug: portfolioSlug },
       select: { id: true },
     });
 
@@ -65,7 +80,7 @@ export default defineEventHandler(async (event) => {
 
     // Update portfolio basic data in database
     const updatedPortfolio = await prisma.portfolio.update({
-      where: { slug },
+      where: { slug: portfolioSlug },
       data: updateData,
     });
 

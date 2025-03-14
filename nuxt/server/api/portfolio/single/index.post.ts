@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * API endpoint to create a new portfolio
- * POST /api/portfolio/create
+ * POST /api/portfolio/single
  *
  * Request body:
  * {

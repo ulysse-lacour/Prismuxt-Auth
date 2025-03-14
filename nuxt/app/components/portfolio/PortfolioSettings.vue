@@ -18,27 +18,31 @@
   // Route parameters and navigation
   const route = useRoute();
   const router = useRouter();
-  const { slug } = route.params;
+  const { slug: routeSlug } = route.params;
+  const slug = Array.isArray(routeSlug) ? routeSlug[0] : (routeSlug as string);
+
+  // Validate slug
+  if (!slug) {
+    throw createError({
+      statusCode: 400,
+      message: "Portfolio slug is required",
+    });
+  }
 
   // UI state
   const isDeleteDialogOpen = ref(false);
 
   // Composables
-  const { processPortfolioData } = usePortfolioData();
-  const portfolioStore = usePortfolioStore();
+  const {
+    fetchPortfolio,
+    updatePortfolio,
+    deletePortfolio: removePortfolio,
+  } = usePortfolioManagement();
 
   /**
    * Fetch portfolio data from API
    */
-  const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
-    params: { slug },
-    immediate: true, // Ensure fetch is immediate
-  });
-
-  // Process portfolio data if needed
-  if (portfolio.value?.portfolio) {
-    processPortfolioData(portfolio.value.portfolio);
-  }
+  const portfolio = await fetchPortfolio(slug);
 
   /**
    * Define validation schema using zod
@@ -57,8 +61,8 @@
   const { handleSubmit, resetForm } = useForm({
     validationSchema: portfolioFormSchema,
     initialValues: {
-      name: portfolio.value?.portfolio?.name || "",
-      description: portfolio.value?.portfolio?.description || "",
+      name: portfolio.portfolio.portfolio.name || "",
+      description: portfolio.portfolio.portfolio.description || "",
     },
   });
 
@@ -68,35 +72,20 @@
    */
   const submitUpdatePortfolio = handleSubmit(async (values) => {
     try {
-      // Send API request to update portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/single`, {
-        method: "PUT",
-        body: { slug, ...values },
-      });
-
-      // Update the global state with the portfolio data
-      if (updatedPortfolio.portfolio) {
-        // Process the updated portfolio data with updateStore set to false
-        const processedData = processPortfolioData(updatedPortfolio.portfolio);
-
-        // Update the portfolio store with the processed data
-        portfolioStore.updatePortfolio(processedData);
-      }
-
-      // Refresh the data after update
-      await refreshPortfolio();
+      // Use the composable to update the portfolio
+      await updatePortfolio(slug, values);
 
       // Show success notification
       toast({
         title: "Portfolio updated",
-        description: "Portfolio updated successfully",
+        description: "Portfolio settings have been updated successfully",
       });
     } catch (error) {
       console.error("Failed to update portfolio:", error);
 
       // Show error notification
       toast({
-        title: "Portfolio update failed",
+        title: "Update failed",
         description: "Please try again",
         variant: "destructive",
       });
@@ -116,42 +105,32 @@
    */
   const deletePortfolio = async () => {
     try {
-      // Send API request to delete portfolio
-      const deletedPortfolio = await $fetch(`/api/portfolio/single`, {
-        method: "DELETE",
-        body: { slug },
-      });
+      // Use the composable to delete the portfolio
+      await removePortfolio(slug);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
 
-      // Update store with processed data to ensure correct types
-      if (deletedPortfolio.portfolio) {
-        const processedData = {
-          ...deletedPortfolio.portfolio,
-          createdAt: new Date(deletedPortfolio.portfolio.createdAt),
-          updatedAt: new Date(deletedPortfolio.portfolio.updatedAt),
-        };
-        portfolioStore.deletePortfolio(processedData);
-      }
-
       // Show success toast
       toast({
         title: "Portfolio deleted",
-        description: "Portfolio deleted successfully",
+        description: "Your portfolio has been deleted successfully",
       });
 
-      // Navigate away from the deleted portfolio
+      // Navigate away
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to delete portfolio:", error);
 
       // Show error notification
       toast({
-        title: "Portfolio deletion failed",
+        title: "Delete failed",
         description: "Please try again",
         variant: "destructive",
       });
+
+      // Close dialog
+      isDeleteDialogOpen.value = false;
     }
   };
 </script>

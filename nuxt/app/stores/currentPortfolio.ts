@@ -1,11 +1,10 @@
 import { defineStore } from "pinia";
-import type { Design, Portfolio, PortfolioProject, Project } from "@prisma/client";
+import type { Portfolio, PortfolioProject, Project } from "@prisma/client";
 
 // Extend Portfolio type to include portfolioProjects
 interface ExtendedPortfolio extends Portfolio {
   portfolioProjects: (PortfolioProject & {
     project: Project;
-    contentBlocks?: any[];
   })[];
 }
 

@@ -193,17 +193,16 @@
       <div
         v-for="tag in projectTags"
         :key="tag.id"
-        class="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
+        class="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-sm font-medium"
       >
         {{ tag.name }}
         <button
           @click="handleRemoveTag(tag.id)"
-          class="ml-1 rounded-full p-0.5 transition-colors hover:bg-blue-200"
+          class="ml-1 rounded-full p-0.5"
           aria-label="Remove tag"
           :disabled="isRemoving === tag.id"
         >
-          <X v-if="isRemoving !== tag.id" class="h-3.5 w-3.5" />
-          <span v-else class="h-3.5 w-3.5 animate-spin">•</span>
+          <X class="h-3.5 w-3.5" />
         </button>
       </div>
     </div>
@@ -229,11 +228,6 @@
 
               <ComboboxList
                 position="popper"
-                :popper-options="{
-                  placement: 'bottom',
-                  strategy: 'fixed',
-                  modifiers: [{ name: 'flip', enabled: false }],
-                }"
                 class="max-h-[300px] w-full min-w-[var(--reka-combobox-trigger-width)] overflow-y-auto data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2"
               >
                 <!-- Search input for tags -->
@@ -299,12 +293,3 @@
     </div>
   </div>
 </template>
-
-<style>
-  /* Force combobox to appear at the bottom */
-  [data-reka-combobox-content][data-state="open"] {
-    top: var(--reka-popper-anchor-height) !important;
-    bottom: auto !important;
-    transform-origin: top !important;
-  }
-</style>

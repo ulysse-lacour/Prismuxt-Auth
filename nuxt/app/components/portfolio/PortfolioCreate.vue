@@ -19,6 +19,7 @@
 
   // Composables
   const { processPortfolioData } = usePortfolioData();
+  const { createPortfolio } = usePortfolioManagement();
 
   /**
    * Define validation schema using zod
@@ -51,36 +52,24 @@
    */
   const submitCreatePortfolio = handleSubmit(async (values) => {
     try {
-      // Send API request to create portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/create`, {
-        method: "POST",
-        body: { ...values },
-      });
+      // Use the composable to create the portfolio
+      const { createdPortfolio } = await createPortfolio(values);
 
-      // Update the global state with the portfolio data
-      if (updatedPortfolio.portfolio) {
-        // Process the updated portfolio data
-        const processedData = processPortfolioData(updatedPortfolio.portfolio);
-
-        // Update the portfolio store with the processed data
-        portfolioStore.addPortfolio(processedData);
+      // Show success message
+      if (createdPortfolio?.portfolio) {
+        toast({
+          title: "Portfolio Created",
+          description: `Your portfolio "${values.name}" has been created successfully.`,
+        });
 
         // Navigate to the new portfolio page
-        router.push(`/portfolios/${updatedPortfolio.portfolio.slug}`);
+        router.push(`/portfolios/${createdPortfolio.portfolio.slug}`);
       }
-
-      // Show success notification
-      toast({
-        title: "Portfolio created",
-        description: "Portfolio created successfully",
-      });
     } catch (error) {
-      console.error("Failed to create portfolio:", error);
-
-      // Show error notification
+      console.error("Error creating portfolio:", error);
       toast({
-        title: "Portfolio creation failed",
-        description: "Please try again",
+        title: "Error",
+        description: "Failed to create portfolio. Please try again.",
         variant: "destructive",
       });
     }

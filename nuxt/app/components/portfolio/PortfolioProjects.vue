@@ -2,8 +2,8 @@
   /**
    * Portfolio Projects Component
    *
-   * Displays and manages projects associated with a portfolio
-   * Provides functionality to add and remove projects from the portfolio
+   * Displays and manages projects in a portfolio
+   * Allows adding and removing projects
    */
 
   // Shadcn UI components
@@ -38,11 +38,13 @@
     FormMessage,
   } from "@/components/ui/form";
   import { toast } from "@/components/ui/toast";
+  // Composables
+  import { usePortfolioManagement } from "@/composables/usePortfolioManagement";
   // Utils
   import { cn } from "@/lib/utils";
-  import { toTypedSchema } from "@vee-validate/zod";
   // Stores
-  import { useCurrentPortfolioStore } from "~/stores/currentPortfolio";
+  import { useCurrentPortfolioStore } from "@/stores/currentPortfolio";
+  import { toTypedSchema } from "@vee-validate/zod";
   // Icons
   import { Check, ChevronsUpDown, Edit, Search, Trash } from "lucide-vue-next";
   // Form
@@ -51,37 +53,27 @@
 
   // Route parameters
   const route = useRoute();
-  const { slug } = route.params;
+  const { slug: routeSlug } = route.params;
+  const slug = Array.isArray(routeSlug) ? routeSlug[0] : (routeSlug as string);
 
-  // Stores & Composables
-  const currentPortfolioStore = useCurrentPortfolioStore();
-  const { processPortfolioData } = usePortfolioData();
-
-  /**
-   * Fetch portfolio data from API
-   */
-  const { data: portfolio, refresh: refreshPortfolio } = await useFetch(`/api/portfolio/single`, {
-    params: { slug },
-    immediate: true, // Ensure fetch is immediate
-  });
-
-  // Set the current portfolio in the store with proper date conversion
-  if (portfolio.value?.portfolio) {
-    currentPortfolioStore.setCurrentPortfolio(processPortfolioData(portfolio.value.portfolio));
+  // Validate slug
+  if (!slug) {
+    throw createError({
+      statusCode: 400,
+      message: "Portfolio slug is required",
+    });
   }
 
-  // Computed property for current portfolio data
-  const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
+  // Composables
+  const { addProjectToPortfolio, removeProjectFromPortfolio, fetchAllProjects } =
+    usePortfolioManagement();
 
-  /**
-   * Fetch all projects for the dropdown
-   */
-  const { data: projects, refresh: refreshProjects } = await useFetch(
-    `/api/portfolio/all-projects`,
-    {
-      params: { slug },
-    }
-  );
+  // Fetch all projects
+  const { projects } = await fetchAllProjects(slug);
+
+  //  Current portfolio projects
+  const currentPortfolioStore = useCurrentPortfolioStore();
+  const currentPortfolio = computed(() => currentPortfolioStore.currentPortfolio);
 
   /**
    * Filter projects not linked to the portfolio
@@ -133,36 +125,22 @@
    */
   const onSubmit = handleSubmit(async (values) => {
     try {
-      // Add project to portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/add-project`, {
-        method: "PUT",
-        body: { slug, ...values },
-      });
+      // Use the composable to add project to portfolio
+      const { updatedPortfolio } = await addProjectToPortfolio(slug, values.relatedProject);
 
       // Reset form values
       selectedProject.value = { value: "", label: "" };
 
-      // Set the current portfolio in the store with proper date conversion
-      if (updatedPortfolio.portfolio) {
-        currentPortfolioStore.setCurrentPortfolio(processPortfolioData(updatedPortfolio.portfolio));
-      }
-
-      // Refresh projects list
-      await refreshProjects();
-      await refreshPortfolio();
-
       // Show success toast
       toast({
-        title: "Project added successfully",
-        description: "The project has been added to your portfolio.",
+        title: "Project added",
+        description: "Project has been added to your portfolio",
       });
     } catch (error) {
-      console.error("Error adding project:", error);
-
-      // Show error toast
+      console.error("Failed to add project:", error);
       toast({
-        title: "Error adding project",
-        description: "There was an error adding the project to your portfolio.",
+        title: "Failed to add project",
+        description: "Please try again",
         variant: "destructive",
       });
     }
@@ -184,41 +162,25 @@
     if (!projectToDelete.value) return;
 
     try {
-      // Remove project from portfolio
-      const updatedPortfolio = await $fetch(`/api/portfolio/remove-project`, {
-        method: "PUT",
-        body: { slug, relatedProject: projectToDelete.value },
-      });
-
-      // Set the current portfolio in the store with proper date conversion
-      if (updatedPortfolio.portfolio) {
-        currentPortfolioStore.updateCurrentPortfolio(
-          processPortfolioData(updatedPortfolio.portfolio)
-        );
-      }
-
-      // Refresh projects list
-      await refreshProjects();
-      await refreshPortfolio();
+      // Use the composable to remove project from portfolio
+      const { updatedPortfolio } = await removeProjectFromPortfolio(slug, projectToDelete.value);
 
       // Close dialog
       isDeleteDialogOpen.value = false;
-      projectToDelete.value = null;
 
       // Show success toast
       toast({
-        title: "Project removed successfully",
-        description: "The project has been removed from your portfolio.",
+        title: "Project removed",
+        description: "Project has been removed from your portfolio",
       });
     } catch (error) {
-      console.error("Error removing project:", error);
-
-      // Show error toast
+      console.error("Failed to remove project:", error);
       toast({
-        title: "Error removing project",
-        description: "There was an error removing the project from your portfolio.",
+        title: "Failed to remove project",
+        description: "Please try again",
         variant: "destructive",
       });
+      isDeleteDialogOpen.value = false;
     }
   };
 </script>
