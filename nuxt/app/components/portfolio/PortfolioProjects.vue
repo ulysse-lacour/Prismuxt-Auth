@@ -130,6 +130,11 @@
 
       // Reset form values
       selectedProject.value = { value: "", label: "" };
+      setFieldValue("relatedProject", "");
+
+      // Refresh the projects list
+      const { projects: refreshedProjects } = await fetchAllProjects(slug);
+      projects.value = refreshedProjects.value;
 
       // Show success toast
       toast({
@@ -167,6 +172,10 @@
 
       // Close dialog
       isDeleteDialogOpen.value = false;
+
+      // Refresh the projects list
+      const { projects: refreshedProjects } = await fetchAllProjects(slug);
+      projects.value = refreshedProjects.value;
 
       // Show success toast
       toast({

@@ -65,7 +65,6 @@ export function usePortfolioManagement() {
   };
 
   // Projects
-
   const addProjectToPortfolio = async (slug: string, projectId: string) => {
     const updatedPortfolio = await $fetch(`/api/portfolio/single/project`, {
       method: "POST",
@@ -73,8 +72,14 @@ export function usePortfolioManagement() {
     });
 
     if (updatedPortfolio) {
+      // Process the portfolio data
+      const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
+
       // Update the portfolios store with the updated portfolio
-      portfolioStore.updatePortfolio(processPortfolioData(updatedPortfolio.portfolio));
+      portfolioStore.updatePortfolio(processedPortfolio);
+
+      // Also update the current portfolio store
+      currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
     }
 
     return { updatedPortfolio };
@@ -87,8 +92,14 @@ export function usePortfolioManagement() {
     });
 
     if (updatedPortfolio) {
+      // Process the portfolio data
+      const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
+
       // Update the portfolios store with the updated portfolio
-      portfolioStore.updatePortfolio(processPortfolioData(updatedPortfolio.portfolio));
+      portfolioStore.updatePortfolio(processedPortfolio);
+
+      // Also update the current portfolio store
+      currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
     }
 
     return { updatedPortfolio };

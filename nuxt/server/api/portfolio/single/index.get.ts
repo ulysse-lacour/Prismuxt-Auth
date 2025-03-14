@@ -1,4 +1,3 @@
-import { auth } from "@/utils/auth";
 import { PrismaClient } from "@prisma/client";
 
 /**
@@ -13,16 +12,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  // Verify user authentication
-  const session = await auth.api.getSession(event);
-
-  if (!session) {
-    throw createError({
-      statusCode: 401,
-      message: "Unauthorized",
-    });
-  }
-
   // Extract portfolio slug from query parameters
   const { slug } = getQuery(event);
   const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
