@@ -1,14 +1,16 @@
 /**
  * Composable for processing portfolio data
- * Handles date conversions and data normalization
+ * Handles date string conversions to Date objects and data normalization
+ * @returns Object containing portfolio data processing functions
  */
 export const usePortfolioData = () => {
   /**
-   * Process portfolio data by converting date strings to Date objects
-   * @param portfolioData - Raw portfolio data from API
-   * @returns Processed portfolio data with proper date objects
+   * Processes portfolio data by converting ISO date strings to JavaScript Date objects
+   *
+   * @param portfolioData - Raw portfolio data from API with string dates
+   * @returns Processed portfolio data with proper Date objects
    */
-  const processPortfolioData = (portfolioData) => {
+  const processPortfolioData = (portfolioData: any) => {
     // Handle array or object data differently
     if (Array.isArray(portfolioData)) {
       // Process array of portfolios
@@ -60,15 +62,17 @@ export const usePortfolioData = () => {
 
 /**
  * Composable for processing project data
- * Handles date conversions and data normalization
+ * Handles date string conversions to Date objects and data normalization
+ * @returns Object containing project data processing functions
  */
 export const useProjectData = () => {
   /**
-   * Process project data by converting date strings to Date objects
-   * @param projectData - Raw project data from API
-   * @returns Processed project data with proper date objects
+   * Processes project data by converting ISO date strings to JavaScript Date objects
+   *
+   * @param projectData - Raw project data from API with string dates
+   * @returns Processed project data with proper Date objects
    */
-  const processProjectData = (projectData) => {
+  const processProjectData = (projectData: any) => {
     // Handle array or object data differently
     if (Array.isArray(projectData)) {
       // Process array of projects
@@ -97,16 +101,19 @@ export const useProjectData = () => {
 };
 
 /**
- * Composable for processing portfolio data
- * Handles date conversions and data normalization
+ * Composable for processing user data
+ * Handles date string conversions to Date objects and normalizes related collections
+ * @returns Object containing user data processing functions
  */
 export const useUserData = () => {
   /**
-   * Process portfolio data by converting date strings to Date objects
-   * @param portfolioData - Raw portfolio data from API
-   * @returns Processed portfolio data with proper date objects
+   * Processes user data by converting ISO date strings to JavaScript Date objects
+   * Also processes nested projects and portfolios collections
+   *
+   * @param userData - Raw user data from API with string dates
+   * @returns Processed user data with proper Date objects
    */
-  const processUserData = (userData) => {
+  const processUserData = (userData: any) => {
     const userWithDates = {
       ...userData,
       createdAt: new Date(userData.createdAt),

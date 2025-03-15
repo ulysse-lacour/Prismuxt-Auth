@@ -2,35 +2,43 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's email
- * PUT /api/account/update-email
+ * API endpoint to update the current user's email address
+ *
+ * Endpoint: PUT /api/account/update-email
  *
  * Request body:
  * {
- *   email: string;
+ *   email: string; // New email address
  * }
  *
- * Requires authentication
+ * Response:
+ * {
+ *   success: boolean;
+ *   message: string;
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ * Side effects: Sets emailVerified to false when email is changed
  */
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Get user session from auth provider
     const session = await auth.api.getSession(event);
 
-    // Verify authentication
+    // Verify user is authenticated
     if (!session) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Unauthorized - User must be logged in",
       });
     }
 
-    // Parse request body
+    // Parse and extract email from request body
     const body = await readBody(event);
     const { email } = body;
 
-    // Validate email
+    // Validate email format
     if (!email || typeof email !== "string" || !email.includes("@")) {
       throw createError({
         statusCode: 400,
@@ -39,6 +47,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Check if email is already in use by another user
+    // This prevents email conflicts across different accounts
     const existingUser = await prisma.user.findFirst({
       where: {
         email,
@@ -55,7 +64,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Update user's email in database
+    // Update user's email in database and reset verification status
     await prisma.user.update({
       where: {
         id: session.user.id,
@@ -63,24 +72,26 @@ export default defineEventHandler(async (event) => {
       data: {
         email,
         // Reset email verification status when email is changed
+        // User will need to verify the new email address
         emailVerified: false,
       },
     });
 
-    // Return success response
+    // Return success response to client
     return {
       success: true,
       message: "Email updated successfully",
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
+    // Log error for server-side debugging
     console.error("Error updating email:", error);
 
-    // Return the error if it's already a handled error
+    // Return the error if it's already a properly formatted error
     if (error.statusCode) {
       throw error;
     }
 
+    // Create a generic error for unexpected issues
     throw createError({
       statusCode: 500,
       message: "Error updating email",

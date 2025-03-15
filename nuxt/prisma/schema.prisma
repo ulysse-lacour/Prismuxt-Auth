@@ -8,7 +8,8 @@ generator client {
   binaryTargets = ["native", "darwin-arm64"]
 }
 
-// BetterAuth Users Tables
+// ===== Authentication Models =====
+// Models for user authentication, sessions, and account management
 
 model User {
   id               String      @id @default(cuid())
@@ -75,7 +76,8 @@ model Verification {
   @@map("verification")
 }
 
-// Data tables
+// ===== Project Models =====
+// Models for managing projects and their content
 
 model Project {
   id          String   @id @default(cuid())
@@ -103,6 +105,9 @@ enum BlockType {
   IMAGE
   QUOTE
 }
+
+// ===== Portfolio Models =====
+// Models for managing portfolios and their relationship with projects
 
 model Portfolio {
   id          String   @id @default(cuid())
@@ -158,7 +163,9 @@ model PortfolioProjectBlock {
   @@map("portfolio_project_block")
 }
 
-// Tag system models
+// ===== Tag System Models =====
+// Models for managing tags and their relationship with projects
+
 model Tag {
   id        String   @id @default(cuid())
   name      String

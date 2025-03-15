@@ -3,26 +3,41 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch the current authenticated user's data
- * GET /api/account/current-user
  *
- * Returns the user's profile data including projects and portfolios
- * Requires authentication
+ * Endpoint: GET /api/account/current-user
+ *
+ * Response:
+ * {
+ *   user: {
+ *     id: string;
+ *     name: string;
+ *     email: string;
+ *     emailVerified: boolean;
+ *     image: string | null;
+ *     twoFactorEnabled: boolean;
+ *     projects: Project[];
+ *     portfolios: Portfolio[];
+ *   }
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ * Purpose: Provides user profile data and associated projects/portfolios
  */
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Get user session from auth provider
     const session = await auth.api.getSession(event);
 
-    // Verify authentication
+    // Verify user is authenticated
     if (!session) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Unauthorized - User must be logged in",
       });
     }
 
-    // Fetch user's data with related entities
+    // Fetch user's data with related entities from database
     const user = await prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -39,7 +54,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Handle case where user is not found
+    // Handle case where user is not found in database
     if (!user) {
       throw createError({
         statusCode: 404,
@@ -47,17 +62,18 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Return user data
+    // Return user data to client
     return { user };
   } catch (error: any) {
-    // Log error and return appropriate error response
+    // Log error for server-side debugging
     console.error("Error fetching user data:", error);
 
-    // Return the error if it's already a handled error
+    // Return the error if it's already a properly formatted error
     if (error.statusCode) {
       throw error;
     }
 
+    // Create a generic error for unexpected issues
     throw createError({
       statusCode: 500,
       message: "Error fetching user data",

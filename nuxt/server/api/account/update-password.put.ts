@@ -3,35 +3,43 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to update the current user's password
- * PUT /api/account/update-password
+ *
+ * Endpoint: PUT /api/account/update-password
  *
  * Request body:
  * {
- *   currentPassword: string;
- *   newPassword: string;
+ *   currentPassword: string; // User's current password for verification
+ *   newPassword: string;     // New password to set
  * }
  *
- * Requires authentication
+ * Response:
+ * {
+ *   success: boolean;
+ *   message: string;
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ * Security: Verifies current password before allowing change
  */
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Get user session from auth provider
     const session = await auth.api.getSession(event);
 
-    // Verify authentication
+    // Verify user is authenticated
     if (!session) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Unauthorized - User must be logged in",
       });
     }
 
-    // Parse request body
+    // Parse and extract password data from request body
     const body = await readBody(event);
     const { currentPassword, newPassword } = body;
 
-    // Validate password inputs
+    // Validate current password is provided
     if (!currentPassword || typeof currentPassword !== "string") {
       throw createError({
         statusCode: 400,
@@ -39,6 +47,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Validate new password is provided
     if (!newPassword || typeof newPassword !== "string") {
       throw createError({
         statusCode: 400,
@@ -46,7 +55,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Validate new password strength
+    // Validate new password meets minimum security requirements
     if (newPassword.length < 8) {
       throw createError({
         statusCode: 400,

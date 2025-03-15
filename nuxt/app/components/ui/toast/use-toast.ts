@@ -2,11 +2,21 @@ import { computed, ref } from "vue";
 import type { ToastProps } from ".";
 import type { Component, VNode } from "vue";
 
+// Maximum number of toasts to show at once
 const TOAST_LIMIT = 1;
+// Default delay in ms before removing toast from DOM after dismissal
 const TOAST_REMOVE_DELAY = 5000;
 
+/**
+ * Type representing content that can be rendered in a toast
+ * Supports plain strings, Vue VNodes, or functions returning VNodes
+ */
 export type StringOrVNode = string | VNode | (() => VNode);
 
+/**
+ * Extended toast properties with internal fields
+ * Adds id and optional fields for title, description, and action components
+ */
 type ToasterToast = ToastProps & {
   id: string;
   title?: string;
@@ -14,15 +24,25 @@ type ToasterToast = ToastProps & {
   action?: Component;
 };
 
+/**
+ * Action types for toast state management
+ * Used to identify different operations in the dispatch function
+ */
 const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
+  ADD_TOAST: "ADD_TOAST", // Add a new toast
+  UPDATE_TOAST: "UPDATE_TOAST", // Update an existing toast
+  DISMISS_TOAST: "DISMISS_TOAST", // Mark a toast for dismissal
+  REMOVE_TOAST: "REMOVE_TOAST", // Remove a toast from the DOM
 } as const;
 
+// Counter for generating unique toast IDs
 let count = 0;
 
+/**
+ * Generates a unique ID for each toast
+ * Uses a simple counter that wraps around at MAX_VALUE
+ * @returns A unique string ID
+ */
 function genId() {
   count = (count + 1) % Number.MAX_VALUE;
   return count.toString();
@@ -48,12 +68,21 @@ type Action =
       toastId?: ToasterToast["id"];
     };
 
-interface State {
+/**
+ * State interface for the toast system
+ * Maintains an array of active toasts
+ */
+type State = {
   toasts: ToasterToast[];
-}
+};
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
+/**
+ * Adds a toast to the removal queue
+ * Sets a timeout to remove the toast after TOAST_REMOVE_DELAY
+ * @param toastId - ID of the toast to remove
+ */
 function addToRemoveQueue(toastId: string) {
   if (toastTimeouts.has(toastId)) return;
 
@@ -68,10 +97,19 @@ function addToRemoveQueue(toastId: string) {
   toastTimeouts.set(toastId, timeout);
 }
 
+/**
+ * State interface for the toast system
+ * Maintains an array of active toasts
+ */
 const state = ref<State>({
   toasts: [],
 });
 
+/**
+ * Dispatches actions to modify the toast state
+ * Handles adding, updating, dismissing, and removing toasts
+ * @param action - The action to dispatch
+ */
 function dispatch(action: Action) {
   switch (action.type) {
     case actionTypes.ADD_TOAST:
@@ -114,6 +152,11 @@ function dispatch(action: Action) {
   }
 }
 
+/**
+ * Composable for creating and managing toasts
+ * Provides functions to create, update, and dismiss toasts
+ * @returns Object with toast function and current toasts
+ */
 function useToast() {
   return {
     toasts: computed(() => state.value.toasts),
@@ -124,6 +167,11 @@ function useToast() {
 
 type Toast = Omit<ToasterToast, "id">;
 
+/**
+ * Creates a new toast with the given properties
+ * @param props - Toast properties (title, description, etc.)
+ * @returns Object with functions to update or dismiss the toast
+ */
 function toast(props: Toast) {
   const id = genId();
 

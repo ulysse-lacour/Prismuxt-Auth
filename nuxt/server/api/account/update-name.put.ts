@@ -3,34 +3,42 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to update the current user's name
- * PUT /api/account/update-name
+ *
+ * Endpoint: PUT /api/account/update-name
  *
  * Request body:
  * {
- *   name: string;
+ *   name: string; // New full name for the user
  * }
  *
- * Requires authentication
+ * Response:
+ * {
+ *   success: boolean;
+ *   message: string;
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ * Validation: Ensures name is non-empty and properly trimmed
  */
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Get user session from auth provider
     const session = await auth.api.getSession(event);
 
-    // Verify authentication
+    // Verify user is authenticated
     if (!session) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Unauthorized - User must be logged in",
       });
     }
 
-    // Parse request body
+    // Parse and extract name from request body
     const body = await readBody(event);
     const { name } = body;
 
-    // Validate name
+    // Validate name is provided and properly formatted
     if (!name || typeof name !== "string" || name.trim() === "") {
       throw createError({
         statusCode: 400,
@@ -38,7 +46,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Update user's name in database
+    // Update user's name in database (with whitespace trimmed)
     await prisma.user.update({
       where: {
         id: session.user.id,
@@ -48,20 +56,21 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Return success response
+    // Return success response to client
     return {
       success: true,
       message: "Name updated successfully",
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
+    // Log error for server-side debugging
     console.error("Error updating name:", error);
 
-    // Return the error if it's already a handled error
+    // Return the error if it's already a properly formatted error
     if (error.statusCode) {
       throw error;
     }
 
+    // Create a generic error for unexpected issues
     throw createError({
       statusCode: 500,
       message: "Error updating name",

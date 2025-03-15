@@ -1,47 +1,55 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  // Set compatibility date for Nuxt features
   compatibilityDate: "2024-04-03",
 
+  // Configure future compatibility options
   future: {
     compatibilityVersion: 4,
   },
 
+  // Set the source directory for the application
   srcDir: "app",
 
+  // Set the server directory for API routes
   serverDir: "server",
 
+  // Enable Nuxt DevTools for development
   devtools: { enabled: true },
 
+  // Runtime configuration accessible in both server and client
   runtimeConfig: {
     public: {
       nuxtUrl: process.env.NUXT_URL,
     },
   },
 
+  // Nuxt modules configuration
   modules: [
-    "@nuxt/eslint",
-    "@vueuse/nuxt",
-    "@nuxtjs/i18n",
+    "@nuxt/eslint", // ESLint integration
+    "@vueuse/nuxt", // VueUse composables
+    "@nuxtjs/i18n", // Internationalization
     [
       "@pinia/nuxt",
       {
-        // Auto-import pinia main functions
+        // Auto-import Pinia's core functions for state management
         autoImports: ["defineStore", "storeToRefs"],
       },
     ],
-    "@nuxt/image",
-    "@nuxtjs/seo",
-    "@nuxt/icon",
-    "@nuxt/fonts",
-    "@nuxtjs/tailwindcss",
-    "@nuxtjs/color-mode",
-    "shadcn-nuxt",
-    "nuxt-security",
-    "nuxt-nodemailer",
-    "@nuxt/test-utils/module",
+    "@nuxt/image", // Image optimization
+    "@nuxtjs/seo", // SEO optimization
+    "@nuxt/icon", // Icon system
+    "@nuxt/fonts", // Font optimization
+    "@nuxtjs/tailwindcss", // Tailwind CSS integration
+    "@nuxtjs/color-mode", // Dark/light mode support
+    "shadcn-nuxt", // Shadcn UI components
+    "nuxt-security", // Security headers and protections
+    "nuxt-nodemailer", // Email sending capabilities
+    "@nuxt/test-utils/module", // Testing utilities
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components
+  // Auto-imports components from the components directory
   components: [
     {
       path: "@/components",

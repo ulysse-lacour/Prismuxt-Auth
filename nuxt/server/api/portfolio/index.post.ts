@@ -3,20 +3,41 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to create a new portfolio
- * POST /api/portfolio
+ *
+ * Endpoint: POST /api/portfolio
  *
  * Request body:
  * {
- *   name: string;
- *   description?: string;
+ *   name: string;        // Portfolio name (required)
+ *   description?: string; // Optional portfolio description
  * }
  *
- * Returns the created portfolio
- * Requires authentication
+ * Response:
+ * {
+ *   id: string;
+ *   name: string;
+ *   description: string | null;
+ *   isPublic: boolean;
+ *   slug: string;       // Auto-generated URL-friendly identifier
+ *   createdAt: string;
+ *   updatedAt: string;
+ *   userId: string;
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ * Side effects: Creates a new portfolio record in the database
  */
 
 /**
  * Generate a URL-friendly slug from a string
+ *
+ * Converts a string to a URL-friendly format by:
+ * - Converting to lowercase
+ * - Removing diacritics (accent marks)
+ * - Replacing non-alphanumeric characters with dashes
+ * - Removing leading and trailing dashes
+ * - Limiting length to 50 characters
+ *
  * @param input - The string to convert to a slug
  * @returns A URL-friendly slug
  */
@@ -33,21 +54,22 @@ const generateSlug = (input: string): string => {
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
+    // Get user session from auth provider
     const session = await auth.api.getSession(event);
 
+    // Verify user is authenticated
     if (!session) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized",
+        message: "Unauthorized - User must be logged in",
       });
     }
 
-    // Parse request body
+    // Parse and extract portfolio data from request body
     const body = await readBody(event);
     const { name, description } = body;
 
-    // Validate required fields
+    // Validate portfolio name is provided and properly formatted
     if (!name || typeof name !== "string" || name.trim() === "") {
       throw createError({
         statusCode: 400,
@@ -55,20 +77,20 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Generate slug from name
+    // Generate base slug from portfolio name
     const baseSlug = generateSlug(name);
 
-    // Check if slug already exists and generate a unique one if needed
+    // Check if slug already exists to ensure uniqueness
     const existingPortfolio = await prisma.portfolio.findUnique({
       where: { slug: baseSlug },
     });
 
-    // If slug exists, append a random string
+    // If slug exists, append a random string to make it unique
     const slug = existingPortfolio
       ? `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`
       : baseSlug;
 
-    // Create new portfolio in database
+    // Create new portfolio in database with relationship to user
     const createdPortfolio = await prisma.portfolio.create({
       data: {
         slug,
@@ -82,23 +104,21 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Return success response with created portfolio
-    return {
-      success: true,
-      portfolio: createdPortfolio,
-    };
+    // Return the created portfolio to client
+    return createdPortfolio;
   } catch (error: any) {
-    // Log error and return appropriate error response
+    // Log error for server-side debugging
     console.error("Error creating portfolio:", error);
 
-    // Return the error if it's already a handled error
+    // Return the error if it's already a properly formatted error
     if (error.statusCode) {
       throw error;
     }
 
+    // Create a generic error for unexpected issues
     throw createError({
       statusCode: 500,
-      message: "Error creating portfolio",
+      message: "Failed to create portfolio",
     });
   }
 });

@@ -1,11 +1,24 @@
 /**
- * Creates a debounced version of a function that delays its execution until after a specified wait time has elapsed since its last invocation.
+ * Creates a debounced version of a function that delays its execution
+ * until after a specified wait time has elapsed since its last invocation.
  *
- * This function returns a new function which, when called repeatedly, clears the previous timeout and sets a new one. The original function is executed with the last provided context and arguments after the delay.
+ * Useful for handling events that fire rapidly (like resize, scroll, input),
+ * where you want to limit the rate at which a function is executed.
  *
- * @param {Function} func - The function to debounce.
- * @param {number} wait - The delay in milliseconds before {@link func} is executed.
- * @returns {Function} A debounced version of {@link func}.
+ * @example
+ * // Debounce a search input to avoid making API calls on every keystroke
+ * const debouncedSearch = debounce((query) => {
+ *   fetchSearchResults(query);
+ * }, 300);
+ *
+ * // Usage
+ * searchInput.addEventListener('input', (e) => {
+ *   debouncedSearch(e.target.value);
+ * });
+ *
+ * @param {Function} func - The function to debounce
+ * @param {number} wait - The delay in milliseconds before executing the function
+ * @returns {Function} A debounced version of the original function
  */
 
 function debounce(func, wait) {

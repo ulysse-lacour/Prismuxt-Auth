@@ -2,9 +2,27 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch all projects with their link status to a specific portfolio
- * GET /api/portfolio/projects?slug=<portfolioSlug>
  *
- * Returns all projects with a flag indicating if they are linked to the specified portfolio
+ * Endpoint: GET /api/projects?slug=<portfolioSlug>
+ *
+ * Query Parameters:
+ * - slug: string - The unique slug of the portfolio to check project links against
+ *
+ * Response:
+ * Array of Project objects with an additional isLinked property:
+ * [
+ *   {
+ *     id: string;
+ *     name: string;
+ *     description: string;
+ *     // ... other project properties
+ *     isLinked: boolean; // Whether this project is linked to the specified portfolio
+ *   },
+ *   // ... more projects
+ * ]
+ *
+ * Purpose: Used for portfolio management to show which projects are already
+ * associated with a specific portfolio
  */
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const slug = query.slug as string;
 
-    // Validate portfolio slug
+    // Validate portfolio slug is provided
     if (!slug) {
       throw createError({
         statusCode: 400,
@@ -27,7 +45,7 @@ export default defineEventHandler(async (event) => {
       select: { id: true },
     });
 
-    // Return 404 if portfolio not found
+    // Return 404 if portfolio not found in database
     if (!portfolio) {
       throw createError({
         statusCode: 404,
@@ -37,7 +55,8 @@ export default defineEventHandler(async (event) => {
 
     const portfolioId = portfolio.id;
 
-    // Then fetch all projects and check if they're linked to this portfolio
+    // Fetch all projects and check if they're linked to this portfolio
+    // by including the portfolioProjects relation filtered by portfolioId
     const projects = await prisma.project.findMany({
       include: {
         portfolioProjects: {
@@ -48,23 +67,24 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Map projects to include link status
+    // Transform projects to include link status based on portfolioProjects relation
     const projectsWithLinkStatus = projects.map((project) => ({
       ...project,
       isLinked: project.portfolioProjects.length > 0,
     }));
 
-    // Return projects with link status
+    // Return projects with link status to client
     return projectsWithLinkStatus;
   } catch (error: any) {
-    // Log error and return appropriate error response
+    // Log error for server-side debugging
     console.error("Error fetching projects:", error);
 
-    // Return the error if it's already a handled error
+    // Return the error if it's already a properly formatted error
     if (error.statusCode) {
       throw error;
     }
 
+    // Create a generic error for unexpected issues
     throw createError({
       statusCode: 500,
       message: "Failed to fetch projects",
