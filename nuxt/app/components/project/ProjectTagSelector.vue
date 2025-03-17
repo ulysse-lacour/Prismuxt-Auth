@@ -38,7 +38,7 @@
   const allTags = ref(fetchedTags);
 
   // Create a list of tags that are already in the project
-  const projectTags = ref(project.value?.project?.tags || []);
+  const projectTags = ref(project.project?.tags || []);
 
   // UI state
   const isLoading = ref(false);
@@ -113,7 +113,7 @@
       if (addedTag) {
         // Refresh project data to get updated tags
         const { project: refreshedProject } = await fetchProject(props.projectId);
-        projectTags.value = refreshedProject.value?.project?.tags || [];
+        projectTags.value = refreshedProject.project?.tags || [];
 
         // Reset selection
         selectedTag.value = null;
@@ -155,7 +155,7 @@
 
         // Refresh project data to get updated tags
         const { project: refreshedProject } = await fetchProject(props.projectId);
-        projectTags.value = refreshedProject.value?.project?.tags || [];
+        projectTags.value = refreshedProject.project?.tags || [];
 
         // Reset input
         searchInput.value = "";

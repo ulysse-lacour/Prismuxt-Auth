@@ -52,9 +52,9 @@
   const { handleSubmit, resetForm } = useForm({
     validationSchema: projectFormSchema,
     initialValues: {
-      name: project.value?.project?.name || "",
-      description: project.value?.project?.description || "",
-      client: project.value?.project?.client || "",
+      name: project.project?.name || "",
+      description: project.project?.description || "",
+      client: project.project?.client || "",
     },
   });
 

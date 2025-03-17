@@ -25,7 +25,7 @@ export function useProjectManagement() {
    * @returns Object containing the fetched project
    */
   const fetchProject = async (id: string) => {
-    const { data: project } = await useFetch(`/api/project/${id}`);
+    const project = await $fetch(`/api/project/${id}`);
 
     return { project };
   };
