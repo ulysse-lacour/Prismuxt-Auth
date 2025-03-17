@@ -61,6 +61,18 @@ vi.mock("~/components/ui/button", () => {
   };
 });
 
+// Mock Textarea component
+vi.mock("~/components/ui/textarea", () => {
+  return {
+    Textarea: {
+      name: "Textarea",
+      props: ["placeholder", "modelValue", "name"],
+      template:
+        '<textarea class="textarea" :placeholder="placeholder" :name="name" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)"></textarea>',
+    },
+  };
+});
+
 // Mock DeleteConfirmDialog
 vi.mock("~/components/form/DeleteConfirmDialog", () => {
   return {
@@ -112,6 +124,29 @@ const mockportfoliosStore = {
   },
 };
 
+// Create mock functions for portfolio management
+const mockUpdatePortfolio = vi.fn().mockResolvedValue({
+  portfolio: {
+    id: "portfolio-1",
+    name: "Updated Portfolio",
+    description: "Updated Description",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  message: "Portfolio updated successfully",
+});
+
+const mockDeletePortfolio = vi.fn().mockResolvedValue({
+  portfolio: {
+    id: "portfolio-1",
+    name: "Test Portfolio",
+    description: "Test Description",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  message: "Portfolio deleted successfully",
+});
+
 // Mock imports
 mockNuxtImport("usePortfoliosStore", () => {
   return () => mockportfoliosStore;
@@ -123,6 +158,14 @@ mockNuxtImport("useRouter", () => {
     push: vi.fn(),
     replace: vi.fn(),
     resolve: vi.fn(() => ({ href: "/test" })),
+  });
+});
+
+// Mock the usePortfolioManagement composable
+mockNuxtImport("usePortfolioManagement", () => {
+  return () => ({
+    updatePortfolio: mockUpdatePortfolio,
+    deletePortfolio: mockDeletePortfolio,
   });
 });
 
@@ -162,13 +205,30 @@ registerEndpoint("/api/portfolios/delete", {
   },
 });
 
+// Create mock portfolio data to pass as props
+const mockPortfolioData = {
+  portfolio: {
+    id: "portfolio-1",
+    name: "Test Portfolio",
+    description: "Test Description",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    slug: "test-portfolio",
+  },
+};
+
 describe("PortfolioSettings Component", () => {
   it("can be imported", () => {
     expect(PortfolioSettings).toBeTruthy();
   });
 
   it("renders the form with portfolio fields", async () => {
-    const wrapper = await mountSuspended(PortfolioSettings);
+    const wrapper = await mountSuspended(PortfolioSettings, {
+      props: {
+        portfolioData: mockPortfolioData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Check if form exists
     expect(wrapper.find("form").exists()).toBe(true);
@@ -188,7 +248,12 @@ describe("PortfolioSettings Component", () => {
   });
 
   it("has a form that can be submitted", async () => {
-    const wrapper = await mountSuspended(PortfolioSettings);
+    const wrapper = await mountSuspended(PortfolioSettings, {
+      props: {
+        portfolioData: mockPortfolioData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Check if form exists and has a submit button
     expect(wrapper.find("form").exists()).toBe(true);
@@ -197,7 +262,12 @@ describe("PortfolioSettings Component", () => {
   });
 
   it("renders delete dialog component", async () => {
-    const wrapper = await mountSuspended(PortfolioSettings);
+    const wrapper = await mountSuspended(PortfolioSettings, {
+      props: {
+        portfolioData: mockPortfolioData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Check if the delete dialog component is rendered
     const deleteDialog = wrapper.find('[data-testid="delete-confirm-dialog"]');

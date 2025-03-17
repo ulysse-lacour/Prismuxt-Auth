@@ -98,6 +98,17 @@ vi.mock("~/components/ui/button", () => {
 const mockAddProject = vi.fn();
 const mockPush = vi.fn();
 const mockProcessProjectData = vi.fn().mockImplementation((data) => data);
+const mockCreateProject = vi.fn().mockResolvedValue({
+  createdProject: {
+    project: {
+      id: "project-123",
+      name: "Test Project",
+      description: "Test Description",
+      client: "Test Client",
+    },
+    message: "Project created successfully",
+  },
+});
 
 // Mock the useRouter composable
 mockNuxtImport("useRouter", () => {
@@ -122,8 +133,15 @@ mockNuxtImport("useProjectStore", () => {
   });
 });
 
+// Mock the useProjectManagement composable
+mockNuxtImport("useProjectManagement", () => {
+  return () => ({
+    createProject: mockCreateProject,
+  });
+});
+
 // Register mock API endpoint
-registerEndpoint("/api/projects/create", {
+registerEndpoint("/api/project", {
   method: "POST",
   handler: () => {
     return {
@@ -188,7 +206,7 @@ describe("ProjectCreate Component", () => {
     // Reset mock functions
     mockAddProject.mockClear();
     mockPush.mockClear();
-    mockProcessProjectData.mockClear();
+    mockCreateProject.mockClear();
     toast.mockClear();
 
     // Trigger form submission
@@ -196,16 +214,12 @@ describe("ProjectCreate Component", () => {
 
     // Wait for the next tick to allow async operations to complete
     await vi.waitFor(() => {
-      // Check if the project data was processed
-      expect(mockProcessProjectData).toHaveBeenCalledWith({
-        id: "project-123",
+      // Check if createProject was called with the correct data
+      expect(mockCreateProject).toHaveBeenCalledWith({
         name: "Test Project",
         description: "Test Description",
         client: "Test Client",
       });
-
-      // Check if the project was added to the store
-      expect(mockAddProject).toHaveBeenCalled();
 
       // Check if the router was used to navigate
       expect(mockPush).toHaveBeenCalledWith("/projects/project-123");
