@@ -27,6 +27,12 @@ export default defineEventHandler(async (event) => {
             tag: true,
           },
         },
+        projectContents: {
+          include: {
+            contentBlocks: true,
+            language: true,
+          },
+        },
       },
     });
 

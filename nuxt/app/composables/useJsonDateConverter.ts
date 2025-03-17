@@ -137,3 +137,71 @@ export const useUserData = () => {
     processUserData,
   };
 };
+
+/**
+ * Composable for processing projectContent data
+ * Handles date string conversions to Date objects and normalizes related collections
+ * @returns Object containing projectContent data processing functions
+ */
+export const useProjectContentData = () => {
+  /**
+   * Processes projectContent data by converting ISO date strings to JavaScript Date objects
+   * Also processes nested content blocks and language data
+   *
+   * @param projectContentData - Raw projectContent data from API with string dates
+   * @returns Processed projectContent data with proper Date objects
+   */
+  const processProjectContentData = (projectContentData: any) => {
+    const projectContentWithDates = {
+      ...projectContentData,
+      createdAt: new Date(projectContentData.createdAt),
+      updatedAt: new Date(projectContentData.updatedAt),
+      contentBlocks: (projectContentData.contentBlocks || []).map((block) => ({
+        ...block,
+        createdAt: new Date(block.createdAt),
+        updatedAt: new Date(block.updatedAt),
+      })),
+      language: projectContentData.language
+        ? {
+            ...projectContentData.language,
+            createdAt: new Date(projectContentData.language.createdAt),
+            updatedAt: new Date(projectContentData.language.updatedAt),
+          }
+        : null,
+    };
+
+    return projectContentWithDates;
+  };
+
+  return {
+    processProjectContentData,
+  };
+};
+
+/**
+ * Composable for processing Json data to Date objects
+ * Handles date string conversions to Date objects and normalizes related collections
+ * @returns Object containing Json data to Date objects processing functions
+ */
+export const useJsonToDate = () => {
+  /**
+   * Processes Json data by converting ISO date strings to JavaScript Date objects
+   * Also processes nested projects and portfolios collections
+   *
+   * @param JsonData - Raw Json data from API with string dates
+   * @returns Processed Json data with proper Date objects
+   */
+  const processData = (jsonData: any) => {
+    const jsonWithDates = {
+      ...jsonData,
+      createdAt: new Date(jsonData.createdAt),
+      updatedAt: new Date(jsonData.updatedAt),
+    };
+
+    return jsonWithDates;
+  };
+
+  return {
+    processData,
+  };
+};

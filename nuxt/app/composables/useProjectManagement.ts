@@ -1,4 +1,5 @@
 import { useProjectData } from "@/composables/useJsonDateConverter";
+import { useCurrentEditedProjectStore } from "~/stores/currentEditedProject";
 import { useProjectStore } from "~/stores/userProjects";
 import type { Project } from "@prisma/client";
 
@@ -16,6 +17,7 @@ import type { Project } from "@prisma/client";
  */
 export function useProjectManagement() {
   const projectStore = useProjectStore();
+  const currentEditedProjectStore = useCurrentEditedProjectStore();
   const { processProjectData } = useProjectData();
 
   /**
@@ -171,15 +173,43 @@ export function useProjectManagement() {
     return { removedTag };
   };
 
+  // Editor
+
+  const fetchProjectLanguages = async (id: string) => {
+    const languages = await $fetch(`/api/projects/languages`, {
+      method: "GET",
+    });
+
+    return { languages };
+  };
+
+  const fetchProjectForEditor = async (id: string) => {
+    const project = await $fetch(`/api/project/${id}`, {
+      method: "GET",
+    });
+
+    if (project) {
+      // Update the current edited project store with the fetched project
+      currentEditedProjectStore.setCurrentProject(processProjectData(project.project));
+    }
+
+    return { project };
+  };
+
   return {
+    // Project
     fetchProject,
     createProject,
     updateProject,
     deleteProject,
+    // Tags
     fetchAllTags,
     createTag,
     deleteTag,
     addTagToProject,
     removeTagFromProject,
+    // Editor
+    fetchProjectLanguages,
+    fetchProjectForEditor,
   };
 }

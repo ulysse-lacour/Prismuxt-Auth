@@ -223,7 +223,7 @@
     </div>
 
     <div class="flex justify-between pt-2">
-      <NuxtLink :to="`/projects/display/${projectId}`">
+      <NuxtLink :to="`/projects/editor/${projectId}`">
         <Button>Edit Display</Button>
       </NuxtLink>
     </div>
