@@ -78,7 +78,7 @@
 <template>
   <div
     v-if="isActive"
-    class="flex h-fit w-2/12 min-w-[300px] flex-col overflow-hidden rounded-lg bg-[#fff8ef] text-black"
+    class="flex h-fit w-full flex-col overflow-hidden rounded-lg bg-[#fff8ef] text-black"
   >
     <!-- Yellow header -->
     <div class="bg-[#FFFB03] px-4 py-2 font-bold">Slide - {{ slide.order }}</div>

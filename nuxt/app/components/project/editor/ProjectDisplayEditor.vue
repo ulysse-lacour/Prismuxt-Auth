@@ -67,34 +67,57 @@
 </script>
 
 <template>
-  <div class="flex gap-2 p-6">
-    <div class="flex w-1/12 items-start justify-start">
-      <NuxtLink :to="`/projects/${project.id}`" class="h-[40px] w-[40px]"
-        ><svg
-          class="h-auto w-full"
-          viewBox="0 0 41 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M40.31 18.275V22.455H7.31C9.4 25.15 11.38 27.735 13.8 30.925L20.73 40H15.065L0.27 20.42L15.065 0.839999H20.73L13.8 9.915C11.38 13.105 9.4 15.635 7.365 18.275H40.31Z"
-            fill="white"
-          />
-        </svg>
-      </NuxtLink>
-    </div>
-    <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
-      <div v-for="block in contentBlocks" :key="block.id" :id="`slide-${block.id}`">
+  <div id="project-display-editor" class="grid grid-cols-12 gap-4 p-6">
+    <!-- Back button in column 1 -->
+    <NuxtLink
+      :to="`/projects/${project.id}`"
+      class="relative bottom-[-3.5rem] col-span-1 h-[40px] w-[40px]"
+    >
+      <svg class="h-auto w-full" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M40.31 18.275V22.455H7.31C9.4 25.15 11.38 27.735 13.8 30.925L20.73 40H15.065L0.27 20.42L15.065 0.839999H20.73L13.8 9.915C11.38 13.105 9.4 15.635 7.365 18.275H40.31Z"
+          fill="white"
+        />
+      </svg>
+    </NuxtLink>
+
+    <!-- Add Slide button in columns 4-5 -->
+    <button class="col-span-2 col-start-4 flex items-center gap-2">
+      <span>Add Slide</span>
+      <svg
+        width="25"
+        height="25"
+        viewBox="0 0 25 25"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M24.895 10.44V14.4H14.72V24.575H10.43V14.4H0.2V10.44H10.43V0.264999H14.72V10.44H24.895Z"
+          fill="white"
+        />
+      </svg>
+    </button>
+
+    <!-- Editor slides positioned in columns -->
+    <template v-if="projectContent">
+      <div
+        v-for="block in contentBlocks"
+        :key="block.id"
+        :id="`slide-${block.id}`"
+        class="col-span-12 mb-4"
+      >
         <EditorSlide
           :slide="block"
           :rotate="rotate"
           :isActive="isSlideActive(block.id)"
+          cardClass="col-span-2 col-start-2"
+          slideClass="col-span-9 col-start-4"
           @intersection="handleIntersection"
           @activate="handleActivateSlide"
           @update="handleUpdateSlide"
         />
       </div>
-    </div>
+    </template>
   </div>
 </template>
 

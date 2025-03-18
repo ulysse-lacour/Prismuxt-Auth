@@ -184,7 +184,7 @@ export function useProjectManagement() {
   };
 
   const fetchProjectForEditor = async (id: string) => {
-    const project = await $fetch(`/api/project/${id}`, {
+    const project = await $fetch(`/api/project/${id}/editor`, {
       method: "GET",
     });
 
