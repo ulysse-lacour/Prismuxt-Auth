@@ -67,6 +67,15 @@
   const handleLanguageChange = (newLanguage: string) => {
     // Update the current language code
     currentLanguageCode.value = newLanguage;
+
+    // Scroll to the top of the page when language changes
+    // This helps reset the view and prevents issues with active slide detection
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 10);
   };
 
   // Watch for changes in selectedLanguage

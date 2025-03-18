@@ -59,10 +59,18 @@ export const useActiveSlide = () => {
     isManuallyActivated.value = true;
   };
 
+  // Reset the active slide state when content changes (i.e., language switch)
+  const resetActiveSlide = () => {
+    intersectionData.value = new Map();
+    activeSlideId.value = null;
+    isManuallyActivated.value = false;
+  };
+
   return {
     handleIntersection,
     isSlideActive,
     activeSlideId,
     setActiveSlide,
+    resetActiveSlide,
   };
 };

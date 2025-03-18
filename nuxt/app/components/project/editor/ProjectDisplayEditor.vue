@@ -8,10 +8,24 @@
   }>();
 
   // Use our active slide composable
-  const { handleIntersection, isSlideActive, setActiveSlide } = useActiveSlide();
+  const { handleIntersection, isSlideActive, setActiveSlide, resetActiveSlide } = useActiveSlide();
+
+  // Watch for changes in the projectContent (e.g., language change)
+  watch(
+    () => props.projectContent,
+    () => {
+      // Reset active slide tracking when content changes
+      resetActiveSlide();
+    },
+    { deep: true }
+  );
 
   // Handle manual activation of a slide
   const handleActivateSlide = (slideId: string) => {
+    // Check if this slide is already active
+    if (isSlideActive(slideId)) return;
+
+    // Set the slide as active
     setActiveSlide(slideId);
 
     setTimeout(() => {

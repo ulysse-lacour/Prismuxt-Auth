@@ -17,43 +17,77 @@
   // Create a ref for the slide element
   const slideElement = ref(null);
 
-  // Using the more powerful useIntersectionObserver to get intersection ratio
-  const { stop } = useIntersectionObserver(
-    slideElement,
-    (entries) => {
-      // Check if we have entries and use the first one
-      if (entries[0]) {
-        // Emit the visibility ratio to let parent determine which slide is most visible
-        emit("intersection", {
-          id: props.slide.id,
-          ratio: entries[0].intersectionRatio,
-        });
-      }
-    },
-    { threshold: [0, 0.25, 0.5, 0.75, 1] } // Track various intersection thresholds
+  // Store the observer stop function
+  let stopObserver = () => {};
+
+  // Function to initialize the intersection observer
+  const initIntersectionObserver = () => {
+    // Cleanup previous observer if exists
+    if (stopObserver) {
+      stopObserver();
+    }
+
+    // Using the more powerful useIntersectionObserver to get intersection ratio
+    const { stop } = useIntersectionObserver(
+      slideElement,
+      (entries) => {
+        // Check if we have entries and use the first one
+        if (entries[0]) {
+          // Emit the visibility ratio to let parent determine which slide is most visible
+          emit("intersection", {
+            id: props.slide.id,
+            ratio: entries[0].intersectionRatio,
+          });
+        }
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] } // Track various intersection thresholds
+    );
+
+    // Store the stop function
+    stopObserver = stop;
+  };
+
+  // Initialize the observer when component is mounted
+  onMounted(() => {
+    initIntersectionObserver();
+  });
+
+  // Watch for changes in the slide ID which indicates a language change
+  watch(
+    () => props.slide.id,
+    () => {
+      // Re-initialize the observer when slide ID changes
+      nextTick(() => {
+        initIntersectionObserver();
+      });
+    }
   );
 
   // Stop observing when component is unmounted
   onUnmounted(() => {
-    stop();
+    stopObserver();
   });
 
   // Handle activation through the slide editor
   const handleActivate = () => {
-    emit("activate", props.slide.id);
+    // Only emit activate event if not already active
+    // This prevents unnecessary scrolling when clicking an already active slide
+    if (!props.isActive) {
+      emit("activate", props.slide.id);
 
-    // Attempt to scroll to this element directly
-    setTimeout(() => {
-      // Use the ID since we know it's stable
-      const element = document.getElementById(`slide-section-${props.slide.id}`);
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "nearest",
-        });
-      }
-    }, 10);
+      // Attempt to scroll to this element directly
+      setTimeout(() => {
+        // Use the ID since we know it's stable
+        const element = document.getElementById(`slide-section-${props.slide.id}`);
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+        }
+      }, 10);
+    }
   };
 
   // Emit intersection data and activate events for parent component
