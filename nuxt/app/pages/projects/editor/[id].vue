@@ -34,7 +34,7 @@
   const currentLanguageCode = ref("en");
 
   // Store the current rotation in a ref
-  const currentRotation = ref("horizontal");
+  const currentRotation = ref<"horizontal" | "vertical">("horizontal");
 
   // Find the initial project content (default to English)
   const initialContent = project.project.projectContents.find(
@@ -65,7 +65,6 @@
 
   // Handle language change
   const handleLanguageChange = (newLanguage: string) => {
-    console.log("Language changed to:", newLanguage);
     // Update the current language code
     currentLanguageCode.value = newLanguage;
   };

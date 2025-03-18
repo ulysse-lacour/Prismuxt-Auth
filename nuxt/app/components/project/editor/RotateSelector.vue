@@ -1,31 +1,24 @@
 <script setup lang="ts">
-  // In Nuxt 3, auto-imports are available but the linter might not recognize them
-  // If needed, you can also add explicit imports:
-  // import { ref } from 'vue'
-
-  // Define the rotation type
-  type RotateDirection = "horizontal" | "vertical";
-
   // Define props
   const props = defineProps<{
-    rotate?: RotateDirection;
+    rotate?: "horizontal" | "vertical";
   }>();
 
   // Define emits
   const emit = defineEmits<{
-    "update:rotate": [value: RotateDirection];
+    "update:rotate": [value: "horizontal" | "vertical"];
   }>();
 
   // Watch for prop changes to sync with internal state
   const direction = computed({
     get: () => props.rotate || "horizontal",
-    set: (value: RotateDirection) => {
+    set: (value: "horizontal" | "vertical") => {
       emit("update:rotate", value);
     },
   });
 
   // Toggle rotation function
-  const toggleRotate = (newDirection: RotateDirection) => {
+  const toggleRotate = (newDirection: "horizontal" | "vertical") => {
     direction.value = newDirection;
   };
 </script>
