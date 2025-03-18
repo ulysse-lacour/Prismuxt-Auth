@@ -8,7 +8,21 @@
   }>();
 
   // Use our active slide composable
-  const { handleIntersection, isSlideActive } = useActiveSlide();
+  const { handleIntersection, isSlideActive, setActiveSlide } = useActiveSlide();
+
+  // Handle manual activation of a slide
+  const handleActivateSlide = (slideId: string) => {
+    setActiveSlide(slideId);
+
+    // Optional: Scroll the slide into view
+    // This will smoothly scroll to the slide when clicked
+    setTimeout(() => {
+      const slideElement = document.getElementById(`slide-${slideId}`);
+      if (slideElement) {
+        slideElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 50);
+  };
 </script>
 
 <template>
@@ -31,10 +45,12 @@
     <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
       <div v-for="block in projectContent.contentBlocks" :key="block.id">
         <EditorSlide
+          :id="`slide-${block.id}`"
           :slide="block"
           :rotate="rotate"
           :isActive="isSlideActive(block.id)"
           @intersection="handleIntersection"
+          @activate="handleActivateSlide"
         />
       </div>
     </div>

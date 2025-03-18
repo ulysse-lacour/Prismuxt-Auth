@@ -38,12 +38,22 @@
     stop();
   });
 
-  // Emit intersection data for parent component to determine which slide is most visible
-  const emit = defineEmits(["intersection"]);
+  // Handle click on slide to manually activate it
+  const handleSlideClick = () => {
+    emit("activate", props.slide.id);
+  };
+
+  // Emit intersection data and activate events for parent component
+  const emit = defineEmits(["intersection", "activate"]);
 </script>
 
 <template>
-  <section ref="slideElement" class="flex w-full gap-4" :class="{ 'active-slide': props.isActive }">
+  <section
+    ref="slideElement"
+    class="flex w-full cursor-pointer gap-4"
+    :class="{ 'active-slide': props.isActive }"
+    @click="handleSlideClick"
+  >
     <SlideCard :slide="slide" :isActive="props.isActive" />
     <div
       :class="[

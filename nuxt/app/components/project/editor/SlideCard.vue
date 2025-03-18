@@ -3,6 +3,7 @@
 
   const props = defineProps<{
     slide: ProjectContentBlock;
+    isActive?: boolean;
   }>();
 
   // State to track if layout options are visible
@@ -16,6 +17,7 @@
 
 <template>
   <div
+    v-if="isActive"
     class="flex h-fit w-2/12 min-w-[300px] flex-col overflow-hidden rounded-lg bg-[#fff8ef] text-black"
   >
     <!-- Yellow header -->
@@ -56,6 +58,10 @@
         <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 8</div>
       </div>
     </div>
+  </div>
+
+  <div v-else class="h-fit w-2/12 min-w-[300px]">
+    <div class="px-4 py-2">Slide - {{ slide.order }}</div>
   </div>
 </template>
 
