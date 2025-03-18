@@ -4,9 +4,8 @@
   const props = defineProps<{
     project: Project;
     projectContent: ProjectWithContentBlocks;
+    rotate?: "horizontal" | "vertical";
   }>();
-
-  console.log(props.projectContent.contentBlocks);
 </script>
 
 <template>
@@ -28,7 +27,7 @@
     </div>
     <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
       <div v-for="block in projectContent.contentBlocks" :key="block.id">
-        <EditorSection :section="block" />
+        <EditorSection :section="block" :rotate="rotate" />
       </div>
     </div>
   </div>

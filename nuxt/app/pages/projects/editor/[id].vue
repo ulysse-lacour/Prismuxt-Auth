@@ -33,6 +33,9 @@
   // Store the current language code in a ref
   const currentLanguageCode = ref("en");
 
+  // Store the current rotation in a ref
+  const currentRotation = ref("horizontal");
+
   // Find the initial project content (default to English)
   const initialContent = project.project.projectContents.find(
     (content) => content.language.code === "en"
@@ -82,13 +85,14 @@
           :languages="processData({ languages })"
           v-model:selectedLanguage="selectedLanguage"
         />
-        <RotateSelector />
+        <RotateSelector v-model:rotate="currentRotation" />
       </div>
     </header>
 
     <ProjectDisplayEditor
       :project="processProjectData(project.project)"
       :project-content="processProjectContentData(projectContent)"
+      :rotate="currentRotation"
     />
   </div>
 </template>

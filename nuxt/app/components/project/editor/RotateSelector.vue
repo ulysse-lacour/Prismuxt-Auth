@@ -1,9 +1,32 @@
 <script setup lang="ts">
-  const rotate = ref("horizontal");
+  // In Nuxt 3, auto-imports are available but the linter might not recognize them
+  // If needed, you can also add explicit imports:
+  // import { ref } from 'vue'
 
-  const toggleRotate = (direction: "horizontal" | "vertical") => {
-    console.log("Toggle rotate", direction);
-    rotate.value = direction;
+  // Define the rotation type
+  type RotateDirection = "horizontal" | "vertical";
+
+  // Define props
+  const props = defineProps<{
+    rotate?: RotateDirection;
+  }>();
+
+  // Define emits
+  const emit = defineEmits<{
+    "update:rotate": [value: RotateDirection];
+  }>();
+
+  // Watch for prop changes to sync with internal state
+  const direction = computed({
+    get: () => props.rotate || "horizontal",
+    set: (value: RotateDirection) => {
+      emit("update:rotate", value);
+    },
+  });
+
+  // Toggle rotation function
+  const toggleRotate = (newDirection: RotateDirection) => {
+    direction.value = newDirection;
   };
 </script>
 
@@ -26,7 +49,7 @@
         height="15"
         rx="1"
         fill="black"
-        :stroke="rotate === 'horizontal' ? 'white' : '#6b7280'"
+        :stroke="direction === 'horizontal' ? 'white' : '#6b7280'"
         stroke-width="2"
       />
     </svg>
@@ -48,7 +71,7 @@
         rx="1"
         transform="rotate(90 16 1)"
         fill="black"
-        :stroke="rotate === 'vertical' ? 'white' : '#6b7280'"
+        :stroke="direction === 'vertical' ? 'white' : '#6b7280'"
         stroke-width="2"
       />
     </svg>
