@@ -47,7 +47,7 @@
 <template>
   <div>
     <Select v-model="modelValue">
-      <SelectTrigger class="w-[180px] rounded-full bg-zinc-400 text-black">
+      <SelectTrigger class="w-[180px] rounded-full bg-[#C5C5C5] text-black">
         <SelectValue>{{ currentLanguageName }}</SelectValue>
       </SelectTrigger>
       <SelectContent>

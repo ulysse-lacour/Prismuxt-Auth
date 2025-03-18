@@ -6,6 +6,9 @@
     projectContent: ProjectWithContentBlocks;
     rotate?: "horizontal" | "vertical";
   }>();
+
+  // Use our active slide composable
+  const { handleIntersection, isSlideActive } = useActiveSlide();
 </script>
 
 <template>
@@ -27,7 +30,12 @@
     </div>
     <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
       <div v-for="block in projectContent.contentBlocks" :key="block.id">
-        <EditorSection :section="block" :rotate="rotate" />
+        <EditorSlide
+          :slide="block"
+          :rotate="rotate"
+          :isActive="isSlideActive(block.id)"
+          @intersection="handleIntersection"
+        />
       </div>
     </div>
   </div>
