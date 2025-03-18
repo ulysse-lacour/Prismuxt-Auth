@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { toast } from "~/components/ui/toast";
   import type { ProjectContentBlock } from "@prisma/client";
 
   const props = defineProps<{
@@ -6,12 +7,58 @@
     isActive?: boolean;
   }>();
 
+  const emit = defineEmits(["update:slide"]);
+
+  // Get the current route to extract the project ID
+  const route = useRoute();
+  const projectId = route.params.id as string;
+
+  // Use our project content block composable
+  const { updateBlockLayout } = useProjectContentBlock();
+
   // State to track if layout options are visible
   const showLayoutOptions = ref(false);
+
+  // State to track loading state during updates
+  const isUpdating = ref(false);
 
   // Toggle the visibility of layout options
   const toggleLayoutOptions = () => {
     showLayoutOptions.value = !showLayoutOptions.value;
+  };
+
+  // Handle layout selection
+  const handleLayoutSelect = async (layoutType: "HEADER" | "TEXT" | "IMAGE" | "QUOTE") => {
+    try {
+      // Set loading state
+      isUpdating.value = true;
+
+      // Update the block layout
+      const response = await updateBlockLayout(projectId, props.slide.id, layoutType);
+
+      // Emit updated slide data
+      emit("update:slide", response.block);
+
+      // Close the layout options
+      showLayoutOptions.value = false;
+
+      // Show success notification using the global toast
+      toast({
+        title: "Layout updated",
+        description: `Changed slide layout to ${layoutType.toLowerCase()}`,
+      });
+    } catch (error) {
+      // Show error notification using the global toast
+      toast({
+        title: "Update failed",
+        description: "Failed to update slide layout",
+        variant: "destructive",
+      });
+      console.error("Error updating slide layout:", error);
+    } finally {
+      // Reset loading state
+      isUpdating.value = false;
+    }
   };
 
   watch(
@@ -40,6 +87,7 @@
       <button
         @click="toggleLayoutOptions"
         class="flex w-full items-center justify-start rounded-full bg-[#C5C5C5] px-4 py-2 text-left transition duration-150 hover:bg-[#b8b8b8]"
+        :disabled="isUpdating"
       >
         <span>Change Slide Layout</span>
       </button>
@@ -49,11 +97,34 @@
         class="flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out"
         :class="showLayoutOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
       >
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 1</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Header</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Text</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Image</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Quote</div>
+        <button
+          @click="handleLayoutSelect('HEADER')"
+          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+          :disabled="isUpdating"
+        >
+          Header
+        </button>
+        <button
+          @click="handleLayoutSelect('TEXT')"
+          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+          :disabled="isUpdating"
+        >
+          Text
+        </button>
+        <button
+          @click="handleLayoutSelect('IMAGE')"
+          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+          :disabled="isUpdating"
+        >
+          Image
+        </button>
+        <button
+          @click="handleLayoutSelect('QUOTE')"
+          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+          :disabled="isUpdating"
+        >
+          Quote
+        </button>
       </div>
     </div>
   </div>
@@ -64,5 +135,5 @@
 </template>
 
 <style>
-  /* You can add any additional custom styles here if needed */
+  /* Add any component-specific styles here if needed */
 </style>

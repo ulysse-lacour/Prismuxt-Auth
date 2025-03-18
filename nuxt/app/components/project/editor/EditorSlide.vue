@@ -90,8 +90,13 @@
     }
   };
 
+  // Handle slide update from SlideCard
+  const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
+    emit("update", updatedSlide);
+  };
+
   // Emit intersection data and activate events for parent component
-  const emit = defineEmits(["intersection", "activate"]);
+  const emit = defineEmits(["intersection", "activate", "update"]);
 </script>
 
 <template>
@@ -101,17 +106,16 @@
     class="flex w-full gap-4"
     :class="{ 'active-slide': props.isActive }"
   >
-    <SlideCard :slide="slide" :isActive="props.isActive" />
+    <SlideCard :slide="slide" :isActive="props.isActive" @update:slide="handleSlideUpdate" />
 
     <div
       :id="`slide-editor-${slide.id}`"
-      class=""
-      @click="handleActivate"
       :class="[
         'w-full rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
         props.rotate === 'vertical' ? 'aspect-a4-vertical' : 'aspect-a4',
         props.isActive ? 'shadow-lg ring-2 ring-yellow-400' : 'cursor-pointer shadow',
       ]"
+      @click="handleActivate"
     >
       <BlockEditor :block="slide" />
     </div>

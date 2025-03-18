@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import type { Project } from "@prisma/client";
+  import type { Project, ProjectContentBlock } from "@prisma/client";
 
   const props = defineProps<{
     project: Project;
@@ -10,12 +10,17 @@
   // Use our active slide composable
   const { handleIntersection, isSlideActive, setActiveSlide, resetActiveSlide } = useActiveSlide();
 
+  // Create a ref to store the content blocks for reactivity
+  const contentBlocks = ref(props.projectContent.contentBlocks || []);
+
   // Watch for changes in the projectContent (e.g., language change)
   watch(
     () => props.projectContent,
-    () => {
+    (newContent) => {
       // Reset active slide tracking when content changes
       resetActiveSlide();
+      // Update the content blocks
+      contentBlocks.value = newContent.contentBlocks || [];
     },
     { deep: true }
   );
@@ -44,6 +49,21 @@
       }
     }, 100);
   };
+
+  // Handle slide update from EditorSlide
+  const handleUpdateSlide = (updatedSlide: ProjectContentBlock) => {
+    // Find the index of the slide to update
+    const slideIndex = contentBlocks.value.findIndex((block) => block.id === updatedSlide.id);
+
+    if (slideIndex !== -1) {
+      // Create a new array with the updated slide
+      const updatedBlocks = [...contentBlocks.value];
+      updatedBlocks[slideIndex] = updatedSlide;
+
+      // Update the content blocks
+      contentBlocks.value = updatedBlocks;
+    }
+  };
 </script>
 
 <template>
@@ -64,13 +84,14 @@
       </NuxtLink>
     </div>
     <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
-      <div v-for="block in projectContent.contentBlocks" :key="block.id" :id="`slide-${block.id}`">
+      <div v-for="block in contentBlocks" :key="block.id" :id="`slide-${block.id}`">
         <EditorSlide
           :slide="block"
           :rotate="rotate"
           :isActive="isSlideActive(block.id)"
           @intersection="handleIntersection"
           @activate="handleActivateSlide"
+          @update="handleUpdateSlide"
         />
       </div>
     </div>
