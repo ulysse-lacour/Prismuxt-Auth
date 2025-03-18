@@ -14,14 +14,21 @@
   const handleActivateSlide = (slideId: string) => {
     setActiveSlide(slideId);
 
-    // Optional: Scroll the slide into view
-    // This will smoothly scroll to the slide when clicked
     setTimeout(() => {
       const slideElement = document.getElementById(`slide-${slideId}`);
+
+      // Scroll to the element if found
       if (slideElement) {
-        slideElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Use 'start' to scroll to top of the element
+        slideElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      } else {
+        console.error(`Could not find slide element with ID containing ${slideId}`);
       }
-    }, 50);
+    }, 100);
   };
 </script>
 
@@ -43,9 +50,8 @@
       </NuxtLink>
     </div>
     <div v-if="projectContent" class="flex w-11/12 flex-col gap-4">
-      <div v-for="block in projectContent.contentBlocks" :key="block.id">
+      <div v-for="block in projectContent.contentBlocks" :key="block.id" :id="`slide-${block.id}`">
         <EditorSlide
-          :id="`slide-${block.id}`"
           :slide="block"
           :rotate="rotate"
           :isActive="isSlideActive(block.id)"
@@ -56,3 +62,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  /* Add scroll margin to the slide containers */
+  div[id^="slide-"] {
+    scroll-margin-top: 1rem; /* Add 1rem space above when scrolled to */
+  }
+</style>

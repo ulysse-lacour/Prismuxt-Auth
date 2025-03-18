@@ -13,6 +13,19 @@
   const toggleLayoutOptions = () => {
     showLayoutOptions.value = !showLayoutOptions.value;
   };
+
+  watch(
+    () => props.isActive,
+    (newValue, oldValue) => {
+      // If this slide has just become active and layout options were open,
+      // we don't need to do anything
+
+      // But if this slide was active and is now inactive, close the options
+      if (oldValue === true && newValue === false) {
+        showLayoutOptions.value = false;
+      }
+    }
+  );
 </script>
 
 <template>
