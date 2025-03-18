@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { toast } from "~/components/ui/toast";
   import type { Project, ProjectContentBlock } from "@prisma/client";
 
   const props = defineProps<{
@@ -9,6 +10,12 @@
 
   // Use our active slide composable
   const { handleIntersection, isSlideActive, setActiveSlide, resetActiveSlide } = useActiveSlide();
+
+  // Use our project content block composable
+  const { createContentBlock } = useProjectContentBlock();
+
+  // Track if we're currently adding a slide
+  const isAddingSlide = ref(false);
 
   // Create a ref to store the content blocks for reactivity
   const contentBlocks = ref(props.projectContent.contentBlocks || []);
@@ -24,6 +31,48 @@
     },
     { deep: true }
   );
+
+  // Handle adding a new slide
+  const handleAddSlide = async () => {
+    // Prevent multiple simultaneous add requests
+    if (isAddingSlide.value) return;
+
+    try {
+      // Set loading state
+      isAddingSlide.value = true;
+
+      // Add a new slide (default type is TEXT)
+      const response = await createContentBlock(props.project.id, props.projectContent.id);
+
+      // Add the new block to our local state
+      if (response?.block) {
+        contentBlocks.value = [...contentBlocks.value, response.block];
+
+        // Set the new slide as active after a short delay
+        setTimeout(() => {
+          handleActivateSlide(response.block.id);
+        }, 100);
+
+        // Show success notification
+        toast({
+          title: "Slide added",
+          description: "New slide has been added to the project",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding slide:", error);
+
+      // Show error notification
+      toast({
+        title: "Add slide failed",
+        description: "Failed to add new slide",
+        variant: "destructive",
+      });
+    } finally {
+      // Reset loading state
+      isAddingSlide.value = false;
+    }
+  };
 
   // Handle manual activation of a slide
   const handleActivateSlide = (slideId: string) => {
@@ -82,8 +131,13 @@
     </NuxtLink>
 
     <!-- Add Slide button in columns 4-5 -->
-    <button class="col-span-2 col-start-4 flex items-center gap-2">
-      <span>Add Slide</span>
+    <button
+      @click="handleAddSlide"
+      :disabled="isAddingSlide"
+      class="col-span-2 col-start-4 flex items-center gap-2"
+      :class="{ 'cursor-not-allowed opacity-50': isAddingSlide }"
+    >
+      <span>{{ isAddingSlide ? "Adding..." : "Add Slide" }}</span>
       <svg
         width="25"
         height="25"

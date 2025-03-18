@@ -36,6 +36,39 @@ export const useProjectContentBlock = () => {
   };
 
   /**
+   * Creates a new content block for a project content
+   * @param projectId - The ID of the project
+   * @param contentId - The ID of the project content to add the block to
+   * @param blockData - Optional data for the new block (type, order, config, content)
+   * @returns The response from the API with the created block
+   */
+  const createContentBlock = async (
+    projectId: string,
+    contentId: string,
+    blockData?: {
+      type?: "HEADER" | "TEXT" | "IMAGE" | "QUOTE";
+      order?: number;
+      config?: Record<string, any>;
+      content?: Record<string, any>;
+    }
+  ) => {
+    try {
+      const response = await $fetch(`/api/project/${projectId}/block/create`, {
+        method: "POST",
+        body: {
+          contentId,
+          ...blockData,
+        },
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error creating content block:", error);
+      throw error;
+    }
+  };
+
+  /**
    * Updates the layout type of a content block
    * @param projectId - The ID of the project
    * @param blockId - The ID of the block to update
@@ -79,6 +112,7 @@ export const useProjectContentBlock = () => {
 
   return {
     updateContentBlock,
+    createContentBlock,
     updateBlockLayout,
   };
 };
