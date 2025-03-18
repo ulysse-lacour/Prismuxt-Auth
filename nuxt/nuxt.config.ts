@@ -46,6 +46,7 @@ export default defineNuxtConfig({
     "nuxt-security", // Security headers and protections
     "nuxt-nodemailer", // Email sending capabilities
     "@nuxt/test-utils/module", // Testing utilities
+    "nuxt-color-picker", // Color picker
   ],
 
   // Components configuration - https://nuxt.com/docs/guide/directory-structure/components

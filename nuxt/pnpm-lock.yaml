@@ -101,6 +101,9 @@ importers:
       nuxt:
         specifier: ^3.14.159
         version: 3.15.4(@parcel/watcher@2.5.1)(@types/node@22.13.9)(better-sqlite3@11.8.1)(db0@0.2.4(better-sqlite3@11.8.1))(eslint@9.21.0(jiti@2.4.2))(ioredis@5.5.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.34.9)(terser@5.39.0)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(yaml@2.7.0)
+      nuxt-color-picker:
+        specifier: ^1.2.7
+        version: 1.2.7(magicast@0.3.5)
       nuxt-nodemailer:
         specifier: ^1.1.2
         version: 1.1.2(magicast@0.3.5)(nodemailer@6.10.0)
@@ -4725,6 +4728,9 @@ packages:
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
+
+  nuxt-color-picker@1.2.7:
+    resolution: {integrity: sha512-2ChFzIM9Lzk+ZNut11JdSDZj78XqV1xPuZqyw9mscbDT16Jx5ZKY8SpcYL4z4GPeS+lSziO5+sVARojowD7FNA==}
 
   nuxt-csurf@1.6.5:
     resolution: {integrity: sha512-/DMNTON8LIVhntamKbBmAuM879B0QnuSJa7ZAkmkZe+21m+1QGcjVUxtSkizaM48NUvkuAGYOG0ncn+kqEgrzw==}
@@ -12115,6 +12121,13 @@ snapshots:
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
+
+  nuxt-color-picker@1.2.7(magicast@0.3.5):
+    dependencies:
+      '@nuxt/kit': 3.15.4(magicast@0.3.5)
+    transitivePeerDependencies:
+      - magicast
+      - supports-color
 
   nuxt-csurf@1.6.5(magicast@0.3.5):
     dependencies:

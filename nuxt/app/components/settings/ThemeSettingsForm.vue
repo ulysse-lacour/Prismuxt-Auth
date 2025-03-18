@@ -34,6 +34,12 @@
   // Get the current theme settings
   const settings = themeStore.settings;
 
+  // Color refs for the color pickers
+  const backgroundColor = ref<string>(settings?.backgroundColor || "");
+  const textColor = ref<string>(settings?.textColor || "");
+  const accentColor = ref<string>(settings?.accentColor || "");
+  const secondaryColor = ref<string>(settings?.secondaryColor || "");
+
   /**
    * Define validation schema using zod
    * Validates form fields before submission
@@ -56,19 +62,34 @@
     })
   );
 
+  type FormFieldName =
+    | "logoUrl"
+    | "headingFont"
+    | "bodyFont"
+    | "backgroundColor"
+    | "textColor"
+    | "accentColor"
+    | "secondaryColor"
+    | "companyName"
+    | "companyDescription"
+    | "companyEmail"
+    | "companyPhone"
+    | "companyAddress"
+    | "defaultLanguageId";
+
   /**
    * Initialize form with validation and theme settings data
    */
-  const { handleSubmit } = useForm({
+  const { handleSubmit, values, setFieldValue } = useForm({
     validationSchema: themeFormSchema,
     initialValues: {
       logoUrl: settings?.logoUrl || "",
       headingFont: settings?.headingFont || "",
       bodyFont: settings?.bodyFont || "",
-      backgroundColor: settings?.backgroundColor || "",
-      textColor: settings?.textColor || "",
-      accentColor: settings?.accentColor || "",
-      secondaryColor: settings?.secondaryColor || "",
+      backgroundColor: settings?.backgroundColor || "#ffffff",
+      textColor: settings?.textColor || "#000000",
+      accentColor: settings?.accentColor || "#3b82f6",
+      secondaryColor: settings?.secondaryColor || "#10b981",
       companyName: settings?.companyName || "",
       companyDescription: settings?.companyDescription || "",
       companyEmail: settings?.companyEmail || "",
@@ -77,6 +98,67 @@
       defaultLanguageId: settings?.defaultLanguageId || "",
     },
   });
+
+  // Watch local refs and update form values
+  watch(backgroundColor, (newValue) => {
+    setFieldValue("backgroundColor", newValue);
+  });
+
+  watch(textColor, (newValue) => {
+    setFieldValue("textColor", newValue);
+  });
+
+  watch(accentColor, (newValue) => {
+    setFieldValue("accentColor", newValue);
+  });
+
+  watch(secondaryColor, (newValue) => {
+    setFieldValue("secondaryColor", newValue);
+  });
+
+  // Also watch form values and update local refs if changed in the form
+  watch(
+    () => values.backgroundColor,
+    (newValue) => {
+      if (newValue !== backgroundColor.value) {
+        backgroundColor.value = newValue || "#ffffff";
+      }
+    }
+  );
+
+  watch(
+    () => values.textColor,
+    (newValue) => {
+      if (newValue !== textColor.value) {
+        textColor.value = newValue || "#000000";
+      }
+    }
+  );
+
+  watch(
+    () => values.accentColor,
+    (newValue) => {
+      if (newValue !== accentColor.value) {
+        accentColor.value = newValue || "#3b82f6";
+      }
+    }
+  );
+
+  watch(
+    () => values.secondaryColor,
+    (newValue) => {
+      if (newValue !== secondaryColor.value) {
+        secondaryColor.value = newValue || "#10b981";
+      }
+    }
+  );
+
+  /**
+   * Handle color change from the color picker
+   */
+  const handleColorChange = (fieldName: FormFieldName, colorValue: any) => {
+    setFieldValue(fieldName, colorValue.hex);
+  };
 
   /**
    * Handle theme settings form submission
@@ -183,20 +265,34 @@
               <FormItem>
                 <FormLabel>Background Color</FormLabel>
                 <FormControl>
-                  <div class="flex">
+                  <div class="relative flex">
                     <Input
                       v-bind="field"
-                      v-model="field.value"
+                      v-model="backgroundColor"
                       type="text"
                       placeholder="#ffffff"
-                      class="flex-1 rounded-r-none"
+                      class="flex-1"
                     />
                     <input
+                      v-model="backgroundColor"
                       type="color"
-                      disabled
-                      v-model="field.value"
-                      class="h-9 w-9 rounded-r-md border border-input bg-background"
+                      class="pointer-events-none absolute right-0 h-9 w-9 rounded-r-md border border-input bg-background"
                     />
+                    <color-picker
+                      v-model="backgroundColor"
+                      with-hex-input
+                      with-initial-color
+                      with-eye-dropper
+                      v-slot="{ color, show, hide }"
+                      @change="handleColorChange('backgroundColor', $event)"
+                      class="absolute right-0"
+                    >
+                      <div
+                        class="z-10 h-9 w-9 cursor-pointer bg-transparent"
+                        @click="show"
+                        title="Click to open color picker"
+                      ></div>
+                    </color-picker>
                   </div>
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
@@ -207,20 +303,34 @@
               <FormItem>
                 <FormLabel>Text Color</FormLabel>
                 <FormControl>
-                  <div class="flex">
+                  <div class="relative flex">
                     <Input
                       v-bind="field"
-                      v-model="field.value"
+                      v-model="textColor"
                       type="text"
                       placeholder="#000000"
-                      class="flex-1 rounded-r-none"
+                      class="flex-1"
                     />
                     <input
+                      v-model="textColor"
                       type="color"
-                      disabled
-                      v-model="field.value"
-                      class="h-9 w-9 rounded-r-md border border-input bg-background"
+                      class="pointer-events-none absolute right-0 h-9 w-9 rounded-r-md border border-input bg-background"
                     />
+                    <color-picker
+                      v-model="textColor"
+                      with-hex-input
+                      with-initial-color
+                      with-eye-dropper
+                      v-slot="{ color, show, hide }"
+                      @change="handleColorChange('textColor', $event)"
+                      class="absolute right-0"
+                    >
+                      <div
+                        class="z-10 h-9 w-9 cursor-pointer bg-transparent"
+                        @click="show"
+                        title="Click to open color picker"
+                      ></div>
+                    </color-picker>
                   </div>
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
@@ -231,20 +341,34 @@
               <FormItem>
                 <FormLabel>Accent Color</FormLabel>
                 <FormControl>
-                  <div class="flex">
+                  <div class="relative flex">
                     <Input
                       v-bind="field"
-                      v-model="field.value"
+                      v-model="accentColor"
                       type="text"
                       placeholder="#3b82f6"
-                      class="flex-1 rounded-r-none"
+                      class="flex-1"
                     />
                     <input
+                      v-model="accentColor"
                       type="color"
-                      disabled
-                      v-model="field.value"
-                      class="h-9 w-9 rounded-r-md border border-input bg-background"
+                      class="pointer-events-none absolute right-0 h-9 w-9 rounded-r-md border border-input bg-background"
                     />
+                    <color-picker
+                      v-model="accentColor"
+                      with-hex-input
+                      with-initial-color
+                      with-eye-dropper
+                      v-slot="{ color, show, hide }"
+                      @change="handleColorChange('accentColor', $event)"
+                      class="absolute right-0"
+                    >
+                      <div
+                        class="z-10 h-9 w-9 cursor-pointer bg-transparent"
+                        @click="show"
+                        title="Click to open color picker"
+                      ></div>
+                    </color-picker>
                   </div>
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
@@ -255,20 +379,34 @@
               <FormItem>
                 <FormLabel>Secondary Color</FormLabel>
                 <FormControl>
-                  <div class="flex">
+                  <div class="relative flex">
                     <Input
                       v-bind="field"
-                      v-model="field.value"
+                      v-model="secondaryColor"
                       type="text"
                       placeholder="#10b981"
-                      class="flex-1 rounded-r-none"
+                      class="flex-1"
                     />
                     <input
+                      v-model="secondaryColor"
                       type="color"
-                      disabled
-                      v-model="field.value"
-                      class="h-9 w-9 rounded-r-md border border-input bg-background"
+                      class="pointer-events-none absolute right-0 h-9 w-9 rounded-r-md border border-input bg-background"
                     />
+                    <color-picker
+                      v-model="secondaryColor"
+                      with-hex-input
+                      with-initial-color
+                      with-eye-dropper
+                      v-slot="{ color, show, hide }"
+                      @change="handleColorChange('secondaryColor', $event)"
+                      class="absolute right-0"
+                    >
+                      <div
+                        class="z-10 h-9 w-9 cursor-pointer bg-transparent"
+                        @click="show"
+                        title="Click to open color picker"
+                      ></div>
+                    </color-picker>
                   </div>
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
