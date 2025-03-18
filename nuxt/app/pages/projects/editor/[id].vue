@@ -14,6 +14,7 @@
   const { fetchProjectForEditor, fetchProjectLanguages } = useProjectManagement();
   const { processData } = useJsonToDate();
   const { processProjectContentData } = useProjectContentData();
+  const { processProjectData } = useProjectData();
 
   // Route parameters
   const route = useRoute();
@@ -85,6 +86,9 @@
       </div>
     </header>
 
-    <ProjectDisplayEditor :project-content="processProjectContentData(projectContent)" />
+    <ProjectDisplayEditor
+      :project="processProjectData(project.project)"
+      :project-content="processProjectContentData(projectContent)"
+    />
   </div>
 </template>

@@ -17,7 +17,6 @@
   import { Trash2 } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
-  import type { Project } from "@prisma/client";
 
   // Route parameters and navigation
   const route = useRoute();
