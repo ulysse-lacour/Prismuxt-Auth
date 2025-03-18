@@ -39,21 +39,9 @@
       <!-- Change Slide Layout button with toggle arrow -->
       <button
         @click="toggleLayoutOptions"
-        class="flex w-full items-center justify-between rounded-full bg-[#C5C5C5] px-4 py-2 text-left transition duration-150 hover:bg-[#b8b8b8]"
+        class="flex w-full items-center justify-start rounded-full bg-[#C5C5C5] px-4 py-2 text-left transition duration-150 hover:bg-[#b8b8b8]"
       >
         <span>Change Slide Layout</span>
-        <svg
-          class="h-5 w-5 transition-transform duration-200"
-          :class="showLayoutOptions ? 'rotate-180' : ''"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clip-rule="evenodd"
-          />
-        </svg>
       </button>
 
       <!-- Layout options with transition -->
@@ -62,13 +50,10 @@
         :class="showLayoutOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
       >
         <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 1</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 2</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 3</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 4</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 5</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 6</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 7</div>
-        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Layout 8</div>
+        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Header</div>
+        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Text</div>
+        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Image</div>
+        <div class="cursor-pointer rounded-md px-3 py-2 transition hover:bg-gray-200">Quote</div>
       </div>
     </div>
   </div>

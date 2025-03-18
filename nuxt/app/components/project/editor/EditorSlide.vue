@@ -105,15 +105,15 @@
 
     <div
       :id="`slide-editor-${slide.id}`"
-      class="cursor-pointer"
+      class=""
       @click="handleActivate"
       :class="[
-        'w-full rounded-lg bg-white p-4 text-black transition-all duration-300',
+        'w-full rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
         props.rotate === 'vertical' ? 'aspect-a4-vertical' : 'aspect-a4',
-        props.isActive ? 'shadow-lg ring-2 ring-yellow-400' : 'shadow',
+        props.isActive ? 'shadow-lg ring-2 ring-yellow-400' : 'cursor-pointer shadow',
       ]"
     >
-      <h2>{{ slide.type }}</h2>
+      <BlockEditor :block="slide" />
     </div>
   </section>
 </template>
