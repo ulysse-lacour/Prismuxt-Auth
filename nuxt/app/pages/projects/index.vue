@@ -39,40 +39,7 @@
   } from "@tanstack/vue-table";
 
   const { fetchAllProjects } = useProjectManagement();
-  const { processProjectData } = useProjectData();
-
-  const {
-    data: projectsData,
-    pending,
-    error,
-  } = await useAsyncData(
-    "projects",
-    async () => {
-      const { allProjects } = await fetchAllProjects();
-      return allProjects;
-    },
-    {
-      server: true,
-      lazy: false,
-    }
-  );
-
-  const projects = shallowRef<Project[]>(projectsData.value || []);
-  const loading = ref(pending.value);
-  const errorMessage = ref(error.value);
-
-  // Watch for changes in the async data
-  watch(projectsData, (newValue) => {
-    projects.value = newValue || [];
-  });
-
-  watch(pending, (newValue) => {
-    loading.value = newValue;
-  });
-
-  watch(error, (newValue) => {
-    errorMessage.value = newValue;
-  });
+  const { allProjects } = await fetchAllProjects();
 
   const columns: ColumnDef<Project>[] = [
     {
@@ -150,7 +117,7 @@
   const expanded = ref<ExpandedState>({});
 
   const table = useVueTable({
-    data: projects,
+    data: allProjects,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -184,13 +151,7 @@
 
 <template>
   <div class="w-full">
-    <div v-if="loading" class="flex items-center justify-center py-10">
-      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-    </div>
-    <div v-else-if="errorMessage" class="flex items-center justify-center py-10 text-destructive">
-      {{ errorMessage.message }}
-    </div>
-    <div v-else>
+    <div>
       <div class="flex items-center gap-2 py-4">
         <Input
           class="max-w-52"
