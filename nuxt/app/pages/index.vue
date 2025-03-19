@@ -35,8 +35,8 @@
           </NuxtLink>
 
           <!-- Dashboard button for authenticated users -->
-          <NuxtLink v-if="session" to="/dashboard">
-            <Button variant="outline" class="rounded-none"> Dashboard </Button>
+          <NuxtLink v-if="session" to="/projects">
+            <Button variant="outline" class="rounded-none"> Projects </Button>
           </NuxtLink>
         </div>
       </div>

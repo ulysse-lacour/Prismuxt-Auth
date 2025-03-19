@@ -12,6 +12,7 @@ import type { Project } from "@prisma/client";
  *
  * @returns {
  *   // Project Management
+ *   fetchAllProjects: () => Promise<{ projects: Project[] }> - Fetches all projects of the current user
  *   fetchProject: (id: string) => Promise<{ project: Project }> - Fetches a single project by ID
  *   createProject: (data: Partial<Project>) => Promise<{ createdProject: Project }> - Creates a new project
  *   updateProject: (id: string, data: Partial<Project>) => Promise<{ updatedProject: Project }> - Updates an existing project
@@ -50,11 +51,30 @@ export function useProjectManagement() {
   const { processProjectData } = useProjectData();
 
   /**
+   * @function fetchAllProjects
+   *
+   * @description Fetches all projects of the current user
+   *
+   * @returns Promise containing the fetched projects
+   */
+  const fetchAllProjects = async () => {
+    const { data: projects } = await useFetch("/api/projects");
+
+    if (!projects.value) {
+      return { allProjects: [] };
+    }
+
+    const allProjects = projects.value.map((project) => processProjectData(project));
+
+    return { allProjects };
+  };
+
+  /**
    * @function fetchProject
    *
-   * @description Fetches a single project by its ID from the server.
+   * @description Fetches a single project by ID
    *
-   * @param id - The unique identifier for the project
+   * @param id - The unique identifier for the project to fetch
    *
    * @returns Promise containing the fetched project data
    *
@@ -304,7 +324,8 @@ export function useProjectManagement() {
   };
 
   return {
-    // Project
+    // Projects
+    fetchAllProjects,
     fetchProject,
     createProject,
     updateProject,

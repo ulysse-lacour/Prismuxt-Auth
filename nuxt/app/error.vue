@@ -6,6 +6,10 @@
    * It displays a user-friendly error page with the error code and a link to return home.
    */
 
+  definePageMeta({
+    layout: "auth",
+  });
+
   // Get the error object from Nuxt's error handling system
   const error = useError();
 
@@ -13,10 +17,7 @@
   console.error(error.value);
 
   // Determine the error code to display, defaulting to 500 if not available
-  const errorCode = !error.value ? 500 : error.value.statusCode;
-
-  // Commented out but kept for reference - alternative way to get error message
-  // const errorMessage = !error.value ? 'Something went wrong' : error.value.statusMessage;
+  const errorCode = computed(() => error.value?.statusCode || 500);
 
   /**
    * Handle returning to the application
@@ -25,30 +26,31 @@
   const handleError = () => {
     clearError({ redirect: "/" });
   };
+
+  // Clear error when component is unmounted
+  onUnmounted(() => {
+    clearError();
+  });
 </script>
 
 <template>
-  <NuxtLayout>
-    <div id="error-page" :class="`error-${errorCode}`" role="alert" aria-labelledby="error-title">
-      <!-- Error title from i18n translations -->
-      <p id="error-title" class="text-2xl font-bold">
-        {{ $t(`error.error_${errorCode}`) }}
-      </p>
-      <!-- Large error code display -->
-      <div class="error-code">
-        <h1>{{ errorCode }}</h1>
+  <div class="container mx-auto py-10">
+    <div class="flex min-h-[50vh] items-center justify-center">
+      <div class="space-y-4 text-center">
+        <h1 class="text-4xl font-bold">{{ errorCode }}</h1>
+        <p class="text-xl text-muted-foreground">
+          {{ error?.message || "Something went wrong" }}
+        </p>
+        <Button @click="handleError">Return Home</Button>
       </div>
-      <!-- Link to return to home page -->
-      <NuxtLink to="/" class="font-bold" @click="handleError">
-        {{ $t("common.home") }}
-      </NuxtLink>
     </div>
-  </NuxtLayout>
+  </div>
 </template>
 
-<style>
-  /* Hide the burger menu when on the error page */
-  body:has(#error-page) #burger {
-    display: none !important;
+<style scoped>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
   }
 </style>
