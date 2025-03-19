@@ -5,6 +5,7 @@
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
   import { Input } from "@/components/ui/input";
@@ -27,7 +28,7 @@
   } from "@tanstack/vue-table";
   import { useProjectData } from "~/composables/useJsonDateConverter";
   import { useProjectManagement } from "~/composables/useProjectManagement";
-  import { ArrowUpDown, ChevronDown } from "lucide-vue-next";
+  import { ArrowUpDown, ChevronDown, Filter, MoreHorizontal } from "lucide-vue-next";
   import { h, ref, shallowRef, watch } from "vue";
   import type { Project } from "@prisma/client";
   import type {
@@ -60,22 +61,75 @@
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Description", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
     },
     {
       accessorKey: "client",
-      header: "Client",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Client", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
     },
     {
       accessorKey: "createdAt",
-      header: "Created At",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Created At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
       cell: ({ row }) => {
         const date = row.getValue("createdAt") as Date;
         return h("span", null, date.toLocaleDateString("en-GB"));
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        return h(DropdownMenu, null, () => [
+          h(DropdownMenuTrigger, { asChild: true }, () =>
+            h(Button, { variant: "ghost", class: "h-8 w-8 p-0" }, () => [
+              h("span", { class: "sr-only" }, "Open menu"),
+              h(MoreHorizontal, { class: "h-4 w-4" }),
+            ])
+          ),
+          h(DropdownMenuContent, { align: "end" }, () => [
+            h(DropdownMenuItem, null, () => "Edit"),
+            h(DropdownMenuItem, { class: "text-destructive" }, () => "Delete"),
+          ]),
+        ]);
       },
     },
   ];
@@ -123,31 +177,36 @@
   <div class="w-full">
     <ClientOnly>
       <div>
-        <div class="flex items-center gap-2 py-4">
-          <Input
-            class="max-w-52"
-            placeholder="Filter projects..."
-            :model-value="table.getColumn('name')?.getFilterValue() as string"
-            @update:model-value="table.getColumn('name')?.setFilterValue($event)"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child>
-              <Button variant="outline" class="ml-auto">
-                Columns <ChevronDown class="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuCheckboxItem
-                v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
-                :key="column.id"
-                class="capitalize"
-                :model-value="column.getIsVisible()"
-                @update:model-value="(value) => column.toggleVisibility(!!value)"
-              >
-                {{ column.id }}
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div class="flex flex-col gap-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-1 items-center space-x-2">
+              <Input
+                placeholder="Filter projects..."
+                :model-value="table.getColumn('name')?.getFilterValue() as string"
+                @update:model-value="table.getColumn('name')?.setFilterValue($event)"
+                class="h-8 w-[150px] lg:w-[250px]"
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <Button variant="outline" size="sm" class="ml-auto h-8">
+                    <Filter class="mr-2 h-4 w-4" />
+                    View
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuCheckboxItem
+                    v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
+                    :key="column.id"
+                    class="capitalize"
+                    :model-value="column.getIsVisible()"
+                    @update:model-value="(value) => column.toggleVisibility(!!value)"
+                  >
+                    {{ column.id }}
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
         </div>
 
         <div class="rounded-md border">
@@ -155,15 +214,10 @@
             <TableHeader>
               <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
-                  <Button
-                    v-if="header.column.getCanSort()"
-                    variant="ghost"
-                    @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')"
-                  >
-                    {{ header.column.columnDef.header }}
-                    <ArrowUpDown class="ml-2 h-4 w-4" />
-                  </Button>
-                  <span v-else>{{ header.column.columnDef.header }}</span>
+                  <FlexRender
+                    :render="header.column.columnDef.header"
+                    :props="header.getContext()"
+                  />
                 </TableHead>
               </TableRow>
             </TableHeader>
