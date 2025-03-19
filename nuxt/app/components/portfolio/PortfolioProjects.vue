@@ -173,11 +173,11 @@
         title: "Project added",
         description: "Project has been added to your portfolio",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to add project:", error);
       toast({
         title: "Failed to add project",
-        description: "Please try again",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
     }
@@ -216,11 +216,11 @@
         title: "Project removed",
         description: "Project has been removed from your portfolio",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to remove project:", error);
       toast({
         title: "Failed to remove project",
-        description: "Please try again",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
       isDeleteDialogOpen.value = false;

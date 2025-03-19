@@ -110,23 +110,31 @@ export function usePortfolioManagement() {
    * @returns Object containing the updated portfolio with the added project
    */
   const addProjectToPortfolio = async (slug: string, projectId: string) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
-      method: "POST",
-      body: { slug, relatedProject: projectId },
-    });
+    try {
+      const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
+        method: "POST",
+        body: {
+          slug,
+          relatedProject: projectId,
+        },
+      });
 
-    if (updatedPortfolio) {
-      // Process the portfolio data
-      const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
+      if (updatedPortfolio?.portfolio) {
+        // Process the portfolio data
+        const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
 
-      // Update the portfolios store with the updated portfolio
-      portfoliosStore.updatePortfolio(processedPortfolio);
+        // Update the portfolios store with the updated portfolio
+        portfoliosStore.updatePortfolio(processedPortfolio);
 
-      // Also update the current portfolio store
-      currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
+        // Also update the current portfolio store
+        currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
+      }
+
+      return { updatedPortfolio };
+    } catch (error: any) {
+      console.error("Error adding project to portfolio:", error);
+      throw new Error(error.data?.message || "Failed to add project to portfolio");
     }
-
-    return { updatedPortfolio };
   };
 
   /**
@@ -137,23 +145,31 @@ export function usePortfolioManagement() {
    * @returns Object containing the updated portfolio after project removal
    */
   const removeProjectFromPortfolio = async (slug: string, portfolioProjectId: string) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
-      method: "DELETE",
-      body: { slug, relatedProject: portfolioProjectId },
-    });
+    try {
+      const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
+        method: "DELETE",
+        body: {
+          slug,
+          relatedProject: portfolioProjectId,
+        },
+      });
 
-    if (updatedPortfolio) {
-      // Process the portfolio data
-      const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
+      if (updatedPortfolio?.portfolio) {
+        // Process the portfolio data
+        const processedPortfolio = processPortfolioData(updatedPortfolio.portfolio);
 
-      // Update the portfolios store with the updated portfolio
-      portfoliosStore.updatePortfolio(processedPortfolio);
+        // Update the portfolios store with the updated portfolio
+        portfoliosStore.updatePortfolio(processedPortfolio);
 
-      // Also update the current portfolio store
-      currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
+        // Also update the current portfolio store
+        currentPortfolioStore.setCurrentPortfolio(processedPortfolio);
+      }
+
+      return { updatedPortfolio };
+    } catch (error: any) {
+      console.error("Error removing project from portfolio:", error);
+      throw new Error(error.data?.message || "Failed to remove project from portfolio");
     }
-
-    return { updatedPortfolio };
   };
 
   /**

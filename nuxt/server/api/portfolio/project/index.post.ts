@@ -97,7 +97,6 @@ export default defineEventHandler(async (event) => {
         portfolioProjects: {
           include: {
             project: true,
-            contentBlocks: true,
           },
           orderBy: {
             order: "asc",
