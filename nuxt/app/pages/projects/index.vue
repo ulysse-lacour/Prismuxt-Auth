@@ -105,7 +105,7 @@
       },
       cell: ({ row }) => {
         const date = row.getValue("createdAt") as Date;
-        return date.toLocaleDateString();
+        return h("span", null, date.toLocaleDateString("en-GB"));
       },
     },
   ];
