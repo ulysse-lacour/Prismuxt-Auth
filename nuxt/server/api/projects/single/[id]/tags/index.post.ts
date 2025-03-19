@@ -2,13 +2,41 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint add a new tag to a project
- * POST /api/project/:id/tags
+ * @server
  *
- * Request body:
- * {
- *   tagId: string;
+ * @description Adds a new tag to a project
+ *
+ * @endpoint POST /api/projects/single/:id/tags
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project
  * }
+ *
+ * @body {
+ *   tagId: string - ID of the tag to add to the project
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the tag was added successfully
+ *   addedTag: {
+ *     id: string - Project tag unique identifier
+ *     projectId: string - Associated project ID
+ *     tagId: string - Associated tag ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID or tag ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project not found or access denied
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new project-tag association in the database
  */
 
 export default defineEventHandler(async (event) => {

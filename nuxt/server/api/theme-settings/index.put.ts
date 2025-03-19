@@ -2,28 +2,45 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update theme settings for the current user
- * PUT /api/theme-settings
+ * @server
  *
- * Request body:
- * {
- *   logoUrl?: string;
- *   headingFont?: string;
- *   bodyFont?: string;
- *   backgroundColor?: string;
- *   textColor?: string;
- *   accentColor?: string;
- *   secondaryColor?: string;
- *   companyName?: string;
- *   companyDescription?: string;
- *   companyEmail?: string;
- *   companyPhone?: string;
- *   companyAddress?: string;
- *   defaultLanguageId?: string;
+ * @description Updates or creates theme settings for the current user, including
+ * visual preferences and company information
+ *
+ * @endpoint PUT /api/theme-settings
+ *
+ * @auth Required
+ *
+ * @body {
+ *   logoUrl?: string - URL of the company logo
+ *   headingFont?: string - Font family for headings
+ *   bodyFont?: string - Font family for body text
+ *   backgroundColor?: string - Background color hex code
+ *   textColor?: string - Text color hex code
+ *   accentColor?: string - Accent color hex code
+ *   secondaryColor?: string - Secondary color hex code
+ *   companyName?: string - Company display name
+ *   companyDescription?: string - Company description
+ *   companyEmail?: string - Company contact email
+ *   companyPhone?: string - Company contact phone
+ *   companyAddress?: string - Company physical address
+ *   defaultLanguageId?: string - Default language identifier
  * }
  *
- * Response:
- * Updated ThemeSettings object
+ * @response {
+ *   id: string - Settings unique identifier
+ *   userId: string - Associated user ID
+ *   // ... all fields from request body
+ *   createdAt: string - Creation timestamp
+ *   updatedAt: string - Last update timestamp
+ * }
+ *
+ * @error {
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates new settings if they don't exist, otherwise updates existing ones
  */
 
 export default defineEventHandler(async (event) => {

@@ -2,15 +2,40 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to create a new project
- * POST /api/project
+ * @server
  *
- * Request body:
- * {
- *   name: string;
- *   description?: string;
- *   client?: string;
+ * @description Creates a new project for the authenticated user
+ *
+ * @endpoint POST /api/projects/single
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - Project name (required)
+ *   description?: string - Project description (optional)
+ *   client?: string - Client name (optional)
  * }
+ *
+ * @response {
+ *   success: boolean - Whether the project was created successfully
+ *   project: {
+ *     id: string - Project unique identifier
+ *     name: string - Project name
+ *     description: string | null - Project description
+ *     client: string | null - Client name
+ *     userId: string - Owner's user ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing or invalid project name
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new project record in the database
  */
 
 export default defineEventHandler(async (event) => {

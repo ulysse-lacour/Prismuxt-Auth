@@ -2,8 +2,32 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to remove a tag from a project
- * DELETE /api/projects/:id/tags/:tagId
+ * @server
+ *
+ * @description Removes a tag from a project
+ *
+ * @endpoint DELETE /api/projects/single/:id/tags/:tagId
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project
+ *   tagId: string - The unique identifier of the tag to remove
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the tag was removed successfully
+ *   message: string - Success message
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID or tag ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project not found or access denied
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Removes the project-tag association from the database
  */
 
 export default defineEventHandler(async (event) => {

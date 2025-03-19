@@ -2,17 +2,40 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update a portfolio's basic information
- * PUT /api/portfolio
+ * @server
  *
- * Request body:
- * {
- *   name?: string;       // New portfolio name
- *   description?: string; // New portfolio description
+ * @description Updates a portfolio's basic information (name and description)
+ *
+ * @endpoint PUT /api/portfolio
+ *
+ * @auth Required
+ *
+ * @params {
+ *   slug: string - The unique slug of the portfolio to update
  * }
  *
- * Returns the updated portfolio
- * Requires authentication
+ * @body {
+ *   name?: string - New portfolio name (optional)
+ *   description?: string - New portfolio description (optional)
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the update was successful
+ *   portfolio: {
+ *     id: string - Portfolio unique identifier
+ *     name: string - Updated portfolio name
+ *     description: string | null - Updated portfolio description
+ *     slug: string - Portfolio URL slug
+ *     // ... other portfolio properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing portfolio slug or no fields to update
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Portfolio not found
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

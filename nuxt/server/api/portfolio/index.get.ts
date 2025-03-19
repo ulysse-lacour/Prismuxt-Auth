@@ -1,10 +1,36 @@
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch a single portfolio by slug
- * GET /api/portfolio/[slug]
+ * @server
  *
- * Returns the portfolio with all related projects and content blocks
+ * @description Fetches a single portfolio by its slug, including all related projects
+ * and content blocks in ordered sequence
+ *
+ * @endpoint GET /api/portfolio
+ *
+ * @auth Not Required
+ *
+ * @params {
+ *   slug: string - The unique slug of the portfolio to fetch
+ * }
+ *
+ * @response {
+ *   portfolio: {
+ *     id: string - Portfolio unique identifier
+ *     slug: string - Portfolio URL slug
+ *     portfolioProjects: Array<{
+ *       project: Project - Associated project data
+ *       order: number - Display order in portfolio
+ *     }>
+ *     // ... other portfolio properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Portfolio slug is required
+ *   404: Not Found - Portfolio not found
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

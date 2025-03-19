@@ -2,8 +2,37 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to delete a project
- * DELETE /api/project/<id>
+ * @server
+ *
+ * @description Deletes a project and all its associated data
+ *
+ * @endpoint DELETE /api/projects/single/:id
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project to delete
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the deletion was successful
+ *   project: {
+ *     id: string - Project unique identifier
+ *     name: string - Project name
+ *     description: string | null - Project description
+ *     client: string | null - Client name
+ *     // ... other project properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Deletes the project and all related records from the database
  */
 
 export default defineEventHandler(async (event) => {

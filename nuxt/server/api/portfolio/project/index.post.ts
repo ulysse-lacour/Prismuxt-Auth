@@ -2,18 +2,39 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to add a project to a portfolio
- * PUT /api/portfolio/add-project
+ * @server
  *
- * Request body:
- * {
- *   slug: string;        // Portfolio slug
- *   relatedProject: string;  // Project ID to add
+ * @description Adds a project to a portfolio with automatic ordering
+ *
+ * @endpoint POST /api/portfolio/project
+ *
+ * @auth Required
+ *
+ * @body {
+ *   slug: string - The unique slug of the portfolio to add the project to
+ *   relatedProject: string - The ID of the project to add
  * }
  *
- * Returns the updated portfolio with all related projects
+ * @response {
+ *   success: boolean - Whether the project was added successfully
+ *   portfolio: {
+ *     id: string - Portfolio unique identifier
+ *     portfolioProjects: Array<{
+ *       project: Project - Associated project data
+ *       order: number - Display order in portfolio
+ *     }>
+ *     // ... other portfolio properties
+ *   }
+ * }
  *
- * Authentication: Required (user must be logged in)
+ * @error {
+ *   400: Bad Request - Missing required fields or project already linked
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Portfolio or project not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new PortfolioProject record and updates project order
  */
 
 export default defineEventHandler(async (event) => {

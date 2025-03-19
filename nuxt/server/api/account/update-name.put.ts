@@ -2,23 +2,30 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's name
+ * @server
  *
- * Endpoint: PUT /api/account/update-name
+ * @description Updates the current user's display name
  *
- * Request body:
- * {
- *   name: string; // New full name for the user
+ * @endpoint PUT /api/account/update-name
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - New display name for the user (will be trimmed)
  * }
  *
- * Response:
- * {
- *   success: boolean;
- *   message: string;
+ * @response {
+ *   success: boolean - Whether the name was updated successfully
+ *   message: string - Success or error message
  * }
  *
- * Authentication: Required (user must be logged in)
- * Validation: Ensures name is non-empty and properly trimmed
+ * @error {
+ *   400: Bad Request - Invalid or empty name
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @validation Ensures name is non-empty and properly trimmed
  */
 
 export default defineEventHandler(async (event) => {

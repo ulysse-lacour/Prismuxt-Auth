@@ -2,24 +2,33 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's password
+ * @server
  *
- * Endpoint: PUT /api/account/update-password
+ * @description Updates the current user's password after verifying their current password
  *
- * Request body:
- * {
- *   currentPassword: string; // User's current password for verification
- *   newPassword: string;     // New password to set
+ * @endpoint PUT /api/account/update-password
+ *
+ * @auth Required
+ *
+ * @body {
+ *   currentPassword: string - User's current password for verification
+ *   newPassword: string - New password to set (minimum 8 characters)
  * }
  *
- * Response:
- * {
- *   success: boolean;
- *   message: string;
+ * @response {
+ *   success: boolean - Whether the password was updated successfully
+ *   message: string - Success or error message
  * }
  *
- * Authentication: Required (user must be logged in)
- * Security: Verifies current password before allowing change
+ * @error {
+ *   400: Bad Request - Missing or invalid password format
+ *   401: Unauthorized - User not authenticated
+ *   403: Forbidden - Current password is incorrect
+ *   404: Not Found - Password not found in database
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @security Verifies current password before allowing change
  */
 
 export default defineEventHandler(async (event) => {

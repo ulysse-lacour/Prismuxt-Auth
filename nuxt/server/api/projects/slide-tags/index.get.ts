@@ -1,6 +1,32 @@
 import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
+/**
+ * @server
+ *
+ * @description Fetches all slide tags for the authenticated user, sorted alphabetically
+ *
+ * @endpoint GET /api/projects/slide-tags
+ *
+ * @auth Required
+ *
+ * @response {
+ *   tags: Array<{
+ *     id: string - Tag unique identifier
+ *     name: string - Tag name
+ *     userId: string - Owner's user ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }>
+ * }
+ *
+ * @error {
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - User not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ */
+
 export default defineEventHandler(async (event) => {
   try {
     // Check if user is authenticated

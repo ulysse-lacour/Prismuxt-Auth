@@ -1,6 +1,39 @@
 import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
+/**
+ * @server
+ *
+ * @description Creates a new slide tag for the authenticated user
+ *
+ * @endpoint POST /api/projects/slide-tags/create
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - Tag name (required)
+ * }
+ *
+ * @response {
+ *   tag: {
+ *     id: string - Tag unique identifier
+ *     name: string - Tag name
+ *     userId: string - Owner's user ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing tag name
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - User not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new slide tag record in the database
+ */
+
 export default defineEventHandler(async (event) => {
   try {
     // Check if user is authenticated

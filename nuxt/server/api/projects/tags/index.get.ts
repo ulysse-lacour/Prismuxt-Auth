@@ -2,8 +2,28 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch all tags belonging to a user
- * GET /api/projects/tags
+ * @server
+ *
+ * @description Fetches all project tags for the authenticated user
+ *
+ * @endpoint GET /api/projects/tags
+ *
+ * @auth Required
+ *
+ * @response {
+ *   tags: Array<{
+ *     id: string - Tag unique identifier
+ *     name: string - Tag name
+ *     userId: string - Owner's user ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }>
+ * }
+ *
+ * @error {
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

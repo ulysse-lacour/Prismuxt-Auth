@@ -2,18 +2,39 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to remove a project from a portfolio
- * PUT /api/portfolio/remove-project
+ * @server
  *
- * Request body:
- * {
- *   slug: string;        // Portfolio slug
- *   relatedProject: string;  // PortfolioProject ID to remove
+ * @description Removes a project from a portfolio and reorders remaining projects
+ *
+ * @endpoint DELETE /api/portfolio/project
+ *
+ * @auth Required
+ *
+ * @body {
+ *   slug: string - The unique slug of the portfolio to remove the project from
+ *   relatedProject: string - The ID of the PortfolioProject relationship to remove
  * }
  *
- * Returns the updated portfolio with remaining related projects
+ * @response {
+ *   success: boolean - Whether the project was removed successfully
+ *   portfolio: {
+ *     id: string - Portfolio unique identifier
+ *     portfolioProjects: Array<{
+ *       project: Project - Associated project data
+ *       order: number - Display order in portfolio
+ *     }>
+ *     // ... other portfolio properties
+ *   }
+ * }
  *
- * Authentication: Required (user must be logged in)
+ * @error {
+ *   400: Bad Request - Missing required fields
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Portfolio or project link not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Deletes the PortfolioProject record and reorders remaining projects
  */
 
 export default defineEventHandler(async (event) => {

@@ -2,12 +2,38 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to delete a portfolio
- * DELETE /api/portfolio
+ * @server
  *
- * Returns the deleted portfolio data
+ * @description Deletes a portfolio and all its associated data
  *
- * Authentication: Required (user must be logged in)
+ * @endpoint DELETE /api/portfolio
+ *
+ * @auth Required
+ *
+ * @params {
+ *   slug: string - The unique slug of the portfolio to delete
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the deletion was successful
+ *   portfolio: {
+ *     id: string - Portfolio unique identifier
+ *     name: string - Portfolio name
+ *     description: string | null - Portfolio description
+ *     slug: string - Portfolio URL slug
+ *     // ... other portfolio properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing portfolio slug
+ *   401: Unauthorized - User not authenticated
+ *   403: Forbidden - User doesn't own the portfolio
+ *   404: Not Found - Portfolio not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Deletes the portfolio and all related records from the database
  */
 
 export default defineEventHandler(async (event) => {

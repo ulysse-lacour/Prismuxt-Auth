@@ -2,8 +2,46 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update a specific project content block
- * PUT /api/project/[id]/block/update
+ * @server
+ *
+ * @description Updates a specific project content block's type, configuration, and content
+ *
+ * @endpoint PUT /api/projects/single/:id/block/update
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project
+ * }
+ *
+ * @body {
+ *   blockId: string - ID of the content block to update
+ *   type?: "HEADER" | "TEXT" | "IMAGE" | "QUOTE" - New block type
+ *   config?: object - New configuration options
+ *   content?: object - New content options
+ * }
+ *
+ * @response {
+ *   block: {
+ *     id: string - Block unique identifier
+ *     type: string - Updated block type
+ *     config: object - Updated configuration
+ *     content: object - Updated content
+ *     projectContentId: string - Associated project content ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID or block ID
+ *   401: Unauthorized - User not authenticated
+ *   403: Forbidden - Block does not belong to the specified project
+ *   404: Not Found - Content block not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Updates the specified content block in the database
  */
 
 export default defineEventHandler(async (event) => {

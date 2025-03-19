@@ -2,11 +2,26 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch the current user's theme settings
- * GET /api/theme-settings
+ * @server
  *
- * Response:
- * ThemeSettings object or null if not found
+ * @description Fetches the current user's theme preferences and settings
+ *
+ * @endpoint GET /api/theme-settings
+ *
+ * @auth Required
+ *
+ * @response {
+ *   id: string - Settings unique identifier
+ *   userId: string - Associated user ID
+ *   theme: string - Selected theme (light/dark/system)
+ *   accentColor: string - User's preferred accent color
+ *   // ... other theme settings
+ * }
+ *
+ * @error {
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

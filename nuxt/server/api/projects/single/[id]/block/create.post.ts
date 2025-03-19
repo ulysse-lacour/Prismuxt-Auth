@@ -2,8 +2,47 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to create a new project content block
- * POST /api/project/[id]/block/create
+ * @server
+ *
+ * @description Creates a new project content block with default configurations based on type
+ *
+ * @endpoint POST /api/projects/single/:id/block/create
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project
+ * }
+ *
+ * @body {
+ *   type: "HEADER" | "TEXT" | "IMAGE" | "QUOTE" - Type of content block (defaults to "TEXT")
+ *   contentId: string - ID of the project content to add the block to
+ *   order?: number - Display order (auto-calculated if not provided)
+ *   config?: object - Additional configuration options
+ *   content?: object - Additional content options
+ * }
+ *
+ * @response {
+ *   block: {
+ *     id: string - Block unique identifier
+ *     type: string - Block type
+ *     order: number - Display order
+ *     config: object - Block configuration
+ *     content: object - Block content
+ *     projectContentId: string - Associated project content ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID or content ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project content not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new content block record in the database with default configurations
  */
 
 export default defineEventHandler(async (event) => {

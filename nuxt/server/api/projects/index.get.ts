@@ -1,28 +1,33 @@
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch all projects with their link status to a specific portfolio
+ * @server
  *
- * Endpoint: GET /api/projects?slug=<portfolioSlug>
+ * @description Fetches all projects with their link status to a specific portfolio
  *
- * Query Parameters:
- * - slug: string - The unique slug of the portfolio to check project links against
+ * @endpoint GET /api/projects
  *
- * Response:
- * Array of Project objects with an additional isLinked property:
- * [
- *   {
- *     id: string;
- *     name: string;
- *     description: string;
+ * @auth Required
+ *
+ * @params {
+ *   slug: string - The unique slug of the portfolio to check project links against
+ * }
+ *
+ * @response {
+ *   projects: Array<{
+ *     id: string - Project unique identifier
+ *     name: string - Project name
+ *     description: string - Project description
+ *     isLinked: boolean - Whether this project is linked to the specified portfolio
  *     // ... other project properties
- *     isLinked: boolean; // Whether this project is linked to the specified portfolio
- *   },
- *   // ... more projects
- * ]
+ *   }>
+ * }
  *
- * Purpose: Used for portfolio management to show which projects are already
- * associated with a specific portfolio
+ * @error {
+ *   400: Bad Request - Portfolio slug is required
+ *   404: Not Found - Portfolio not found
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

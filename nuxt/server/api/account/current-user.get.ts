@@ -2,26 +2,33 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch the current authenticated user's data
+ * @server
  *
- * Endpoint: GET /api/account/current-user
+ * @description Fetches the current authenticated user's profile data including
+ * associated projects and portfolios
  *
- * Response:
- * {
+ * @endpoint GET /api/account/current-user
+ *
+ * @auth Required
+ *
+ * @response {
  *   user: {
- *     id: string;
- *     name: string;
- *     email: string;
- *     emailVerified: boolean;
- *     image: string | null;
- *     twoFactorEnabled: boolean;
- *     projects: Project[];
- *     portfolios: Portfolio[];
+ *     id: string - Unique user identifier
+ *     name: string - User's display name
+ *     email: string - User's email address
+ *     emailVerified: boolean - Email verification status
+ *     image: string | null - User's profile image URL
+ *     twoFactorEnabled: boolean - 2FA status
+ *     projects: Project[] - User's associated projects
+ *     portfolios: Portfolio[] - User's associated portfolios
  *   }
  * }
  *
- * Authentication: Required (user must be logged in)
- * Purpose: Provides user profile data and associated projects/portfolios
+ * @error {
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - User not found in database
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

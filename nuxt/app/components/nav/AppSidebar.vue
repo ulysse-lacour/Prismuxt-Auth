@@ -79,7 +79,7 @@
           })),
           {
             title: "New",
-            url: "/projects/new",
+            url: "/projects/create",
             icon: Plus,
           },
         ],
@@ -96,7 +96,7 @@
           })),
           {
             title: "New",
-            url: "/portfolios/new",
+            url: "/portfolios/create",
             icon: Plus,
           },
         ],

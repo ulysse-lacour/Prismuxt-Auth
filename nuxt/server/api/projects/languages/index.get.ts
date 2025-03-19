@@ -1,26 +1,31 @@
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch all projects languages options
+ * @server
  *
- * Endpoint: GET /api/projects/languages
+ * @description Fetches all available project languages
  *
- * Response:
- * Array of Language objects:
- * [
- *   {
- *     id: string;
- *     code: string;
- *     name: string;
- *     isDefault: boolean;
- *     createdAt: Date;
- *     updatedAt: Date;
- *     userId: string;
- *   },
- *   // ... more languages
- * ]
+ * @endpoint GET /api/projects/languages
  *
- * Purpose: Used for project editor to show which languages are available
+ * @auth Not Required
+ *
+ * @response {
+ *   languages: Array<{
+ *     id: string - Language unique identifier
+ *     code: string - Language code (e.g., 'en', 'fr')
+ *     name: string - Language display name
+ *     isDefault: boolean - Whether this is the default language
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *     userId: string - Owner's user ID
+ *   }>
+ * }
+ *
+ * @error {
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @purpose Used for project editor to show which languages are available
  */
 
 export default defineEventHandler(async (event) => {

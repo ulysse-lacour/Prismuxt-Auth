@@ -2,30 +2,38 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to create a new portfolio
+ * @server
  *
- * Endpoint: POST /api/portfolio
+ * @description Creates a new portfolio for the authenticated user with an auto-generated
+ * URL-friendly slug
  *
- * Request body:
- * {
- *   name: string;        // Portfolio name (required)
- *   description?: string; // Optional portfolio description
+ * @endpoint POST /api/portfolio
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - Portfolio name (required)
+ *   description?: string - Optional portfolio description
  * }
  *
- * Response:
- * {
- *   id: string;
- *   name: string;
- *   description: string | null;
- *   isPublic: boolean;
- *   slug: string;       // Auto-generated URL-friendly identifier
- *   createdAt: string;
- *   updatedAt: string;
- *   userId: string;
+ * @response {
+ *   id: string - Portfolio unique identifier
+ *   name: string - Portfolio name
+ *   description: string | null - Portfolio description
+ *   isPublic: boolean - Portfolio visibility status
+ *   slug: string - Auto-generated URL-friendly identifier
+ *   createdAt: string - Creation timestamp
+ *   updatedAt: string - Last update timestamp
+ *   userId: string - Owner's user ID
  * }
  *
- * Authentication: Required (user must be logged in)
- * Side effects: Creates a new portfolio record in the database
+ * @error {
+ *   400: Bad Request - Invalid or missing portfolio name
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new portfolio record in the database
  */
 
 // Utils functions

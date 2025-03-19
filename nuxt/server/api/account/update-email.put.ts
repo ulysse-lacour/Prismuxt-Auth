@@ -2,23 +2,30 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's email address
+ * @server
  *
- * Endpoint: PUT /api/account/update-email
+ * @description Updates the current user's email address and resets email verification status
  *
- * Request body:
- * {
- *   email: string; // New email address
+ * @endpoint PUT /api/account/update-email
+ *
+ * @auth Required
+ *
+ * @body {
+ *   email: string - New email address to set for the user
  * }
  *
- * Response:
- * {
- *   success: boolean;
- *   message: string;
+ * @response {
+ *   success: boolean - Whether the email was updated successfully
+ *   message: string - Success or error message
  * }
  *
- * Authentication: Required (user must be logged in)
- * Side effects: Sets emailVerified to false when email is changed
+ * @error {
+ *   400: Bad Request - Invalid email format or email already in use
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Sets emailVerified to false when email is changed
  */
 
 export default defineEventHandler(async (event) => {

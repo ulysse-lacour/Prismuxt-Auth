@@ -2,21 +2,45 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the slide tag of a project content block
+ * @server
  *
- * Endpoint: PUT /api/projects/single/[id]/block/[blockId]/slide-tag
+ * @description Updates the slide tag of a project content block
  *
- * Request body:
- * {
- *   tagId: string; // The ID of the tag to assign, or null to remove the tag
+ * @endpoint PUT /api/projects/single/:id/block/:blockId/slide-tag
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project
+ *   blockId: string - The unique identifier of the content block
  * }
  *
- * Response:
- * {
- *   block: ProjectContentBlock;
+ * @body {
+ *   tagId: string | null - The ID of the tag to assign, or null to remove the tag
  * }
  *
- * Authentication: Required (user must be logged in)
+ * @response {
+ *   block: {
+ *     id: string - Block unique identifier
+ *     slideTagId: string | null - Associated slide tag ID
+ *     slideTag: {
+ *       id: string - Tag unique identifier
+ *       name: string - Tag name
+ *       userId: string - Owner's user ID
+ *       // ... other tag properties
+ *     } | null - Associated slide tag data
+ *     // ... other block properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID or block ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project, user, or tag not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Updates the slideTagId field of the content block
  */
 
 export default defineEventHandler(async (event) => {

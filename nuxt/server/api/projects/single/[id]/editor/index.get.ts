@@ -1,8 +1,55 @@
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch a single project by ID
- * GET /api/project/<id>/editor
+ * @server
+ *
+ * @description Fetches a single project by ID with all its content blocks and languages
+ * for use in the project editor
+ *
+ * @endpoint GET /api/projects/single/:id/editor
+ *
+ * @auth Not Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project to fetch
+ * }
+ *
+ * @response {
+ *   project: {
+ *     id: string - Project unique identifier
+ *     name: string - Project name
+ *     description: string | null - Project description
+ *     client: string | null - Client name
+ *     projectContents: Array<{
+ *       id: string - Content unique identifier
+ *       contentBlocks: Array<{
+ *         id: string - Block unique identifier
+ *         type: string - Block type
+ *         order: number - Display order
+ *         config: object - Block configuration
+ *         content: object - Block content
+ *         slideTag: {
+ *           id: string - Tag unique identifier
+ *           name: string - Tag name
+ *           // ... other tag properties
+ *         } | null - Associated slide tag
+ *       }> - Ordered content blocks
+ *       language: {
+ *         id: string - Language unique identifier
+ *         name: string - Language name
+ *         code: string - Language code
+ *         // ... other language properties
+ *       } - Associated language
+ *     }> - Project contents by language
+ *     // ... other project properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID
+ *   404: Not Found - Project not found
+ *   500: Internal Server Error - Server-side error
+ * }
  */
 
 export default defineEventHandler(async (event) => {

@@ -2,15 +2,40 @@ import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update a project
- * PUT /api/project/<id>
+ * @server
  *
- * Request body:
- * {
- *   id: string;
- *   name?: string;
- *   description?: string;
- *   client?: string;
+ * @description Updates a project's basic information (name, description, client)
+ *
+ * @endpoint PUT /api/projects/single/:id
+ *
+ * @auth Required
+ *
+ * @params {
+ *   id: string - The unique identifier of the project to update
+ * }
+ *
+ * @body {
+ *   name?: string - New project name (optional)
+ *   description?: string - New project description (optional)
+ *   client?: string - New client name (optional)
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the update was successful
+ *   project: {
+ *     id: string - Project unique identifier
+ *     name: string - Updated project name
+ *     description: string | null - Updated project description
+ *     client: string | null - Updated client name
+ *     // ... other project properties
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing project ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - Project not found
+ *   500: Internal Server Error - Server-side error
  * }
  */
 
