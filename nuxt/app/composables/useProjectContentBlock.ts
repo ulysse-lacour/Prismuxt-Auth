@@ -1,3 +1,5 @@
+import type { SlideTag } from "@prisma/client";
+
 /**
  * Composable for managing project content blocks
  * Provides functions for updating and managing blocks
@@ -110,9 +112,64 @@ export const useProjectContentBlock = () => {
     });
   };
 
+  /**
+   * Fetches all slide tags for the current user
+   * @returns The response from the API with the list of tags
+   */
+  const fetchSlideTags = async () => {
+    try {
+      const response = await useFetch<{ tags: SlideTag[] }>(`/api/slide-tags`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching slide tags:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * Creates a new slide tag
+   * @param name - The name of the tag to create
+   * @returns The response from the API with the created tag
+   */
+  const createSlideTag = async (name: string) => {
+    try {
+      const response = await $fetch(`/api/slide-tags/create`, {
+        method: "POST",
+        body: { name },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error creating slide tag:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * Updates a slide's tag
+   * @param projectId - The ID of the project that contains the slide
+   * @param blockId - The ID of the slide to update
+   * @param tagId - The ID of the tag to assign, or null to remove the tag
+   * @returns The response from the API with the updated block
+   */
+  const updateSlideTag = async (projectId: string, blockId: string, tagId: string | null) => {
+    try {
+      const response = await $fetch(`/api/project/${projectId}/block/${blockId}/tag`, {
+        method: "PUT",
+        body: { tagId },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error updating slide tag:", error);
+      throw error;
+    }
+  };
+
   return {
     updateContentBlock,
     createContentBlock,
     updateBlockLayout,
+    fetchSlideTags,
+    createSlideTag,
+    updateSlideTag,
   };
 };

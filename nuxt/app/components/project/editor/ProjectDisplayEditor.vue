@@ -135,9 +135,9 @@
       @click="handleAddSlide"
       :disabled="isAddingSlide"
       class="col-span-2 col-start-4 flex items-center gap-2"
-      :class="{ 'cursor-not-allowed opacity-50': isAddingSlide }"
+      :class="{ 'cursor-not-allowed': isAddingSlide }"
     >
-      <span>{{ isAddingSlide ? "Adding..." : "Add Slide" }}</span>
+      <span>Add Slide</span>
       <svg
         width="25"
         height="25"

@@ -29,7 +29,8 @@
   const projectId = route.params.id as string;
 
   // Use our project content block composable
-  const { updateBlockLayout } = useProjectContentBlock();
+  const { updateBlockLayout, fetchSlideTags, createSlideTag, updateSlideTag } =
+    useProjectContentBlock();
 
   // State to track if layout options are visible
   const showLayoutOptions = ref(false);
@@ -44,7 +45,7 @@
   const isLoadingTag = ref(false);
 
   // Fetch all slide tags for the current user
-  const { data: slideTags } = await useFetch<{ tags: SlideTag[] }>(`/api/slide-tags`);
+  const { data: slideTags } = await fetchSlideTags();
 
   // Available tags for selection
   const availableTags = computed(() => {
@@ -107,10 +108,7 @@
 
     try {
       isLoadingTag.value = true;
-      const response = await $fetch(`/api/slide-tags/create`, {
-        method: "POST",
-        body: { name: searchInput.value },
-      });
+      const response = await createSlideTag(searchInput.value);
 
       if (response.tag) {
         // Add the new tag to slideTags
@@ -123,12 +121,14 @@
         }
 
         // Update the slide with the new tag
-        await updateSlideTag(response.tag.id);
-        // Set the selected tag to match the newly created tag
-        selectedTag.value = {
-          value: response.tag.id,
-          label: response.tag.name,
-        };
+        const updateResponse = await handleUpdateSlideTag(response.tag.id);
+        if (updateResponse?.block) {
+          // Set the selected tag to match the newly created tag
+          selectedTag.value = {
+            value: response.tag.id,
+            label: response.tag.name,
+          };
+        }
         // Reset input
         searchInput.value = "";
         open.value = false;
@@ -150,13 +150,10 @@
   };
 
   // Handle updating the slide's tag
-  const updateSlideTag = async (tagId: string | null) => {
+  const handleUpdateSlideTag = async (tagId: string | null) => {
     try {
       isLoadingTag.value = true;
-      const response = await $fetch(`/api/project/${projectId}/block/${props.slide.id}/tag`, {
-        method: "PUT",
-        body: { tagId },
-      });
+      const response = await updateSlideTag(projectId, props.slide.id, tagId);
 
       if (response.block) {
         emit("update:slide", response.block);
@@ -164,10 +161,7 @@
         if (!tagId) {
           selectedTag.value = null;
         }
-        toast({
-          title: "Success",
-          description: tagId ? "Tag added to slide" : "Tag removed from slide",
-        });
+        return response;
       }
     } catch (error) {
       toast({
@@ -184,13 +178,13 @@
   const handleSelect = (value: string) => {
     selectedTag.value = availableTags.value.find((tag) => tag.value === value) || null;
     if (selectedTag.value) {
-      updateSlideTag(selectedTag.value.value);
+      handleUpdateSlideTag(selectedTag.value.value);
     }
   };
 
   // Handle removing the tag
   const handleRemoveTag = () => {
-    updateSlideTag(null);
+    handleUpdateSlideTag(null);
     selectedTag.value = null; // Explicitly reset selectedTag
   };
 
@@ -224,6 +218,7 @@
     (newValue, oldValue) => {
       if (oldValue === true && newValue === false) {
         showLayoutOptions.value = false;
+        open.value = false; // Close the combobox when slide becomes inactive
       }
     }
   );
