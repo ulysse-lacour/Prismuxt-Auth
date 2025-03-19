@@ -26,10 +26,21 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
+  import DataTableFacetedFilter from "~/components/DataTableFacetedFilter.vue";
+  import DataTablePagination from "~/components/DataTablePagination.vue";
   import { useProjectData } from "~/composables/useJsonDateConverter";
   import { useProjectManagement } from "~/composables/useProjectManagement";
-  import { ArrowUpDown, ChevronDown, Filter, MoreHorizontal } from "lucide-vue-next";
-  import { h, ref, shallowRef, watch } from "vue";
+  import {
+    ArrowUpDown,
+    Building2,
+    CheckCircle2,
+    ChevronDown,
+    CircleDot,
+    Clock,
+    Filter,
+    MoreHorizontal,
+  } from "lucide-vue-next";
+  import { computed, h, ref, shallowRef, watch } from "vue";
   import type { Project } from "@prisma/client";
   import type {
     ColumnDef,
@@ -153,6 +164,11 @@
     onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
     onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
     onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
+    initialState: {
+      pagination: {
+        pageSize: 2,
+      },
+    },
     state: {
       get sorting() {
         return sorting.value;
@@ -171,6 +187,34 @@
       },
     },
   });
+
+  const clientOptions = computed(() => {
+    if (!allProjects) return [];
+    const clients = new Set(allProjects.map((project) => project.client));
+    return Array.from(clients).map((client) => ({
+      label: client,
+      value: client,
+      icon: Building2,
+    }));
+  });
+
+  const statusOptions = [
+    {
+      label: "Active",
+      value: "active",
+      icon: CheckCircle2,
+    },
+    {
+      label: "In Progress",
+      value: "in_progress",
+      icon: CircleDot,
+    },
+    {
+      label: "On Hold",
+      value: "on_hold",
+      icon: Clock,
+    },
+  ];
 </script>
 
 <template>
@@ -185,6 +229,18 @@
                 :model-value="table.getColumn('name')?.getFilterValue() as string"
                 @update:model-value="table.getColumn('name')?.setFilterValue($event)"
                 class="h-8 w-[150px] lg:w-[250px]"
+              />
+              <DataTableFacetedFilter
+                v-if="table.getColumn('client')"
+                :column="table.getColumn('client')"
+                title="Client"
+                :options="clientOptions"
+              />
+              <DataTableFacetedFilter
+                v-if="table.getColumn('status')"
+                :column="table.getColumn('status')"
+                title="Status"
+                :options="statusOptions"
               />
               <DropdownMenu>
                 <DropdownMenuTrigger as-child>
@@ -246,30 +302,7 @@
           </Table>
         </div>
 
-        <div class="flex items-center justify-end space-x-2 py-4">
-          <div class="flex-1 text-sm text-muted-foreground">
-            {{ table.getFilteredSelectedRowModel().rows.length }} of
-            {{ table.getFilteredRowModel().rows.length }} row(s) selected.
-          </div>
-          <div class="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              :disabled="!table.getCanPreviousPage()"
-              @click="table.previousPage()"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              :disabled="!table.getCanNextPage()"
-              @click="table.nextPage()"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+        <DataTablePagination :table="table" />
       </div>
     </ClientOnly>
   </div>
