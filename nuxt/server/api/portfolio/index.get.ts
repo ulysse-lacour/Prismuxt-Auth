@@ -5,15 +5,12 @@ import prisma from "~/utils/prisma";
  * GET /api/portfolio/[slug]
  *
  * Returns the portfolio with all related projects and content blocks
- * Requires authentication
  */
 
 export default defineEventHandler(async (event) => {
   // Extract portfolio slug from query parameters
   const { slug } = getQuery(event);
   const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
-
-  console.log(portfolioSlug);
 
   // Validate portfolio slug
   if (!portfolioSlug) {
@@ -49,12 +46,15 @@ export default defineEventHandler(async (event) => {
 
     // Return portfolio data
     return { portfolio };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error fetching portfolio:", error);
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error fetching portfolio",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch portfolio",
+      cause: error,
     });
   }
 });

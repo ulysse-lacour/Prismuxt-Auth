@@ -2,7 +2,7 @@ import prisma from "~/utils/prisma";
 
 /**
  * API endpoint to fetch a single project by ID
- * GET /api/project/<id>
+ * GET /api/project/<id>/editor
  */
 
 export default defineEventHandler(async (event) => {
@@ -22,14 +22,16 @@ export default defineEventHandler(async (event) => {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        projectTags: {
-          include: {
-            tag: true,
-          },
-        },
         projectContents: {
           include: {
-            contentBlocks: true,
+            contentBlocks: {
+              orderBy: {
+                order: "asc",
+              },
+              include: {
+                slideTag: true,
+              },
+            },
             language: true,
           },
         },
@@ -44,20 +46,17 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Transform project data to include tags in a more accessible format
-    const projectWithTags = {
-      ...project,
-      tags: project.projectTags.map((pt) => pt.tag),
-    };
-
     // Return project data
-    return { project: projectWithTags };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error fetching project:", error);
+    return { project };
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error fetching project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch user data",
+      cause: error,
     });
   }
 });

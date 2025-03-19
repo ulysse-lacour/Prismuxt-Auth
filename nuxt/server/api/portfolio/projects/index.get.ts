@@ -57,17 +57,14 @@ export default defineEventHandler(async (event) => {
     // Return projects with link status
     return projectsWithLinkStatus;
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error fetching projects:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Failed to fetch projects",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch projects",
+      cause: error,
     });
   }
 });

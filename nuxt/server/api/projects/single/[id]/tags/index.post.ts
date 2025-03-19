@@ -13,11 +13,9 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
-    const session = await auth.api.getSession(event);
-
     // Check if user is authenticated
-    if (!session || !session.user || !session.user.email) {
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -67,11 +65,14 @@ export default defineEventHandler(async (event) => {
       addedTag,
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error adding tags to project:", error);
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error adding tags to project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch user data",
+      cause: error,
     });
   }
 });

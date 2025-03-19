@@ -17,10 +17,9 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -87,17 +86,14 @@ export default defineEventHandler(async (event) => {
       portfolio: updatedPortfolio,
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error updating portfolio:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error updating portfolio",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update portfolio",
+      cause: error,
     });
   }
 });

@@ -4,8 +4,6 @@
   const props = defineProps<{
     block: ProjectContentBlock;
   }>();
-
-  console.log(props.block);
 </script>
 
 <template>

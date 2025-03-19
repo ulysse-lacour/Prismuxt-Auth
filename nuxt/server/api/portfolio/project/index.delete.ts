@@ -1,3 +1,4 @@
+import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
@@ -11,10 +12,21 @@ import prisma from "~/utils/prisma";
  * }
  *
  * Returns the updated portfolio with remaining related projects
+ *
+ * Authentication: Required (user must be logged in)
  */
 
 export default defineEventHandler(async (event) => {
   try {
+    // Check if user is authenticated
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
+      throw createError({
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
     // Parse request body
     const body = await readBody(event);
     const { slug, relatedProject } = body;
@@ -111,17 +123,14 @@ export default defineEventHandler(async (event) => {
       portfolio: updatedPortfolio,
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error removing project from portfolio:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error removing project from portfolio",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to remove project from portfolio",
+      cause: error,
     });
   }
 });

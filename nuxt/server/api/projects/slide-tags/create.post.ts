@@ -1,11 +1,6 @@
 import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
-/**
- * API endpoint to remove a tag from a user
- * DELETE /api/projects/tags/:tagId
- */
-
 export default defineEventHandler(async (event) => {
   try {
     // Check if user is authenticated
@@ -16,22 +11,23 @@ export default defineEventHandler(async (event) => {
         message: "Unauthorized",
       });
     }
-    // Get tag ID from route params
-    const tagId = event.context.params?.tagId;
 
-    if (!tagId) {
+    // Get the request body
+    const body = await readBody(event);
+    const { name } = body;
+
+    if (!name) {
       throw createError({
         statusCode: 400,
-        message: "Tag ID are required",
+        message: "Tag name is required",
       });
     }
 
-    // Find the user by email
+    // Get the user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
 
-    // Check if user exists
     if (!user) {
       throw createError({
         statusCode: 404,
@@ -39,19 +35,15 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Delete the project tag
-    await prisma.tag.deleteMany({
-      where: {
-        id: tagId,
+    // Create the new tag
+    const tag = await prisma.slideTag.create({
+      data: {
+        name,
         userId: user.id,
       },
     });
 
-    // Return success response
-    return {
-      success: true,
-      message: "Tag removed",
-    };
+    return { tag };
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);
@@ -59,7 +51,7 @@ export default defineEventHandler(async (event) => {
     // Throw error
     throw createError({
       statusCode: error.statusCode || 500,
-      message: error.message || "Failed to remove tag",
+      message: error.message || "Failed to create slide tag",
       cause: error,
     });
   }

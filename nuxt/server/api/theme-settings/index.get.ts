@@ -11,11 +11,9 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get the authenticated user session
-    const session = await auth.api.getSession(event);
-
     // Check if user is authenticated
-    if (!session?.user?.id) {
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -31,17 +29,13 @@ export default defineEventHandler(async (event) => {
     return themeSettings;
   } catch (error: any) {
     // Log error for server-side debugging
-    console.error("Error fetching theme settings:", error);
+    console.error(error);
 
-    // Return the error if it's already a properly formatted error
-    if (error.statusCode) {
-      throw error;
-    }
-
-    // Create a generic error for unexpected issues
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Failed to fetch theme settings",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch theme settings",
+      cause: error,
     });
   }
 });

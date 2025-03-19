@@ -21,7 +21,7 @@ export const useProjectContentBlock = () => {
       content?: Record<string, any>;
     }
   ) => {
-    const response = await $fetch(`/api/project/${projectId}/block/update`, {
+    const response = await $fetch(`/api/projects/single/${projectId}/block/update`, {
       method: "PUT",
       body: {
         blockId,
@@ -49,7 +49,7 @@ export const useProjectContentBlock = () => {
       content?: Record<string, any>;
     }
   ) => {
-    const response = await $fetch(`/api/project/${projectId}/block/create`, {
+    const response = await $fetch(`/api/projects/single/${projectId}/block/create`, {
       method: "POST",
       body: {
         contentId,
@@ -107,7 +107,9 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the list of tags
    */
   const fetchSlideTags = async () => {
-    const response = await useFetch<{ tags: SlideTag[] }>(`/api/slide-tags`);
+    const response = await useFetch<{ tags: SlideTag[] }>(`/api/projects/slide-tags`, {
+      method: "GET",
+    });
     return response;
   };
 
@@ -117,7 +119,7 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the created tag
    */
   const createSlideTag = async (name: string) => {
-    const response = await $fetch(`/api/slide-tags/create`, {
+    const response = await $fetch(`/api/projects/slide-tags/create`, {
       method: "POST",
       body: { name },
     });
@@ -132,7 +134,7 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the updated block
    */
   const updateSlideTag = async (projectId: string, blockId: string, tagId: string | null) => {
-    const response = await $fetch(`/api/project/${projectId}/block/${blockId}/tag`, {
+    const response = await $fetch(`/api/projects/single/${projectId}/block/${blockId}/slide-tag`, {
       method: "PUT",
       body: { tagId },
     });

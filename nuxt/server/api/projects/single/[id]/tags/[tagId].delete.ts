@@ -8,11 +8,9 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
-    const session = await auth.api.getSession(event);
-
     // Check if user is authenticated
-    if (!session || !session.user || !session.user.email) {
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -71,12 +69,15 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: "Tag removed from project",
     };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error removing tag from project:", error);
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error removing tag from project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to remove tag from project",
+      cause: error,
     });
   }
 });

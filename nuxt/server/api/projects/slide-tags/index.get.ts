@@ -3,23 +3,12 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get the user session
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
     if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
-      });
-    }
-
-    // Get the request body
-    const body = await readBody(event);
-    const { name } = body;
-
-    if (!name) {
-      throw createError({
-        statusCode: 400,
-        message: "Tag name is required",
       });
     }
 
@@ -35,21 +24,22 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Create the new tag
-    const tag = await prisma.slideTag.create({
-      data: {
-        name,
-        userId: user.id,
-      },
+    // Get all slide tags for the user
+    const tags = await prisma.slideTag.findMany({
+      where: { userId: user.id },
+      orderBy: { name: "asc" },
     });
 
-    return { tag };
-  } catch (error) {
-    console.error("Error creating slide tag:", error);
+    return { tags };
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
 
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Failed to create slide tag",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch slide tags",
+      cause: error,
     });
   }
 });

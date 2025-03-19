@@ -1,3 +1,4 @@
+import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
@@ -15,6 +16,14 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
+    // Check if user is authenticated
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
+      throw createError({
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
     // Get project ID from route params
     const projectId = event.context.params?.id;
 
@@ -45,19 +54,14 @@ export default defineEventHandler(async (event) => {
       project: updatedProject,
     };
   } catch (error: any) {
-    // Handle specific Prisma errors
-    if (error.code === "P2025") {
-      throw createError({
-        statusCode: 404,
-        message: "Project not found",
-      });
-    }
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Log error and return appropriate error response
-    console.error("Error updating project:", error);
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error updating project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update project",
+      cause: error,
     });
   }
 });

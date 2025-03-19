@@ -24,14 +24,12 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session from auth provider
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    // Verify user is authenticated
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
-        message: "Unauthorized - User must be logged in",
+        message: "Unauthorized",
       });
     }
 
@@ -109,17 +107,14 @@ export default defineEventHandler(async (event) => {
       message: "Password updated successfully",
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error updating password:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error updating password",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update password",
+      cause: error,
     });
   }
 });

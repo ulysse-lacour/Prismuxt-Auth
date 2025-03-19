@@ -32,17 +32,13 @@ export default defineEventHandler(async (event) => {
     return languages;
   } catch (error: any) {
     // Log error for server-side debugging
-    console.error("Error fetching languages:", error);
+    console.error(error);
 
-    // Return the error if it's already a properly formatted error
-    if (error.statusCode) {
-      throw error;
-    }
-
-    // Create a generic error for unexpected issues
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Failed to fetch languages",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch languages",
+      cause: error,
     });
   }
 });

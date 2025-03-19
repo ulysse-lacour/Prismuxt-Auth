@@ -27,7 +27,9 @@ export function useProjectManagement() {
    * @returns Object containing the fetched project
    */
   const fetchProject = async (id: string) => {
-    const project = await $fetch(`/api/project/${id}`);
+    const project = await $fetch(`/api/projects/single/${id}`, {
+      method: "GET",
+    });
 
     return { project };
   };
@@ -39,7 +41,7 @@ export function useProjectManagement() {
    * @returns Object containing the created project
    */
   const createProject = async (data: Partial<Project>) => {
-    const createdProject = await $fetch(`/api/project`, {
+    const createdProject = await $fetch(`/api/projects/single`, {
       method: "POST",
       body: data,
     });
@@ -60,7 +62,7 @@ export function useProjectManagement() {
    * @returns Object containing the updated project
    */
   const updateProject = async (id: string, data: Partial<Project>) => {
-    const updatedProject = await $fetch(`/api/project/${id}`, {
+    const updatedProject = await $fetch(`/api/projects/single/${id}`, {
       method: "PUT",
       body: data,
     });
@@ -80,7 +82,7 @@ export function useProjectManagement() {
    * @returns Object indicating success status
    */
   const deleteProject = async (id: string) => {
-    const deletedProject = await $fetch(`/api/project/${id}`, {
+    const deletedProject = await $fetch(`/api/projects/single/${id}`, {
       method: "DELETE",
     });
 
@@ -150,7 +152,7 @@ export function useProjectManagement() {
    * @returns Object containing the updated project with the added tag
    */
   const addTagToProject = async (projectId: string, tagId: string) => {
-    const addedTag = await $fetch(`/api/project/${projectId}/tags`, {
+    const addedTag = await $fetch(`/api/projects/single/${projectId}/tags`, {
       method: "POST",
       body: { tagId },
     });
@@ -166,7 +168,7 @@ export function useProjectManagement() {
    * @returns Object containing the updated project after tag removal
    */
   const removeTagFromProject = async (projectId: string, tagId: string) => {
-    const removedTag = await $fetch(`/api/project/${projectId}/tags/${tagId}`, {
+    const removedTag = await $fetch(`/api/projects/single/${projectId}/tags/${tagId}`, {
       method: "DELETE",
     });
 
@@ -184,7 +186,7 @@ export function useProjectManagement() {
   };
 
   const fetchProjectForEditor = async (id: string) => {
-    const project = await $fetch(`/api/project/${id}/editor`, {
+    const project = await $fetch(`/api/projects/single/${id}/editor`, {
       method: "GET",
     });
 

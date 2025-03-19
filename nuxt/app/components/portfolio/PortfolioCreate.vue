@@ -53,14 +53,16 @@
       const { createdPortfolio } = await createPortfolio(values);
 
       // Show success message
-      if (createdPortfolio?.portfolio) {
+      if (createdPortfolio) {
         toast({
           title: "Portfolio Created",
           description: `Your portfolio "${values.name}" has been created successfully.`,
         });
 
         // Navigate to the new portfolio page
-        router.push(`/portfolios/${createdPortfolio.portfolio.slug}`);
+        router.push(`/portfolios/${createdPortfolio.slug}`);
+      } else {
+        throw new Error("Failed to create portfolio");
       }
     } catch (error) {
       console.error("Error creating portfolio:", error);

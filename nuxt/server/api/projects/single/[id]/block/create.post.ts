@@ -1,3 +1,4 @@
+import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
 /**
@@ -6,6 +7,14 @@ import prisma from "~/utils/prisma";
  */
 
 export default defineEventHandler(async (event) => {
+  // Check if user is authenticated
+  const session = await auth.api.getSession(event);
+  if (!session?.user?.email) {
+    throw createError({
+      statusCode: 401,
+      message: "Unauthorized",
+    });
+  }
   // Get project ID from route params
   const projectId = event.context.params?.id;
 
@@ -94,12 +103,15 @@ export default defineEventHandler(async (event) => {
 
     // Return the newly created block
     return { block: newBlock };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error creating content block:", error);
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error creating content block",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to create project content block",
+      cause: error,
     });
   }
 });

@@ -8,10 +8,9 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -40,19 +39,14 @@ export default defineEventHandler(async (event) => {
       project: deletedProject,
     };
   } catch (error: any) {
-    // Handle specific Prisma errors
-    if (error.code === "P2025") {
-      throw createError({
-        statusCode: 404,
-        message: "Project not found",
-      });
-    }
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Log error and return appropriate error response
-    console.error("Error deleting project:", error);
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error deleting project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to delete project",
+      cause: error,
     });
   }
 });

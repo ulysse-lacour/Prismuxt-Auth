@@ -15,16 +15,14 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
       });
     }
-
     // Parse request body
     const body = await readBody(event);
     const { name, description, client } = body;
@@ -56,12 +54,15 @@ export default defineEventHandler(async (event) => {
       success: true,
       project: createdProject,
     };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error creating project:", error);
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error creating project",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to create project",
+      cause: error,
     });
   }
 });

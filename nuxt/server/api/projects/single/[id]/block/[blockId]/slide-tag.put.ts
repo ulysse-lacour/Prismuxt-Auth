@@ -1,9 +1,27 @@
 import { auth } from "@/utils/auth";
 import prisma from "~/utils/prisma";
 
+/**
+ * API endpoint to update the slide tag of a project content block
+ *
+ * Endpoint: PUT /api/projects/single/[id]/block/[blockId]/slide-tag
+ *
+ * Request body:
+ * {
+ *   tagId: string; // The ID of the tag to assign, or null to remove the tag
+ * }
+ *
+ * Response:
+ * {
+ *   block: ProjectContentBlock;
+ * }
+ *
+ * Authentication: Required (user must be logged in)
+ */
+
 export default defineEventHandler(async (event) => {
   try {
-    // Get the user session
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
     if (!session?.user?.email) {
       throw createError({
@@ -85,11 +103,12 @@ export default defineEventHandler(async (event) => {
     });
 
     return { block };
-  } catch (error) {
-    console.error("Error updating slide tag:", error);
+  } catch (error: any) {
+    console.error(error);
     throw createError({
-      statusCode: 500,
-      message: "Failed to update slide tag",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update slide tag",
+      cause: error,
     });
   }
 });
