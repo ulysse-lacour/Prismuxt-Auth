@@ -28,6 +28,9 @@ export default defineEventHandler(async (event) => {
               orderBy: {
                 order: "asc",
               },
+              include: {
+                slideTag: true,
+              },
             },
             language: true,
           },

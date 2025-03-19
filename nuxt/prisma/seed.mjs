@@ -65,6 +65,58 @@ async function seed() {
     },
   });
 
+  // Create slide tags
+  const slideTags = await Promise.all([
+    prisma.slideTag.create({
+      data: {
+        name: "Introduction",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Overview",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Detail",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Showcase",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Testimonial",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Technical",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Results",
+        userId: user.id,
+      },
+    }),
+    prisma.slideTag.create({
+      data: {
+        name: "Process",
+        userId: user.id,
+      },
+    }),
+  ]);
+
   // Create tags first
   const tags = await Promise.all([
     prisma.tag.create({
@@ -177,6 +229,7 @@ async function seed() {
                     content: {
                       text: "Fashion Store E-commerce Platform",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -187,6 +240,7 @@ async function seed() {
                     content: {
                       text: "This project involved creating a complete e-commerce solution for a fashion retailer. The platform includes product browsing, user accounts, cart functionality, and secure checkout.",
                     },
+                    slideTagId: slideTags[1].id, // Overview
                   },
                   {
                     type: "IMAGE",
@@ -199,6 +253,7 @@ async function seed() {
                       src: "/images/projects/ecommerce-detail.jpg",
                       alt: "E-commerce platform dashboard",
                     },
+                    slideTagId: slideTags[3].id, // Showcase
                   },
                   {
                     type: "QUOTE",
@@ -210,6 +265,7 @@ async function seed() {
                       text: "The new platform increased our online sales by 45% in the first quarter after launch.",
                       author: "Marketing Director, Fashion Store Inc.",
                     },
+                    slideTagId: slideTags[4].id, // Testimonial
                   },
                 ],
               },
@@ -231,6 +287,7 @@ async function seed() {
                     content: {
                       text: "Fashion Store E-Commerce-Plattform",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -241,6 +298,7 @@ async function seed() {
                     content: {
                       text: "Dieses Projekt umfasste die Erstellung einer kompletten E-Commerce-Lösung für einen Modehändler. Die Plattform umfasst Produktbrowsing, Benutzerkonten, Warenkorbfunktionalität und sicheres Checkout.",
                     },
+                    slideTagId: slideTags[1].id, // Overview
                   },
                   {
                     type: "IMAGE",
@@ -253,6 +311,7 @@ async function seed() {
                       src: "/images/projects/ecommerce-detail.jpg",
                       alt: "E-Commerce-Plattform-Dashboard",
                     },
+                    slideTagId: slideTags[3].id, // Showcase
                   },
                   {
                     type: "QUOTE",
@@ -264,6 +323,7 @@ async function seed() {
                       text: "Die neue Plattform steigerte unseren Online-Umsatz im ersten Quartal nach dem Start um 45%.",
                       author: "Marketing Direktor, Fashion Store Inc.",
                     },
+                    slideTagId: slideTags[4].id, // Testimonial
                   },
                 ],
               },
@@ -306,6 +366,7 @@ async function seed() {
                     content: {
                       text: "Digital Bank Mobile Application",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -316,6 +377,7 @@ async function seed() {
                     content: {
                       text: "We developed a secure, user-friendly mobile banking application that allows customers to manage their finances on the go. The app includes features like account management, transfers, bill payments, and investment tracking.",
                     },
+                    slideTagId: slideTags[2].id, // Detail
                   },
                   {
                     type: "IMAGE",
@@ -328,6 +390,7 @@ async function seed() {
                       src: "/images/projects/banking-detail.jpg",
                       alt: "Mobile banking app interface",
                     },
+                    slideTagId: slideTags[3].id, // Showcase
                   },
                 ],
               },
@@ -349,6 +412,7 @@ async function seed() {
                     content: {
                       text: "Digital Bank Mobile Anwendung",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -359,6 +423,7 @@ async function seed() {
                     content: {
                       text: "Wir haben eine sichere, benutzerfreundliche mobile Banking-Anwendung entwickelt, mit der Kunden ihre Finanzen unterwegs verwalten können. Die App umfasst Funktionen wie Kontoverwaltung, Überweisungen, Rechnungszahlungen und Anlageverfolgung.",
                     },
+                    slideTagId: slideTags[2].id, // Detail
                   },
                   {
                     type: "IMAGE",
@@ -371,6 +436,7 @@ async function seed() {
                       src: "/images/projects/banking-detail.jpg",
                       alt: "Mobile-Banking-App-Schnittstelle",
                     },
+                    slideTagId: slideTags[3].id, // Showcase
                   },
                 ],
               },
@@ -413,6 +479,7 @@ async function seed() {
                     content: {
                       text: "MediCare Solutions Dashboard",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -423,6 +490,7 @@ async function seed() {
                     content: {
                       text: "An advanced dashboard for healthcare professionals to monitor patient data, track treatments, and analyze outcomes. The system includes real-time alerts and comprehensive reporting tools.",
                     },
+                    slideTagId: slideTags[5].id, // Technical
                   },
                   {
                     type: "IMAGE",
@@ -435,6 +503,7 @@ async function seed() {
                       src: "/images/projects/healthcare-detail.jpg",
                       alt: "Healthcare dashboard interface",
                     },
+                    slideTagId: slideTags[3].id, // Showcase
                   },
                 ],
               },
@@ -477,6 +546,7 @@ async function seed() {
                     content: {
                       text: "Wanderlust Travel Booking System",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -487,6 +557,7 @@ async function seed() {
                     content: {
                       text: "A complete travel booking platform that allows users to search, compare, and book flights, hotels, and experiences. The system integrates with multiple providers to offer real-time availability and competitive pricing.",
                     },
+                    slideTagId: slideTags[7].id, // Process
                   },
                   {
                     type: "IMAGE",
@@ -499,6 +570,7 @@ async function seed() {
                       src: "/images/projects/travel-detail.jpg",
                       alt: "Travel booking platform interface",
                     },
+                    slideTagId: slideTags[6].id, // Results
                   },
                 ],
               },
@@ -520,6 +592,7 @@ async function seed() {
                     content: {
                       text: "Wanderlust Reisebuchungssystem",
                     },
+                    slideTagId: slideTags[0].id, // Introduction
                   },
                   {
                     type: "TEXT",
@@ -530,6 +603,7 @@ async function seed() {
                     content: {
                       text: "Eine komplette Reisebuchungsplattform, mit der Benutzer Flüge, Hotels und Erlebnisse suchen, vergleichen und buchen können. Das System ist mit mehreren Anbietern integriert, um Echtzeit-Verfügbarkeit und wettbewerbsfähige Preise anzubieten.",
                     },
+                    slideTagId: slideTags[7].id, // Process
                   },
                   {
                     type: "IMAGE",
@@ -542,6 +616,7 @@ async function seed() {
                       src: "/images/projects/travel-detail.jpg",
                       alt: "Reisebuchungsplattform-Schnittstelle",
                     },
+                    slideTagId: slideTags[6].id, // Results
                   },
                 ],
               },

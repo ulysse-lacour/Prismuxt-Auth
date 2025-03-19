@@ -25,6 +25,7 @@ model User {
   projects         Project[]
   portfolios       Portfolio[]
   tags             Tag[]
+  slideTags        SlideTag[]
   languages        Language[]
   themeSettings    ThemeSettings?
 
@@ -202,7 +203,28 @@ model ProjectContentBlock {
   projectContentId String
   projectContent   ProjectContent @relation(fields: [projectContentId], references: [id], onDelete: Cascade)
 
+  // Slide tag relation - a slide can have only one tag
+  slideTagId String? // Optional, as not all slides need tags
+  slideTag   SlideTag? @relation(fields: [slideTagId], references: [id])
+
   @@map("project_content_block")
+}
+
+// ===== Slide Tag Model =====
+// Model for slide (content block) tags
+model SlideTag {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String // The user who created this tag
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relation to slides
+  slides ProjectContentBlock[]
+
+  @@unique([name, userId]) // Each user can have unique slide tag names
+  @@map("slide_tag")
 }
 
 // ===== Portfolio Models =====
