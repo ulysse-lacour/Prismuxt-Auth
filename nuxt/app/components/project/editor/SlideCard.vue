@@ -278,8 +278,6 @@
 
       <!-- Tag selector section -->
       <div class="mt-4 space-y-2 text-white">
-        <h4 class="font-medium">Slide Tag</h4>
-
         <!-- Display current tag if exists -->
         <div v-if="slide.slideTagId" class="flex items-center gap-2">
           <div

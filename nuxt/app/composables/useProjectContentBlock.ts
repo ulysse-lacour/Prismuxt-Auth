@@ -21,20 +21,15 @@ export const useProjectContentBlock = () => {
       content?: Record<string, any>;
     }
   ) => {
-    try {
-      const response = await $fetch(`/api/project/${projectId}/block/update`, {
-        method: "PUT",
-        body: {
-          blockId,
-          ...updateData,
-        },
-      });
+    const response = await $fetch(`/api/project/${projectId}/block/update`, {
+      method: "PUT",
+      body: {
+        blockId,
+        ...updateData,
+      },
+    });
 
-      return response;
-    } catch (error) {
-      console.error("Error updating content block:", error);
-      throw error;
-    }
+    return response;
   };
 
   /**
@@ -54,20 +49,15 @@ export const useProjectContentBlock = () => {
       content?: Record<string, any>;
     }
   ) => {
-    try {
-      const response = await $fetch(`/api/project/${projectId}/block/create`, {
-        method: "POST",
-        body: {
-          contentId,
-          ...blockData,
-        },
-      });
+    const response = await $fetch(`/api/project/${projectId}/block/create`, {
+      method: "POST",
+      body: {
+        contentId,
+        ...blockData,
+      },
+    });
 
-      return response;
-    } catch (error) {
-      console.error("Error creating content block:", error);
-      throw error;
-    }
+    return response;
   };
 
   /**
@@ -117,13 +107,8 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the list of tags
    */
   const fetchSlideTags = async () => {
-    try {
-      const response = await useFetch<{ tags: SlideTag[] }>(`/api/slide-tags`);
-      return response;
-    } catch (error) {
-      console.error("Error fetching slide tags:", error);
-      throw error;
-    }
+    const response = await useFetch<{ tags: SlideTag[] }>(`/api/slide-tags`);
+    return response;
   };
 
   /**
@@ -132,16 +117,11 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the created tag
    */
   const createSlideTag = async (name: string) => {
-    try {
-      const response = await $fetch(`/api/slide-tags/create`, {
-        method: "POST",
-        body: { name },
-      });
-      return response;
-    } catch (error) {
-      console.error("Error creating slide tag:", error);
-      throw error;
-    }
+    const response = await $fetch(`/api/slide-tags/create`, {
+      method: "POST",
+      body: { name },
+    });
+    return response;
   };
 
   /**
@@ -152,16 +132,11 @@ export const useProjectContentBlock = () => {
    * @returns The response from the API with the updated block
    */
   const updateSlideTag = async (projectId: string, blockId: string, tagId: string | null) => {
-    try {
-      const response = await $fetch(`/api/project/${projectId}/block/${blockId}/tag`, {
-        method: "PUT",
-        body: { tagId },
-      });
-      return response;
-    } catch (error) {
-      console.error("Error updating slide tag:", error);
-      throw error;
-    }
+    const response = await $fetch(`/api/project/${projectId}/block/${blockId}/tag`, {
+      method: "PUT",
+      body: { tagId },
+    });
+    return response;
   };
 
   return {
