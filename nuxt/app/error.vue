@@ -6,10 +6,6 @@
    * It displays a user-friendly error page with the error code and a link to return home.
    */
 
-  definePageMeta({
-    layout: "auth",
-  });
-
   // Get the error object from Nuxt's error handling system
   const error = useError();
 
