@@ -25,5 +25,11 @@ declare global {
     portfolioProjects?: PortfolioProject[];
     projectContents?: ProjectContent[];
   }
+
+  interface PortfolioWithProjects extends Portfolio {
+    portfolioProjects: (PortfolioProject & {
+      project: ProjectWithTags;
+    })[];
+  }
 }
 export {};

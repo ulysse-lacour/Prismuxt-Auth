@@ -4,100 +4,113 @@ import { usePortfoliosStore } from "~/stores/userPortfolios";
 import type { Portfolio } from "@prisma/client";
 
 /**
- * Portfolio Management Composable
+ * @composable
  *
- * Provides a set of functions for managing portfolios, including:
- * - Fetching, creating, updating, and deleting portfolios
- * - Managing projects within portfolios (adding/removing)
- * - Retrieving available projects for a portfolio
+ * @description A comprehensive composable for managing portfolios and their associated projects.
+ * Provides functions for CRUD operations on portfolios.
  *
- * This composable integrates with the portfolio stores to keep UI state in sync
- * with server-side changes.
- *
- * @returns Object containing portfolio management functions
+ * @returns {
+ *   fetchAllPortfolios: () => Promise<{ portfolios: PortfolioWithProjects[] }> - Fetches all portfolios of the current user
+ *   fetchPortfolio: (id: string) => Promise<{ portfolio: PortfolioWithProjects }> - Fetches a single portfolio by ID
+ *   createPortfolio: (data: Partial<Portfolio>) => Promise<{ createdPortfolio: PortfolioWithProjects }> - Creates a new portfolio
+ *   updatePortfolio: (id: string, data: Partial<Portfolio>) => Promise<{ updatedPortfolio: PortfolioWithProjects }> - Updates an existing portfolio
+ *   deletePortfolio: (id: string) => Promise<{ deletedPortfolio: PortfolioWithProjects }> - Deletes a portfolio
+ * }
  */
+
 export function usePortfolioManagement() {
   const portfoliosStore = usePortfoliosStore();
   const currentPortfolioStore = useCurrentPortfolioStore();
   const { processPortfolioData } = usePortfolioData();
 
   /**
-   * Fetches a portfolio by its slug and updates the current portfolio store
+   * @function fetchAllPortfolios
    *
-   * @param slug - The unique slug identifier for the portfolio
-   * @returns Object containing the fetched portfolio
+   * @description Fetches all portfolios of the current user
+   *
+   * @returns Promise containing the fetched portfolios
    */
-  const fetchPortfolio = async (slug: string) => {
-    const portfolio = await $fetch(`/api/portfolio`, {
-      params: { slug },
-    });
+  const fetchAllPortfolios = async () => {
+    const { data: portfolios } = await useFetch<PortfolioWithProjects[]>("/api/portfolios");
 
-    if (portfolio) {
-      // Update the current portfolio store
-      currentPortfolioStore.setCurrentPortfolio(processPortfolioData(portfolio.portfolio));
+    if (!portfolios.value) {
+      return { portfolios: [] };
     }
+
+    return { portfolios: portfolios.value };
+  };
+
+  /**
+   * @function fetchPortfolio
+   *
+   * @description Fetches a single portfolio by ID
+   *
+   * @param id - The unique identifier for the portfolio to fetch
+   *
+   * @returns Promise containing the fetched portfolio data
+   */
+  const fetchPortfolio = async (id: string) => {
+    const portfolio = await $fetch(`/api/portfolios/single/${id}`, {
+      method: "GET",
+    });
 
     return { portfolio };
   };
 
   /**
-   * Creates a new portfolio and adds it to the portfolios store
+   * @function createPortfolio
    *
-   * @param data - Portfolio data (name, description, etc.)
-   * @returns Object containing the created portfolio
+   * @description Creates a new portfolio
+   *
+   * @param data - Portfolio data to create
+   * @param data.name - Portfolio name
+   * @param data.description - Portfolio description (optional)
+   *
+   * @returns Promise containing the created portfolio data
    */
   const createPortfolio = async (data: Partial<Portfolio>) => {
-    const createdPortfolio = await $fetch(`/api/portfolio`, {
+    const createdPortfolio = await $fetch(`/api/portfolios/single`, {
       method: "POST",
       body: data,
     });
-
-    if (createdPortfolio) {
-      // Update the portfolios store with the new portfolio
-      portfoliosStore.addPortfolio(processPortfolioData(createdPortfolio));
-    }
 
     return { createdPortfolio };
   };
 
   /**
-   * Updates an existing portfolio and updates the portfolios store
+   * @function updatePortfolio
    *
-   * @param slug - The unique slug identifier for the portfolio to update
-   * @param data - Updated portfolio data (name, description, etc.)
-   * @returns Object containing the updated portfolio
+   * @description Updates an existing portfolio
+   *
+   * @param id - The unique identifier for the portfolio to update
+   * @param data - Updated portfolio data
+   * @param data.name - New portfolio name (optional)
+   * @param data.description - New portfolio description (optional)
+   *
+   * @returns Promise containing the updated portfolio data
    */
-  const updatePortfolio = async (slug: string, data: Partial<Portfolio>) => {
-    const updatedPortfolio = await $fetch(`/api/portfolio`, {
+  const updatePortfolio = async (id: string, data: Partial<Portfolio>) => {
+    const updatedPortfolio = await $fetch(`/api/portfolios/single/${id}`, {
       method: "PUT",
-      params: { slug },
-      body: { ...data },
+      body: data,
     });
-
-    if (updatedPortfolio) {
-      // Update the portfolios store with updated portfolio
-      portfoliosStore.updatePortfolio(processPortfolioData(updatedPortfolio.portfolio));
-    }
 
     return { updatedPortfolio };
   };
 
   /**
-   * Deletes a portfolio and removes it from the portfolios store
+   * @function deletePortfolio
    *
-   * @param slug - The unique slug identifier for the portfolio to delete
-   * @returns Object indicating success status
+   * @description Deletes a portfolio
+   *
+   * @param id - The unique identifier for the portfolio to delete
+   *
+   * @returns Promise containing the deleted portfolio data
    */
-  const deletePortfolio = async (slug: string) => {
-    const deletedPortfolio = await $fetch(`/api/portfolio`, {
+  const deletePortfolio = async (id: string) => {
+    const deletedPortfolio = await $fetch(`/api/portfolios/single/${id}`, {
       method: "DELETE",
-      params: { slug },
     });
-
-    if (deletedPortfolio) {
-      // Update the portfolios store with deleted portfolio
-      portfoliosStore.deletePortfolio(processPortfolioData(deletedPortfolio.portfolio));
-    }
 
     return { deletedPortfolio };
   };
@@ -188,6 +201,7 @@ export function usePortfolioManagement() {
   };
 
   return {
+    fetchAllPortfolios,
     fetchPortfolio,
     createPortfolio,
     updatePortfolio,
