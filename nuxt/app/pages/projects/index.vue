@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { Badge } from "@/components/ui/badge";
   import { Button } from "@/components/ui/button";
   import { Checkbox } from "@/components/ui/checkbox";
   import {
@@ -104,7 +105,11 @@
       cell: ({ row }) => {
         const tags = row.getValue("projectTags") as any[];
         const projectTags = new Set(tags.map((projectTag) => projectTag.tag.name));
-        return h("span", null, [...projectTags].join(", "));
+        return h(
+          "div",
+          { class: "flex flex-wrap gap-1" },
+          [...projectTags].map((tag) => h(Badge, { variant: "secondary" }, () => tag))
+        );
       },
       filterFn: (row, id, value) => {
         const tags = row.getValue(id) as any[];
