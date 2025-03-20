@@ -30,6 +30,7 @@
     ColumnFiltersState,
     ExpandedState,
     SortingState,
+    Table as TableType,
     VisibilityState,
   } from "@tanstack/vue-table";
 
@@ -38,6 +39,7 @@
     columns: ColumnDef<any>[];
     searchKey?: string;
     pageSize?: number;
+    table?: TableType<any>;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -59,42 +61,44 @@
   // Make data reactive
   const tableData = computed(() => props.data);
 
-  const table = useVueTable({
-    data: tableData,
-    columns: props.columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
-    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-    onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
-    onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
-    onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
-    onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
-    initialState: {
-      pagination: {
-        pageSize: props.pageSize,
+  const table =
+    props.table ||
+    useVueTable({
+      data: tableData,
+      columns: props.columns,
+      getCoreRowModel: getCoreRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      getFilteredRowModel: getFilteredRowModel(),
+      getExpandedRowModel: getExpandedRowModel(),
+      onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+      onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
+      onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
+      onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
+      onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
+      initialState: {
+        pagination: {
+          pageSize: props.pageSize,
+        },
       },
-    },
-    state: {
-      get sorting() {
-        return sorting.value;
+      state: {
+        get sorting() {
+          return sorting.value;
+        },
+        get columnFilters() {
+          return columnFilters.value;
+        },
+        get columnVisibility() {
+          return columnVisibility.value;
+        },
+        get rowSelection() {
+          return rowSelection.value;
+        },
+        get expanded() {
+          return expanded.value;
+        },
       },
-      get columnFilters() {
-        return columnFilters.value;
-      },
-      get columnVisibility() {
-        return columnVisibility.value;
-      },
-      get rowSelection() {
-        return rowSelection.value;
-      },
-      get expanded() {
-        return expanded.value;
-      },
-    },
-  });
+    });
 
   // Expose the table instance to the parent component
   defineExpose({

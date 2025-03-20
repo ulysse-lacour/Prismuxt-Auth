@@ -96,6 +96,8 @@
           () => ["Description", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
         );
       },
+      enableHiding: true,
+      enableSorting: true,
     },
     {
       accessorKey: "client",
@@ -163,9 +165,7 @@
 
   const sorting = ref<SortingState>([]);
   const columnFilters = ref<ColumnFiltersState>([]);
-  const columnVisibility = ref<VisibilityState>({
-    description: false,
-  });
+  const columnVisibility = ref<VisibilityState>({});
   const rowSelection = ref({});
   const expanded = ref<ExpandedState>({});
 
@@ -186,6 +186,9 @@
       pagination: {
         pageSize: 2,
       },
+      columnVisibility: {
+        description: false,
+      },
     },
     state: {
       get sorting() {
@@ -205,6 +208,9 @@
       },
     },
   });
+
+  // Set initial column visibility
+  table.getColumn("description")?.toggleVisibility(false);
 
   interface FilterOption {
     label: string;
@@ -289,6 +295,7 @@
         ref="dataTable"
         :data="tableProjects"
         :columns="columns"
+        :table="table"
         search-key="name"
         :page-size="10"
       >

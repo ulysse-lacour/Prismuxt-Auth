@@ -43,6 +43,20 @@
   const { portfolios } = await fetchAllPortfolios();
   tablePortfolios.value = portfolios;
 
+  function valueUpdater<T>(updaterOrValue: T | ((old: T) => T), ref: Ref<T>) {
+    if (typeof updaterOrValue === "function") {
+      ref.value = (updaterOrValue as (old: T) => T)(ref.value);
+    } else {
+      ref.value = updaterOrValue;
+    }
+  }
+
+  const sorting = ref<SortingState>([]);
+  const columnFilters = ref<ColumnFiltersState>([]);
+  const columnVisibility = ref<VisibilityState>({});
+  const rowSelection = ref({});
+  const expanded = ref<ExpandedState>({});
+
   const columns: ColumnDef<PortfolioDetails>[] = [
     {
       accessorKey: "name",
@@ -92,9 +106,13 @@
           () => ["Description", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
         );
       },
+      enableHiding: true,
+      enableSorting: true,
     },
     {
       id: "actions",
+      enableSorting: false,
+      enableHiding: false,
       cell: ({ row }) => {
         const portfolio = row.original;
         return h(DropdownMenu, null, () => [
@@ -107,14 +125,14 @@
             h(
               DropdownMenuItem,
               {
-                onClick: () => router.push(`/portfolios/${portfolio.id}`),
+                onClick: () => router.push(`/portfolios/${portfolio.slug}`),
               },
               () => "Edit"
             ),
             h(
               DropdownMenuItem,
               {
-                onClick: () => openDeleteDialog(portfolio.id),
+                onClick: () => openDeleteDialog(portfolio.slug),
                 class: "text-destructive focus:text-destructive",
               },
               () => "Delete"
@@ -125,9 +143,52 @@
     },
   ];
 
-  const handleDeletePortfolio = async (portfolioId: string) => {
+  const table = useVueTable<PortfolioDetails>({
+    data: tablePortfolios,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+    onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
+    onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
+    onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
+    onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+      columnVisibility: {
+        description: false,
+      },
+    },
+    state: {
+      get sorting() {
+        return sorting.value;
+      },
+      get columnFilters() {
+        return columnFilters.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get rowSelection() {
+        return rowSelection.value;
+      },
+      get expanded() {
+        return expanded.value;
+      },
+    },
+  });
+
+  // Set initial column visibility
+  table.getColumn("description")?.toggleVisibility(false);
+
+  const handleDeletePortfolio = async (portfolioSlug: string) => {
     try {
-      await deletePortfolio(portfolioId);
+      await deletePortfolio(portfolioSlug);
       // Refresh the portfolios list
       const { portfolios: updatedPortfolios } = await fetchAllPortfolios();
       tablePortfolios.value = updatedPortfolios;
@@ -153,8 +214,8 @@
     }
   };
 
-  const openDeleteDialog = (portfolioId: string) => {
-    portfolioToDelete.value = portfolioId;
+  const openDeleteDialog = (portfolioSlug: string) => {
+    portfolioToDelete.value = portfolioSlug;
     isDeleteDialogOpen.value = true;
   };
 </script>
@@ -166,6 +227,7 @@
         ref="dataTable"
         :data="tablePortfolios"
         :columns="columns"
+        :table="table"
         search-key="name"
         :page-size="10"
       >
