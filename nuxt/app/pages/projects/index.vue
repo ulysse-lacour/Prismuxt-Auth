@@ -133,10 +133,18 @@
         const projectId = row.original.id;
         return h(DropdownMenu, null, () => [
           h(DropdownMenuTrigger, { asChild: true }, () =>
-            h(Button, { variant: "ghost", class: "h-8 w-8 p-0" }, () => [
-              h("span", { class: "sr-only" }, "Open menu"),
-              h(MoreHorizontal, { class: "h-4 w-4" }),
-            ])
+            h(
+              Button,
+              {
+                variant: "ghost",
+                class: "h-8 w-8 p-0",
+                onClick: (e: Event) => e.stopPropagation(),
+              },
+              () => [
+                h("span", { class: "sr-only" }, "Open menu"),
+                h(MoreHorizontal, { class: "h-4 w-4" }),
+              ]
+            )
           ),
           h(DropdownMenuContent, { align: "end" }, () => [
             h(
