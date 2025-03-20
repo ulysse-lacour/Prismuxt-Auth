@@ -36,6 +36,9 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const slug = query.slug as string;
 
+    console.log("event query params:", query);
+    console.log("portfolio slug:", slug);
+
     // Validate portfolio slug
     if (!slug) {
       throw createError({

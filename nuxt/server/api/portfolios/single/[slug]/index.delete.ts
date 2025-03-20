@@ -48,8 +48,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract portfolio slug from query parameters
-    const { slug } = getQuery(event);
-    const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
+    const portfolioSlug = getRouterParam(event, "slug");
 
     // Validate required fields
     if (!portfolioSlug || typeof portfolioSlug !== "string") {
@@ -85,11 +84,8 @@ export default defineEventHandler(async (event) => {
       where: { slug: portfolioSlug },
     });
 
-    // Return success response with deleted portfolio data
-    return {
-      success: true,
-      portfolio: deletedPortfolio,
-    };
+    // Return portfolio data
+    return { deletedPortfolio: deletedPortfolio as PortfolioDetails };
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);

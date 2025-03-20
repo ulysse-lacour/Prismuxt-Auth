@@ -50,8 +50,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract portfolio slug from query parameters
-    const { slug } = getQuery(event);
-    const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
+    const portfolioSlug = getRouterParam(event, "slug");
 
     // Validate required fields
     if (!portfolioSlug || typeof portfolioSlug !== "string") {
@@ -103,11 +102,8 @@ export default defineEventHandler(async (event) => {
       data: updateData,
     });
 
-    // Return success response with updated portfolio
-    return {
-      success: true,
-      portfolio: updatedPortfolio,
-    };
+    // Return portfolio data
+    return { updatedPortfolio: updatedPortfolio as PortfolioDetails };
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);

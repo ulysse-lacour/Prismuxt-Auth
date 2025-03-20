@@ -31,5 +31,11 @@ declare global {
       project: ProjectWithTags;
     })[];
   }
+
+  interface PortfolioDetails extends Portfolio {
+    portfolioProjects: (PortfolioProject & {
+      project: ProjectWithTags;
+    })[];
+  }
 }
 export {};

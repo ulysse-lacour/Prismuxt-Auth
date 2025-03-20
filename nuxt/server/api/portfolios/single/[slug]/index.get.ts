@@ -35,7 +35,8 @@ import prisma from "~/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   // Extract portfolio slug from query parameters
-  const { slug } = getQuery(event);
+  const slug = getRouterParam(event, "slug");
+
   const portfolioSlug = Array.isArray(slug) ? slug[0] : slug;
 
   // Validate portfolio slug
@@ -71,7 +72,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Return portfolio data
-    return { portfolio };
+    return { portfolio: portfolio as PortfolioDetails };
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);

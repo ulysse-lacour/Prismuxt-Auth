@@ -45,12 +45,12 @@ export function usePortfolioManagement() {
    *
    * @description Fetches a single portfolio by ID
    *
-   * @param id - The unique identifier for the portfolio to fetch
+   * @param slug - The unique slug identifier for the portfolio to fetch
    *
    * @returns Promise containing the fetched portfolio data
    */
-  const fetchPortfolio = async (id: string) => {
-    const portfolio = await $fetch(`/api/portfolios/single/${id}`, {
+  const fetchPortfolio = async (slug: string) => {
+    const portfolio = await $fetch<PortfolioDetails>(`/api/portfolios/single/${slug}`, {
       method: "GET",
     });
 
@@ -89,11 +89,22 @@ export function usePortfolioManagement() {
    *
    * @returns Promise containing the updated portfolio data
    */
-  const updatePortfolio = async (id: string, data: Partial<Portfolio>) => {
-    const updatedPortfolio = await $fetch(`/api/portfolios/single/${id}`, {
-      method: "PUT",
-      body: data,
-    });
+  const updatePortfolio = async (slug: string, data: Partial<Portfolio>) => {
+    const updatedPortfolio = await $fetch<{ updatedPortfolio: PortfolioDetails }>(
+      `/api/portfolios/single/${slug}`,
+      {
+        method: "PUT",
+        body: data,
+      }
+    );
+
+    if (updatedPortfolio) {
+      // Process the portfolio data
+      const processedPortfolio = processPortfolioData(updatedPortfolio.updatedPortfolio);
+
+      // Update the portfolios store with the updated portfolio
+      portfoliosStore.updatePortfolio(processedPortfolio);
+    }
 
     return { updatedPortfolio };
   };
@@ -107,10 +118,23 @@ export function usePortfolioManagement() {
    *
    * @returns Promise containing the deleted portfolio data
    */
-  const deletePortfolio = async (id: string) => {
-    const deletedPortfolio = await $fetch(`/api/portfolios/single/${id}`, {
-      method: "DELETE",
-    });
+  const deletePortfolio = async (slug: string) => {
+    const deletedPortfolio = await $fetch<{ deletedPortfolio: PortfolioDetails }>(
+      `/api/portfolios/single/${slug}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    console.log("deletedPortfolio", deletedPortfolio);
+
+    if (deletedPortfolio) {
+      // Process the portfolio data
+      const processedPortfolio = processPortfolioData(deletedPortfolio.deletedPortfolio);
+
+      // Update the portfolios store with the updated portfolio
+      portfoliosStore.deletePortfolio(processedPortfolio);
+    }
 
     return { deletedPortfolio };
   };
@@ -124,7 +148,7 @@ export function usePortfolioManagement() {
    */
   const addProjectToPortfolio = async (slug: string, projectId: string) => {
     try {
-      const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
+      const updatedPortfolio = await $fetch(`/api/portfolios/single/project`, {
         method: "POST",
         body: {
           slug,
@@ -159,7 +183,7 @@ export function usePortfolioManagement() {
    */
   const removeProjectFromPortfolio = async (slug: string, portfolioProjectId: string) => {
     try {
-      const updatedPortfolio = await $fetch(`/api/portfolio/project`, {
+      const updatedPortfolio = await $fetch(`/api/portfolios/single/project`, {
         method: "DELETE",
         body: {
           slug,
@@ -192,7 +216,7 @@ export function usePortfolioManagement() {
    * @returns Array of projects with isLinked property indicating if they're in the portfolio
    */
   const fetchAllProjects = async (slug: string) => {
-    const { data: projects } = await useFetch(`/api/portfolio/projects`, {
+    const { data: projects } = await useFetch(`/api/portfolios/single/projects`, {
       method: "GET",
       params: { slug },
     });
