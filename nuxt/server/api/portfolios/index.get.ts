@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
     });
 
     // Return portfolios with proper typing
-    return portfolios as PortfolioWithProjects[];
+    return portfolios as PortfolioDetails[];
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);

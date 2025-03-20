@@ -4,9 +4,10 @@ import prisma from "~/utils/prisma";
 /**
  * @server
  *
- * @description Adds a project to a portfolio with automatic ordering
+ * @description Adds a project to a portfolio with automatic ordering.
+ * The project is added at the end of the portfolio's project list.
  *
- * @endpoint POST /api/portfolio/project
+ * @endpoint POST /api/portfolios/single/project
  *
  * @auth Required
  *

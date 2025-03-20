@@ -7,14 +7,17 @@ import type { Portfolio } from "@prisma/client";
  * @composable
  *
  * @description A comprehensive composable for managing portfolios and their associated projects.
- * Provides functions for CRUD operations on portfolios.
+ * Provides functions for CRUD operations on portfolios and project-portfolio relationships.
  *
  * @returns {
- *   fetchAllPortfolios: () => Promise<{ portfolios: PortfolioWithProjects[] }> - Fetches all portfolios of the current user
- *   fetchPortfolio: (id: string) => Promise<{ portfolio: PortfolioWithProjects }> - Fetches a single portfolio by ID
- *   createPortfolio: (data: Partial<Portfolio>) => Promise<{ createdPortfolio: PortfolioWithProjects }> - Creates a new portfolio
- *   updatePortfolio: (id: string, data: Partial<Portfolio>) => Promise<{ updatedPortfolio: PortfolioWithProjects }> - Updates an existing portfolio
- *   deletePortfolio: (id: string) => Promise<{ deletedPortfolio: PortfolioWithProjects }> - Deletes a portfolio
+ *   fetchAllPortfolios: () => Promise<{ portfolios: PortfolioDetails[] }> - Fetches all portfolios of the current user
+ *   fetchPortfolio: (slug: string) => Promise<{ portfolio: PortfolioDetails }> - Fetches a single portfolio by slug
+ *   createPortfolio: (data: Partial<Portfolio>) => Promise<{ createdPortfolio: PortfolioDetails }> - Creates a new portfolio
+ *   updatePortfolio: (slug: string, data: Partial<Portfolio>) => Promise<{ updatedPortfolio: PortfolioDetails }> - Updates an existing portfolio
+ *   deletePortfolio: (slug: string) => Promise<{ deletedPortfolio: PortfolioDetails }> - Deletes a portfolio
+ *   addProjectToPortfolio: (slug: string, projectId: string) => Promise<{ updatedPortfolio: PortfolioDetails }> - Adds a project to a portfolio
+ *   removeProjectFromPortfolio: (slug: string, portfolioProjectId: string) => Promise<{ updatedPortfolio: PortfolioDetails }> - Removes a project from a portfolio
+ *   fetchAllProjects: (slug: string) => Promise<{ projects: Project[] }> - Fetches all projects with their link status to a portfolio
  * }
  */
 
@@ -28,10 +31,10 @@ export function usePortfolioManagement() {
    *
    * @description Fetches all portfolios of the current user
    *
-   * @returns Promise containing the fetched portfolios
+   * @returns Promise containing an array of portfolios with their associated projects
    */
   const fetchAllPortfolios = async () => {
-    const { data: portfolios } = await useFetch<PortfolioWithProjects[]>("/api/portfolios");
+    const { data: portfolios } = await useFetch<PortfolioDetails[]>("/api/portfolios");
 
     if (!portfolios.value) {
       return { portfolios: [] };
@@ -43,11 +46,11 @@ export function usePortfolioManagement() {
   /**
    * @function fetchPortfolio
    *
-   * @description Fetches a single portfolio by ID
+   * @description Fetches a single portfolio by its slug
    *
    * @param slug - The unique slug identifier for the portfolio to fetch
    *
-   * @returns Promise containing the fetched portfolio data
+   * @returns Promise containing the fetched portfolio data with its associated projects
    */
   const fetchPortfolio = async (slug: string) => {
     const portfolio = await $fetch<PortfolioDetails>(`/api/portfolios/single/${slug}`, {
@@ -60,19 +63,27 @@ export function usePortfolioManagement() {
   /**
    * @function createPortfolio
    *
-   * @description Creates a new portfolio
+   * @description Creates a new portfolio with an auto-generated slug
    *
    * @param data - Portfolio data to create
-   * @param data.name - Portfolio name
+   * @param data.name - Portfolio name (required)
    * @param data.description - Portfolio description (optional)
    *
    * @returns Promise containing the created portfolio data
    */
   const createPortfolio = async (data: Partial<Portfolio>) => {
-    const createdPortfolio = await $fetch(`/api/portfolios/single`, {
+    const createdPortfolio = await $fetch<PortfolioDetails>(`/api/portfolios/single`, {
       method: "POST",
       body: data,
     });
+
+    if (createdPortfolio) {
+      // Process the portfolio data
+      const processedPortfolio = processPortfolioData(createdPortfolio);
+
+      // Update the portfolios store with the new portfolio
+      portfoliosStore.addPortfolio(processedPortfolio);
+    }
 
     return { createdPortfolio };
   };
@@ -80,9 +91,9 @@ export function usePortfolioManagement() {
   /**
    * @function updatePortfolio
    *
-   * @description Updates an existing portfolio
+   * @description Updates an existing portfolio's basic information
    *
-   * @param id - The unique identifier for the portfolio to update
+   * @param slug - The unique slug identifier for the portfolio to update
    * @param data - Updated portfolio data
    * @param data.name - New portfolio name (optional)
    * @param data.description - New portfolio description (optional)
@@ -112,9 +123,9 @@ export function usePortfolioManagement() {
   /**
    * @function deletePortfolio
    *
-   * @description Deletes a portfolio
+   * @description Deletes a portfolio and all its associated data
    *
-   * @param id - The unique identifier for the portfolio to delete
+   * @param slug - The unique slug identifier for the portfolio to delete
    *
    * @returns Promise containing the deleted portfolio data
    */
@@ -140,11 +151,14 @@ export function usePortfolioManagement() {
   };
 
   /**
-   * Adds a project to a portfolio
+   * @function addProjectToPortfolio
+   *
+   * @description Adds a project to a portfolio with automatic ordering
    *
    * @param slug - The unique slug identifier for the portfolio
    * @param projectId - The ID of the project to add
-   * @returns Object containing the updated portfolio with the added project
+   *
+   * @returns Promise containing the updated portfolio with the added project
    */
   const addProjectToPortfolio = async (slug: string, projectId: string) => {
     try {
@@ -175,11 +189,14 @@ export function usePortfolioManagement() {
   };
 
   /**
-   * Removes a project from a portfolio
+   * @function removeProjectFromPortfolio
+   *
+   * @description Removes a project from a portfolio and reorders remaining projects
    *
    * @param slug - The unique slug identifier for the portfolio
    * @param portfolioProjectId - The ID of the portfolio-project relationship to remove
-   * @returns Object containing the updated portfolio after project removal
+   *
+   * @returns Promise containing the updated portfolio after project removal
    */
   const removeProjectFromPortfolio = async (slug: string, portfolioProjectId: string) => {
     try {
@@ -210,10 +227,13 @@ export function usePortfolioManagement() {
   };
 
   /**
-   * Fetches all projects with their link status to a specific portfolio
+   * @function fetchAllProjects
+   *
+   * @description Fetches all projects with their link status to a specific portfolio
    *
    * @param slug - The unique slug identifier for the portfolio
-   * @returns Array of projects with isLinked property indicating if they're in the portfolio
+   *
+   * @returns Promise containing an array of projects with isLinked property indicating if they're in the portfolio
    */
   const fetchAllProjects = async (slug: string) => {
     const { data: projects } = await useFetch(`/api/portfolios/single/projects`, {

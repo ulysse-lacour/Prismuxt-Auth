@@ -4,9 +4,10 @@ import prisma from "~/utils/prisma";
 /**
  * @server
  *
- * @description Updates a portfolio's basic information (name and description)
+ * @description Updates a portfolio's basic information (name and description).
+ * The portfolio slug remains unchanged even if the name is updated.
  *
- * @endpoint PUT /api/portfolio
+ * @endpoint PUT /api/portfolios/single/[slug]
  *
  * @auth Required
  *
@@ -25,7 +26,7 @@ import prisma from "~/utils/prisma";
  *     id: string - Portfolio unique identifier
  *     name: string - Updated portfolio name
  *     description: string | null - Updated portfolio description
- *     slug: string - Portfolio URL slug
+ *     slug: string - Portfolio URL slug (unchanged)
  *     // ... other portfolio properties
  *   }
  * }

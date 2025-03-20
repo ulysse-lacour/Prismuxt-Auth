@@ -4,9 +4,9 @@ import prisma from "~/utils/prisma";
  * @server
  *
  * @description Fetches a single portfolio by its slug, including all related projects
- * and content blocks in ordered sequence
+ * in ordered sequence. This endpoint is publicly accessible.
  *
- * @endpoint GET /api/portfolio
+ * @endpoint GET /api/portfolios/single/[slug]
  *
  * @auth Not Required
  *
@@ -18,6 +18,8 @@ import prisma from "~/utils/prisma";
  *   portfolio: {
  *     id: string - Portfolio unique identifier
  *     slug: string - Portfolio URL slug
+ *     name: string - Portfolio name
+ *     description: string | null - Portfolio description
  *     portfolioProjects: Array<{
  *       project: Project - Associated project data
  *       order: number - Display order in portfolio

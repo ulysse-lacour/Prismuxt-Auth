@@ -4,9 +4,10 @@ import prisma from "~/utils/prisma";
 /**
  * @server
  *
- * @description Removes a project from a portfolio and reorders remaining projects
+ * @description Removes a project from a portfolio and reorders remaining projects.
+ * The order of remaining projects is automatically adjusted to maintain a continuous sequence.
  *
- * @endpoint DELETE /api/portfolio/project
+ * @endpoint DELETE /api/portfolios/single/project
  *
  * @auth Required
  *

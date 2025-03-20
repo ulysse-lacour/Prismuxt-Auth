@@ -26,12 +26,6 @@ declare global {
     projectContents?: ProjectContent[];
   }
 
-  interface PortfolioWithProjects extends Portfolio {
-    portfolioProjects: (PortfolioProject & {
-      project: ProjectWithTags;
-    })[];
-  }
-
   interface PortfolioDetails extends Portfolio {
     portfolioProjects: (PortfolioProject & {
       project: ProjectWithTags;

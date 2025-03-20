@@ -5,9 +5,9 @@ import prisma from "~/utils/prisma";
  * @server
  *
  * @description Creates a new portfolio for the authenticated user with an auto-generated
- * URL-friendly slug
+ * URL-friendly slug. The slug is generated from the portfolio name and made unique if necessary.
  *
- * @endpoint POST /api/portfolio
+ * @endpoint POST /api/portfolios/single
  *
  * @auth Required
  *
@@ -33,14 +33,14 @@ import prisma from "~/utils/prisma";
  *   500: Internal Server Error - Server-side error
  * }
  *
- * @sideEffect Creates a new portfolio record in the database
+ * @sideEffect Creates a new portfolio record in the database with a unique slug
  */
 
 // Utils functions
 /**
- * Generate a URL-friendly slug from a string
+ * @function generateSlug
  *
- * Converts a string to a URL-friendly format by:
+ * @description Generates a URL-friendly slug from a string by:
  * - Converting to lowercase
  * - Removing diacritics (accent marks)
  * - Replacing non-alphanumeric characters with dashes

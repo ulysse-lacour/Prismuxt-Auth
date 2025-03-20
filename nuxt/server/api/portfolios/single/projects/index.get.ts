@@ -3,13 +3,15 @@ import prisma from "~/utils/prisma";
 /**
  * @server
  *
- * @description Fetches all projects with their link status to a specific portfolio
+ * @description Fetches all projects with their link status to a specific portfolio.
+ * Each project in the response includes an isLinked boolean indicating whether it's
+ * currently linked to the specified portfolio.
  *
- * @endpoint GET /api/portfolio/projects
+ * @endpoint GET /api/portfolios/single/projects
  *
  * @auth Not Required
  *
- * @params {
+ * @query {
  *   slug: string - The unique slug of the portfolio to check project links against
  * }
  *

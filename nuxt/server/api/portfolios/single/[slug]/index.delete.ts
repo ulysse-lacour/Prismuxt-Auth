@@ -4,9 +4,10 @@ import prisma from "~/utils/prisma";
 /**
  * @server
  *
- * @description Deletes a portfolio and all its associated data
+ * @description Deletes a portfolio and all its associated data, including project relationships.
+ * This operation is irreversible and requires authentication.
  *
- * @endpoint DELETE /api/portfolio
+ * @endpoint DELETE /api/portfolios/single/[slug]
  *
  * @auth Required
  *

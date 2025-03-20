@@ -36,14 +36,14 @@
   const router = useRouter();
   const isDeleteDialogOpen = ref(false);
   const portfolioToDelete = ref<string | null>(null);
-  const tablePortfolios = ref<PortfolioWithProjects[]>([]);
+  const tablePortfolios = ref<PortfolioDetails[]>([]);
   const dataTable = ref();
 
   const { fetchAllPortfolios, deletePortfolio } = usePortfolioManagement();
   const { portfolios } = await fetchAllPortfolios();
   tablePortfolios.value = portfolios;
 
-  const columns: ColumnDef<PortfolioWithProjects>[] = [
+  const columns: ColumnDef<PortfolioDetails>[] = [
     {
       accessorKey: "name",
       header: ({ column }) => {
