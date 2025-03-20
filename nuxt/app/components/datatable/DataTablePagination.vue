@@ -12,7 +12,7 @@
   import type { Table } from "@tanstack/vue-table";
 
   interface DataTablePaginationProps {
-    table: Table<ProjectWithTags>;
+    table: Table<any>;
   }
   const props = defineProps<DataTablePaginationProps>();
 
