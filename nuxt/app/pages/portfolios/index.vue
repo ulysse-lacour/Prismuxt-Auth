@@ -40,8 +40,8 @@
   const dataTable = ref();
 
   const { fetchAllPortfolios, deletePortfolio } = usePortfolioManagement();
-  const { portfolios } = await fetchAllPortfolios();
-  tablePortfolios.value = portfolios;
+  const { allPortfolios } = await fetchAllPortfolios();
+  tablePortfolios.value = allPortfolios;
 
   function valueUpdater<T>(updaterOrValue: T | ((old: T) => T), ref: Ref<T>) {
     if (typeof updaterOrValue === "function") {
@@ -56,6 +56,29 @@
   const columnVisibility = ref<VisibilityState>({});
   const rowSelection = ref({});
   const expanded = ref<ExpandedState>({});
+
+  interface FilterOption {
+    label: string;
+    value: string;
+    icon?: Component;
+  }
+
+  const projectOptions = computed<FilterOption[]>(() => {
+    if (!tablePortfolios.value) return [];
+
+    // Get all unique project names from portfolioProjects
+    const projectNames = new Set(
+      tablePortfolios.value
+        .flatMap((portfolio) => portfolio.portfolioProjects)
+        .map((portfolioProject) => portfolioProject.project.name)
+    );
+
+    return Array.from(projectNames).map((projectName) => ({
+      label: projectName,
+      value: projectName,
+      icon: Building2,
+    }));
+  });
 
   const columns: ColumnDef<PortfolioDetails>[] = [
     {
@@ -93,6 +116,12 @@
           )
         );
       },
+      filterFn: (row, id, value) => {
+        const projects = row.getValue(id) as any[];
+        if (!projects) return false;
+        const projectNames = projects.map((portfolioProject) => portfolioProject.project.name);
+        return value.some((val: string) => projectNames.includes(val));
+      },
     },
     {
       accessorKey: "description",
@@ -108,6 +137,40 @@
       },
       enableHiding: true,
       enableSorting: true,
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Created At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
+      cell: ({ row }) => {
+        const date = row.getValue("createdAt") as Date;
+        return h("span", null, date.toLocaleDateString("en-GB"));
+      },
+    },
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Updated At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
+      cell: ({ row }) => {
+        const date = row.getValue("updatedAt") as Date;
+        return h("span", null, date.toLocaleDateString("en-GB"));
+      },
     },
     {
       id: "actions",
@@ -190,7 +253,7 @@
     try {
       await deletePortfolio(portfolioSlug);
       // Refresh the portfolios list
-      const { portfolios: updatedPortfolios } = await fetchAllPortfolios();
+      const { allPortfolios: updatedPortfolios } = await fetchAllPortfolios();
       tablePortfolios.value = updatedPortfolios;
 
       // Close dialog
@@ -231,6 +294,14 @@
         search-key="name"
         :page-size="10"
       >
+        <template #filters>
+          <DataTableFacetedFilter
+            v-if="dataTable?.table.getColumn('portfolioProjects')"
+            :column="dataTable.table.getColumn('portfolioProjects')"
+            title="Projects"
+            :options="projectOptions"
+          />
+        </template>
         <template #empty>
           No portfolios found. Create your first portfolio to get started.
         </template>

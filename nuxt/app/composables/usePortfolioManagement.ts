@@ -37,10 +37,14 @@ export function usePortfolioManagement() {
     const { data: portfolios } = await useFetch<PortfolioDetails[]>("/api/portfolios");
 
     if (!portfolios.value) {
-      return { portfolios: [] };
+      return { allPortfolios: [] };
     }
 
-    return { portfolios: portfolios.value };
+    const allPortfolios: PortfolioDetails[] = portfolios.value.map((portfolio) =>
+      processPortfolioData(portfolio)
+    );
+
+    return { allPortfolios };
   };
 
   /**

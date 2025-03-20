@@ -130,6 +130,23 @@
       },
     },
     {
+      accessorKey: "updatedAt",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Updated At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
+      cell: ({ row }) => {
+        const date = row.getValue("updatedAt") as Date;
+        return h("span", null, date.toLocaleDateString("en-GB"));
+      },
+    },
+    {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
