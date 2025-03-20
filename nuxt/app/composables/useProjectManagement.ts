@@ -58,13 +58,15 @@ export function useProjectManagement() {
    * @returns Promise containing the fetched projects
    */
   const fetchAllProjects = async () => {
-    const { data: projects } = await useFetch("/api/projects");
+    const { data: projects } = await useFetch<ProjectWithTags[]>("/api/projects");
 
     if (!projects.value) {
       return { allProjects: [] };
     }
 
-    const allProjects = projects.value.map((project) => processProjectData(project));
+    const allProjects: ProjectWithTags[] = projects.value.map((project) =>
+      processProjectData(project)
+    );
 
     return { allProjects };
   };

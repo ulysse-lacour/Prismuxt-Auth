@@ -52,10 +52,8 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(projects);
-
-    // Return projects
-    return projects;
+    // Return projects with proper typing
+    return projects as ProjectWithTags[];
   } catch (error: any) {
     // Log error for server-side debugging
     console.error(error);

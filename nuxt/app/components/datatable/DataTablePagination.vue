@@ -8,11 +8,10 @@
     SelectValue,
   } from "@/components/ui/select";
   import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next";
-  import type { Project } from "@prisma/client";
   import type { Table } from "@tanstack/vue-table";
 
   interface DataTablePaginationProps {
-    table: Table<Project>;
+    table: Table<ProjectWithTags>;
   }
   defineProps<DataTablePaginationProps>();
 </script>

@@ -26,6 +26,7 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
+  import { toast } from "~/components/ui/toast";
   import { useProjectManagement } from "~/composables/useProjectManagement";
   import {
     ArrowUpDown,
@@ -38,8 +39,7 @@
     MoreHorizontal,
     X,
   } from "lucide-vue-next";
-  import { computed, h, ref, watch } from "vue";
-  import type { Project, ProjectTag } from "@prisma/client";
+  import { computed, h, ref } from "vue";
   import type {
     ColumnDef,
     ColumnFiltersState,
@@ -53,13 +53,17 @@
   });
 
   const router = useRouter();
+  const isDeleteDialogOpen = ref(false);
+  const projectToDelete = ref<string | null>(null);
+  const tableProjects = ref<ProjectWithTags[]>([]);
 
-  const { fetchAllProjects } = useProjectManagement();
+  const { fetchAllProjects, deleteProject } = useProjectManagement();
   const { allProjects } = await fetchAllProjects();
+  tableProjects.value = allProjects;
 
   //   console.log(allProjects);
 
-  const columns: ColumnDef<Project>[] = [
+  const columns: ColumnDef<ProjectWithTags>[] = [
     {
       id: "select",
       header: "Select",
@@ -171,7 +175,14 @@
               },
               () => "Edit"
             ),
-            h(DropdownMenuItem, { class: "text-destructive" }, () => "Delete"),
+            h(
+              DropdownMenuItem,
+              {
+                class: "text-destructive",
+                onClick: () => openDeleteDialog(projectId),
+              },
+              () => "Delete"
+            ),
           ]),
         ]);
       },
@@ -184,8 +195,8 @@
   const rowSelection = ref({});
   const expanded = ref<ExpandedState>({});
 
-  const table = useVueTable({
-    data: allProjects,
+  const table = useVueTable<ProjectWithTags>({
+    data: tableProjects,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -221,9 +232,19 @@
     },
   });
 
-  const clientOptions = computed(() => {
-    if (!allProjects) return [];
-    const clients = new Set(allProjects.map((project) => project.client).filter(Boolean));
+  interface FilterOption {
+    label: string;
+    value: string;
+    icon?: Component;
+  }
+
+  const clientOptions = computed<FilterOption[]>(() => {
+    if (!tableProjects.value) return [];
+    const clients = new Set(
+      tableProjects.value
+        .map((project) => project.client)
+        .filter((client): client is string => Boolean(client))
+    );
     return Array.from(clients).map((client) => ({
       label: client,
       value: client,
@@ -231,10 +252,10 @@
     }));
   });
 
-  const tagsOptions = computed(() => {
-    if (!allProjects) return [];
+  const tagsOptions = computed<FilterOption[]>(() => {
+    if (!tableProjects.value) return [];
 
-    const allProjectsTags = allProjects.map((project) => project.projectTags);
+    const allProjectsTags = tableProjects.value.map((project) => project.projectTags);
 
     // Flatten array of arrays and get unique tag names
     const projectsTags = new Set(
@@ -252,6 +273,39 @@
   });
 
   const isFiltered = computed(() => table.getState().columnFilters.length > 0);
+
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+      // Refresh the projects list
+      const { allProjects: updatedProjects } = await fetchAllProjects();
+      tableProjects.value = updatedProjects;
+
+      // Close dialog
+      isDeleteDialogOpen.value = false;
+      projectToDelete.value = null;
+
+      // Show success toast
+      toast({
+        title: "Project deleted",
+        description: "Project deleted successfully",
+      });
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+
+      // Show error notification
+      toast({
+        title: "Project deletion failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openDeleteDialog = (projectId: string) => {
+    projectToDelete.value = projectId;
+    isDeleteDialogOpen.value = true;
+  };
 </script>
 
 <template>
@@ -351,5 +405,13 @@
         <DataTablePagination :table="table" />
       </div>
     </ClientOnly>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteConfirmDialog
+      v-model:open="isDeleteDialogOpen"
+      title="Delete Project"
+      description="Are you sure you want to delete this project? This action cannot be undone and will remove all associated data."
+      @confirm="projectToDelete && handleDeleteProject(projectToDelete)"
+    />
   </div>
 </template>
