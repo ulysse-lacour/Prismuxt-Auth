@@ -102,6 +102,12 @@
         const projectTags = new Set(tags.map((projectTag) => projectTag.tag.name));
         return h("span", null, [...projectTags].join(", "));
       },
+      filterFn: (row, id, value) => {
+        const tags = row.getValue(id) as any[];
+        if (!tags) return false;
+        const projectTags = tags.map((projectTag) => projectTag.tag.name);
+        return value.some((val: string) => projectTags.includes(val));
+      },
     },
     {
       accessorKey: "description",
@@ -217,7 +223,7 @@
 
   const clientOptions = computed(() => {
     if (!allProjects) return [];
-    const clients = new Set(allProjects.map((project) => project.client));
+    const clients = new Set(allProjects.map((project) => project.client).filter(Boolean));
     return Array.from(clients).map((client) => ({
       label: client,
       value: client,
