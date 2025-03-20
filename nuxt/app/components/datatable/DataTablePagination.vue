@@ -28,10 +28,6 @@
 
 <template>
   <div class="flex items-center justify-between px-2">
-    <div class="flex-1 text-sm text-muted-foreground">
-      {{ props.table.getFilteredSelectedRowModel().rows.length }} of
-      {{ props.table.getFilteredRowModel().rows.length }} row(s) selected.
-    </div>
     <div class="flex items-center space-x-6 lg:space-x-8">
       <div class="flex items-center space-x-2">
         <p class="text-sm font-medium">Rows per page</p>

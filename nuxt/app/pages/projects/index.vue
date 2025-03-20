@@ -66,18 +66,6 @@
 
   const columns: ColumnDef<ProjectWithTags>[] = [
     {
-      id: "select",
-      header: "Select",
-      cell: ({ row }) =>
-        h(Checkbox, {
-          modelValue: row.getIsSelected(),
-          "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
-          ariaLabel: "Select row",
-        }),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: "name",
       header: ({ column }) => {
         return h(
@@ -163,6 +151,7 @@
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const projectId = row.original.id;
         return h(DropdownMenu, null, () => [
@@ -196,7 +185,9 @@
 
   const sorting = ref<SortingState>([]);
   const columnFilters = ref<ColumnFiltersState>([]);
-  const columnVisibility = ref<VisibilityState>({});
+  const columnVisibility = ref<VisibilityState>({
+    description: false,
+  });
   const rowSelection = ref({});
   const expanded = ref<ExpandedState>({});
 
