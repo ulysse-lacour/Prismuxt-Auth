@@ -43,7 +43,11 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         portfolioProjects: true,
-        projectTags: true,
+        projectTags: {
+          include: {
+            tag: true,
+          },
+        },
         projectContents: true,
       },
     });

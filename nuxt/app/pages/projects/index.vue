@@ -26,9 +26,6 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
-  import DataTableFacetedFilter from "~/components/DataTableFacetedFilter.vue";
-  import DataTablePagination from "~/components/DataTablePagination.vue";
-  import { useProjectData } from "~/composables/useJsonDateConverter";
   import { useProjectManagement } from "~/composables/useProjectManagement";
   import {
     ArrowUpDown,
@@ -39,9 +36,10 @@
     Clock,
     Filter,
     MoreHorizontal,
+    X,
   } from "lucide-vue-next";
-  import { computed, h, ref, shallowRef, watch } from "vue";
-  import type { Project } from "@prisma/client";
+  import { computed, h, ref, watch } from "vue";
+  import type { Project, ProjectTag } from "@prisma/client";
   import type {
     ColumnDef,
     ColumnFiltersState,
@@ -54,8 +52,12 @@
     layout: "auth",
   });
 
+  const router = useRouter();
+
   const { fetchAllProjects } = useProjectManagement();
   const { allProjects } = await fetchAllProjects();
+
+  //   console.log(allProjects);
 
   const columns: ColumnDef<Project>[] = [
     {
@@ -81,6 +83,24 @@
           },
           () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
         );
+      },
+    },
+    {
+      accessorKey: "projectTags",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Tags", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+        );
+      },
+      cell: ({ row }) => {
+        const tags = row.getValue("projectTags") as any[];
+        const projectTags = new Set(tags.map((projectTag) => projectTag.tag.name));
+        return h("span", null, [...projectTags].join(", "));
       },
     },
     {
@@ -129,6 +149,7 @@
     {
       id: "actions",
       cell: ({ row }) => {
+        const projectId = row.original.id;
         return h(DropdownMenu, null, () => [
           h(DropdownMenuTrigger, { asChild: true }, () =>
             h(Button, { variant: "ghost", class: "h-8 w-8 p-0" }, () => [
@@ -137,7 +158,13 @@
             ])
           ),
           h(DropdownMenuContent, { align: "end" }, () => [
-            h(DropdownMenuItem, null, () => "Edit"),
+            h(
+              DropdownMenuItem,
+              {
+                onClick: () => router.push(`/projects/${projectId}`),
+              },
+              () => "Edit"
+            ),
             h(DropdownMenuItem, { class: "text-destructive" }, () => "Delete"),
           ]),
         ]);
@@ -145,11 +172,11 @@
     },
   ];
 
-  const sorting = useState<SortingState>("projects-sorting", () => []);
-  const columnFilters = useState<ColumnFiltersState>("projects-filters", () => []);
-  const columnVisibility = useState<VisibilityState>("projects-visibility", () => ({}));
-  const rowSelection = useState("projects-selection", () => ({}));
-  const expanded = useState<ExpandedState>("projects-expanded", () => ({}));
+  const sorting = ref<SortingState>([]);
+  const columnFilters = ref<ColumnFiltersState>([]);
+  const columnVisibility = ref<VisibilityState>({});
+  const rowSelection = ref({});
+  const expanded = ref<ExpandedState>({});
 
   const table = useVueTable({
     data: allProjects,
@@ -198,23 +225,27 @@
     }));
   });
 
-  const statusOptions = [
-    {
-      label: "Active",
-      value: "active",
-      icon: CheckCircle2,
-    },
-    {
-      label: "In Progress",
-      value: "in_progress",
-      icon: CircleDot,
-    },
-    {
-      label: "On Hold",
-      value: "on_hold",
-      icon: Clock,
-    },
-  ];
+  const tagsOptions = computed(() => {
+    if (!allProjects) return [];
+
+    const allProjectsTags = allProjects.map((project) => project.projectTags);
+
+    // Flatten array of arrays and get unique tag names
+    const projectsTags = new Set(
+      allProjectsTags
+        .flat() // Flatten array of project tags
+        .filter(Boolean) // Remove any null/undefined values
+        .map((projectTag) => projectTag.tag.name)
+    );
+
+    return Array.from(projectsTags).map((tag) => ({
+      label: tag,
+      value: tag,
+      icon: Building2,
+    }));
+  });
+
+  const isFiltered = computed(() => table.getState().columnFilters.length > 0);
 </script>
 
 <template>
@@ -237,11 +268,20 @@
                 :options="clientOptions"
               />
               <DataTableFacetedFilter
-                v-if="table.getColumn('status')"
-                :column="table.getColumn('status')"
-                title="Status"
-                :options="statusOptions"
+                v-if="table.getColumn('projectTags')"
+                :column="table.getColumn('projectTags')"
+                title="Tags"
+                :options="tagsOptions"
               />
+              <Button
+                v-if="isFiltered"
+                variant="ghost"
+                class="h-8 px-2 lg:px-3"
+                @click="table.resetColumnFilters()"
+              >
+                Reset
+                <X class="ml-2 h-4 w-4" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                   <Button variant="outline" size="sm" class="ml-auto h-8">
