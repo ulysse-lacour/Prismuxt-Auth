@@ -8,7 +8,6 @@
       slide: ProjectContentBlock;
       rotate?: "horizontal" | "vertical";
       isActive?: boolean;
-      cardClass?: string;
       slideClass?: string;
     }>(),
     {
@@ -94,30 +93,25 @@
     }
   };
 
-  // Handle slide update from SlideCard
-  const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
-    emit("update", updatedSlide);
-  };
-
   // Emit intersection data and activate events for parent component
-  const emit = defineEmits(["intersection", "activate", "update"]);
+  const emit = defineEmits(["intersection", "activate"]);
 </script>
 
 <template>
   <section
     ref="slideElement"
     :id="`slide-section-${slide.id}`"
-    class="grid w-full grid-cols-12"
+    class="w-full"
     :class="{ 'active-slide': props.isActive }"
   >
-    <div :class="props.cardClass + ' pr-4'">
+    <!-- <div :class="props.cardClass + ' pr-4'">
       <SlideCard :slide="slide" :isActive="props.isActive" @update:slide="handleSlideUpdate" />
-    </div>
+    </div> -->
 
     <div
       :class="[
         props.slideClass,
-        'rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
+        'w-full rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
         props.rotate === 'vertical' ? 'aspect-a4-vertical' : 'aspect-a4',
         props.isActive ? 'shadow-lg ring-2 ring-yellow-400' : 'cursor-pointer shadow',
       ]"

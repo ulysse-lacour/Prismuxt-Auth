@@ -22,7 +22,7 @@
     isActive?: boolean;
   }>();
 
-  const emit = defineEmits(["update:slide", "activate"]);
+  const emit = defineEmits(["update:slide"]);
 
   // Get the current route to extract the project ID
   const route = useRoute();
@@ -43,11 +43,6 @@
   const selectedTag = ref<{ value: string; label: string } | null>(null);
   const searchInput = ref("");
   const isLoadingTag = ref(false);
-
-  // Handle slide activation
-  const handleActivate = () => {
-    emit("activate", props.slide.id);
-  };
 
   // Fetch all slide tags for the current user
   const { data: slideTags } = await fetchSlideTags();
@@ -380,11 +375,7 @@
     </div>
   </div>
 
-  <div
-    v-else
-    class="h-fit w-2/12 min-w-[300px] cursor-pointer hover:bg-gray-100"
-    @click="handleActivate"
-  >
+  <div v-else class="h-fit w-2/12 min-w-[300px]">
     <div class="px-4 py-2">Slide - {{ slide.order }}</div>
   </div>
 </template>

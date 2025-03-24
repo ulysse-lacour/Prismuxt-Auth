@@ -86,8 +86,27 @@
 
 <template>
   <div>
-    <header class="flex min-h-16 shrink-0 items-center justify-between gap-2 p-6 py-8">
-      <h1 class="text-6xl">{{ project.project.name }}</h1>
+    <header
+      class="relative z-20 flex min-h-16 shrink-0 items-center justify-between gap-2 p-6 py-8"
+    >
+      <div class="flex items-center gap-6">
+        <NuxtLink :to="`/projects/${project.project.id}`" class="flex items-center gap-2">
+          <svg
+            class="h-auto w-[30px]"
+            viewBox="0 0 41 40"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M40.31 18.275V22.455H7.31C9.4 25.15 11.38 27.735 13.8 30.925L20.73 40H15.065L0.27 20.42L15.065 0.839999H20.73L13.8 9.915C11.38 13.105 9.4 15.635 7.365 18.275H40.31Z"
+              fill="white"
+            />
+          </svg>
+          <span>Back</span>
+        </NuxtLink>
+        <h1 class="text-6xl">{{ project.project.name }}</h1>
+      </div>
+
       <div class="flex gap-6">
         <LanguageSelector
           :languages="processData({ languages })"
