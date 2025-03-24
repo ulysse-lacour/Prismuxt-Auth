@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useSidebar } from "@/components/ui/sidebar/utils";
   import { Briefcase, FolderKanban, Frame, Map, PieChart, Plus } from "lucide-vue-next";
   import type { SidebarProps } from "../../components/ui/sidebar";
   import type { ProjectContentBlock } from "@prisma/client";
@@ -29,13 +30,17 @@
       collapsible?: "offcanvas" | "icon" | "none";
       class?: HTMLAttributes["class"];
       activeSlideId?: string | null;
+      projectContentId: string;
+      projectId: string;
     }>(),
     {
       collapsible: "icon",
     }
   );
 
-  const emit = defineEmits(["update", "activate"]);
+  const { open } = useSidebar();
+
+  const emit = defineEmits(["update", "activate", "addSlide"]);
 
   // Handle slide update from SlideCard
   const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
@@ -56,15 +61,20 @@
   const handleSlideActivate = (slideId: string) => {
     emit("activate", slideId);
   };
+
+  // Handle add slide request
+  const handleAddSlide = () => {
+    emit("addSlide");
+  };
 </script>
 
 <template>
   <Sidebar v-bind="props">
-    <SidebarHeader>
-      <SidebarTrigger />
+    <SidebarHeader class="py-0">
+      <EditorSidebarTrigger @addSlide="handleAddSlide" />
     </SidebarHeader>
     <SidebarContent class="p-4">
-      <template v-for="slide in slides" :key="slide.id">
+      <template v-if="open" v-for="slide in slides" :key="slide.id">
         <SlideCard
           :slide="slide"
           :isActive="activeSlideId === slide.id"

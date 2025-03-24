@@ -134,8 +134,11 @@
     <EditorSidebar
       :slides="contentBlocks"
       :activeSlideId="activeSlideId"
+      :projectContentId="projectContent.id"
+      :projectId="project.id"
       @activate="handleSidebarSlideActivate"
       @update="handleSlidesUpdate"
+      @addSlide="handleAddSlide"
     />
 
     <!-- Main content area -->
