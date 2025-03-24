@@ -1,3 +1,5 @@
+import { nextTick } from "vue";
+
 /**
  * Composable to track the most visible slide
  * Uses intersection observation data to determine which slide has the greatest visibility
@@ -57,6 +59,18 @@ export const useActiveSlide = () => {
   const setActiveSlide = (slideId: string) => {
     activeSlideId.value = slideId;
     isManuallyActivated.value = true;
+
+    // Add scroll behavior
+    nextTick(() => {
+      const slideElement = document.getElementById(`slide-${slideId}`);
+      if (slideElement) {
+        slideElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+    });
   };
 
   // Reset the active slide state when content changes (i.e., language switch)
