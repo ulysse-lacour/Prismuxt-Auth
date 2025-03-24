@@ -129,7 +129,7 @@
 </script>
 
 <template>
-  <SidebarProvider>
+  <SidebarProvider class="editor-layout pl-4">
     <!-- Main sidebar navigation component -->
     <EditorSidebar
       :slides="contentBlocks"
@@ -138,20 +138,8 @@
       @update="handleSlidesUpdate"
     />
 
-    <!-- Main content area with header and content slot -->
+    <!-- Main content area -->
     <SidebarInset class="px-4 pb-16">
-      <!-- Header with mobile sidebar trigger -->
-      <header
-        class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"
-      >
-        <div class="flex items-center gap-2 px-4">
-          <!-- Mobile sidebar trigger button -->
-          <div class="md:hidden">
-            <SidebarTrigger />
-          </div>
-        </div>
-      </header>
-
       <!-- Page content -->
       <template v-if="projectContent">
         <div v-for="block in contentBlocks" :key="block.id" :id="`slide-${block.id}`" class="mb-4">
@@ -170,9 +158,20 @@
   </SidebarProvider>
 </template>
 
-<style scoped>
+<style>
   /* Add scroll margin to the slide containers */
   div[id^="slide-"] {
-    scroll-margin-top: 1rem; /* Add 1rem space above when scrolled to */
+    scroll-margin-top: 8rem;
+  }
+
+  /* Layout styles */
+  .editor-layout {
+    position: relative;
+    min-height: 100svh;
+  }
+
+  .editor-layout .fixed {
+    position: sticky;
+    overflow-y: auto;
   }
 </style>

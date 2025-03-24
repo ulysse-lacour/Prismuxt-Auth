@@ -60,12 +60,9 @@
 
 <template>
   <Sidebar v-bind="props">
-    <!-- Sidebar header with collapse trigger -->
     <SidebarHeader>
       <SidebarTrigger />
     </SidebarHeader>
-
-    <!-- Main navigation content -->
     <SidebarContent>
       <template v-for="slide in slides" :key="slide.id">
         <SlideCard
@@ -81,7 +78,5 @@
 </template>
 
 <style>
-  /* .group\/sidebar-wrapper > div > div:nth-child(2) {
-    padding-top: 8rem;
-  } */
+  /* No custom styles needed */
 </style>
