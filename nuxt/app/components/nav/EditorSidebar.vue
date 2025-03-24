@@ -63,7 +63,7 @@
     <SidebarHeader>
       <SidebarTrigger />
     </SidebarHeader>
-    <SidebarContent class="px-4">
+    <SidebarContent class="p-4">
       <template v-for="slide in slides" :key="slide.id">
         <SlideCard
           :slide="slide"

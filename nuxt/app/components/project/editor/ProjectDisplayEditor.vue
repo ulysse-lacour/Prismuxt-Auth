@@ -181,7 +181,7 @@
 <style>
   /* Add scroll margin to the slide containers */
   div[id^="slide-"] {
-    scroll-margin-top: 8rem;
+    scroll-margin-top: 1rem;
   }
 
   /* Layout styles */
