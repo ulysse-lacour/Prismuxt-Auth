@@ -125,8 +125,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get the updated portfolio with all its projects
-    const updatedPortfolio = await prisma.portfolio.findUnique({
+    const updatedPortfolio = await prisma.portfolio.update({
       where: { slug },
+      data: {
+        // Update the updatedAt timestamp
+        updatedAt: new Date(),
+      },
       include: {
         portfolioProjects: {
           include: {

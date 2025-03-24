@@ -126,6 +126,8 @@ export default defineEventHandler(async (event) => {
             order: projectCount, // Set the order based on the current count
           },
         },
+        // Update the updatedAt timestamp
+        updatedAt: new Date(),
       },
       include: {
         portfolioProjects: {

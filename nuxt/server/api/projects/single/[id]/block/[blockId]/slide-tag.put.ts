@@ -126,6 +126,14 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    // Update project's updatedAt timestamp
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
+
     return { block };
   } catch (error: any) {
     console.error(error);
