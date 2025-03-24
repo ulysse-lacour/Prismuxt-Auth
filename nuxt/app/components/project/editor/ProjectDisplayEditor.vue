@@ -129,7 +129,7 @@
 </script>
 
 <template>
-  <SidebarProvider class="editor-layout pl-4">
+  <SidebarProvider class="editor-layout">
     <!-- Main sidebar navigation component -->
     <EditorSidebar
       :slides="contentBlocks"
@@ -139,7 +139,27 @@
     />
 
     <!-- Main content area -->
-    <SidebarInset class="px-4 pb-16">
+    <SidebarInset class="pb-16 pr-4">
+      <!-- <button
+        @click="handleAddSlide"
+        :disabled="isAddingSlide"
+        class="col-span-2 col-start-4 flex items-center gap-2"
+        :class="{ 'cursor-not-allowed': isAddingSlide }"
+      >
+        <span>Add Slide</span>
+        <svg
+          width="25"
+          height="25"
+          viewBox="0 0 25 25"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M24.895 10.44V14.4H14.72V24.575H10.43V14.4H0.2V10.44H10.43V0.264999H14.72V10.44H24.895Z"
+            fill="white"
+          />
+        </svg>
+      </button> -->
       <!-- Page content -->
       <template v-if="projectContent">
         <div v-for="block in contentBlocks" :key="block.id" :id="`slide-${block.id}`" class="mb-4">

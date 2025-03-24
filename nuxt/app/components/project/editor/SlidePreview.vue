@@ -30,14 +30,14 @@
 </script>
 
 <template>
-  <section class="w-full">
+  <section class="w-full overflow-hidden">
     <div
       :class="[
         'relative w-full rounded-lg bg-white p-4 text-black',
         props.rotate === 'vertical' ? 'aspect-a4-vertical' : 'aspect-a4',
       ]"
     >
-      <div class="absolute inset-0 overflow-auto p-4">
+      <div class="absolute inset-0 overflow-hidden p-4">
         <BlockEditor :block="slide" @update="handleBlockUpdate" :isPreview="true" />
       </div>
     </div>
