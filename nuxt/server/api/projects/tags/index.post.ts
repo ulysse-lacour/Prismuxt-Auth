@@ -1,26 +1,46 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to create a new tag
- * POST /api/tags
+ * @server
  *
- * Request body:
- * {
- *   name: string;
+ * @description Creates a new project tag for the authenticated user
+ *
+ * @endpoint POST /api/projects/tags
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - Tag name (required)
  * }
+ *
+ * @response {
+ *   success: boolean - Whether the tag was created successfully
+ *   tag: {
+ *     id: string - Tag unique identifier
+ *     name: string - Tag name
+ *     userId: string - Owner's user ID
+ *     createdAt: string - Creation timestamp
+ *     updatedAt: string - Last update timestamp
+ *   }
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing or invalid tag name
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - User not found
+ *   409: Conflict - Tag already exists
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Creates a new tag record in the database
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
-    const session = await auth.api.getSession(event);
-
     // Check if user is authenticated
-    if (!session || !session.user || !session.user.email) {
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
@@ -81,19 +101,14 @@ export default defineEventHandler(async (event) => {
       tag,
     };
   } catch (error: any) {
-    // Handle specific Prisma errors
-    if (error.code === "P2002") {
-      throw createError({
-        statusCode: 409,
-        message: "Tag already exists",
-      });
-    }
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Log error and return appropriate error response
-    console.error("Error creating tag:", error);
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error creating tag",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to create tag",
+      cause: error,
     });
   }
 });

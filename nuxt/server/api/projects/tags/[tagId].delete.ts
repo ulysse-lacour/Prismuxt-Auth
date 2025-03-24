@@ -1,27 +1,44 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to remove a tag from a user
- * DELETE /api/projects/tags/:tagId
+ * @server
+ *
+ * @description Deletes a project tag for the authenticated user
+ *
+ * @endpoint DELETE /api/projects/tags/:tagId
+ *
+ * @auth Required
+ *
+ * @params {
+ *   tagId: string - The unique identifier of the tag to delete
+ * }
+ *
+ * @response {
+ *   success: boolean - Whether the tag was deleted successfully
+ *   message: string - Success message
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing tag ID
+ *   401: Unauthorized - User not authenticated
+ *   404: Not Found - User not found
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @sideEffect Deletes the tag record from the database
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Verify user authentication
-    const session = await auth.api.getSession(event);
-
     // Check if user is authenticated
-    if (!session || !session.user || !session.user.email) {
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
       });
     }
-
     // Get tag ID from route params
     const tagId = event.context.params?.tagId;
 
@@ -58,12 +75,15 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: "Tag removed",
     };
-  } catch (error) {
-    // Log error and return appropriate error response
-    console.error("Error removing tag", error);
+  } catch (error: any) {
+    // Log error for server-side debugging
+    console.error(error);
+
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error removing tag",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to remove tag",
+      cause: error,
     });
   }
 });

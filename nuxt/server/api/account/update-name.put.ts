@@ -1,39 +1,49 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's name
- * PUT /api/account/update-name
+ * @server
  *
- * Request body:
- * {
- *   name: string;
+ * @description Updates the current user's display name
+ *
+ * @endpoint PUT /api/account/update-name
+ *
+ * @auth Required
+ *
+ * @body {
+ *   name: string - New display name for the user (will be trimmed)
  * }
  *
- * Requires authentication
+ * @response {
+ *   success: boolean - Whether the name was updated successfully
+ *   message: string - Success or error message
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Invalid or empty name
+ *   401: Unauthorized - User not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @validation Ensures name is non-empty and properly trimmed
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    // Verify authentication
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
       });
     }
 
-    // Parse request body
+    // Parse and extract name from request body
     const body = await readBody(event);
     const { name } = body;
 
-    // Validate name
+    // Validate name is provided and properly formatted
     if (!name || typeof name !== "string" || name.trim() === "") {
       throw createError({
         statusCode: 400,
@@ -41,7 +51,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Update user's name in database
+    // Update user's name in database (with whitespace trimmed)
     await prisma.user.update({
       where: {
         id: session.user.id,
@@ -51,23 +61,20 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Return success response
+    // Return success response to client
     return {
       success: true,
       message: "Name updated successfully",
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error updating name:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error updating name",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update name",
+      cause: error,
     });
   }
 });

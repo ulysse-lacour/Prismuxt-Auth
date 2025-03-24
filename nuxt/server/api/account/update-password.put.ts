@@ -1,40 +1,52 @@
 import { auth } from "@/utils/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to update the current user's password
- * PUT /api/account/update-password
+ * @server
  *
- * Request body:
- * {
- *   currentPassword: string;
- *   newPassword: string;
+ * @description Updates the current user's password after verifying their current password
+ *
+ * @endpoint PUT /api/account/update-password
+ *
+ * @auth Required
+ *
+ * @body {
+ *   currentPassword: string - User's current password for verification
+ *   newPassword: string - New password to set (minimum 8 characters)
  * }
  *
- * Requires authentication
+ * @response {
+ *   success: boolean - Whether the password was updated successfully
+ *   message: string - Success or error message
+ * }
+ *
+ * @error {
+ *   400: Bad Request - Missing or invalid password format
+ *   401: Unauthorized - User not authenticated
+ *   403: Forbidden - Current password is incorrect
+ *   404: Not Found - Password not found in database
+ *   500: Internal Server Error - Server-side error
+ * }
+ *
+ * @security Verifies current password before allowing change
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get user session
+    // Check if user is authenticated
     const session = await auth.api.getSession(event);
-
-    // Verify authentication
-    if (!session) {
+    if (!session?.user?.email) {
       throw createError({
         statusCode: 401,
         message: "Unauthorized",
       });
     }
 
-    // Parse request body
+    // Parse and extract password data from request body
     const body = await readBody(event);
     const { currentPassword, newPassword } = body;
 
-    // Validate password inputs
+    // Validate current password is provided
     if (!currentPassword || typeof currentPassword !== "string") {
       throw createError({
         statusCode: 400,
@@ -42,6 +54,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Validate new password is provided
     if (!newPassword || typeof newPassword !== "string") {
       throw createError({
         statusCode: 400,
@@ -49,7 +62,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Validate new password strength
+    // Validate new password meets minimum security requirements
     if (newPassword.length < 8) {
       throw createError({
         statusCode: 400,
@@ -103,17 +116,14 @@ export default defineEventHandler(async (event) => {
       message: "Password updated successfully",
     };
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error updating password:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Error updating password",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to update password",
+      cause: error,
     });
   }
 });

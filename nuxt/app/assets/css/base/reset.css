@@ -1,5 +1,16 @@
+/**
+ * CSS Reset Styles
+ * 
+ * This file contains additional reset styles beyond what Tailwind's normalize.css provides.
+ * These styles ensure consistent rendering across different browsers by:
+ * - Removing default margins and padding
+ * - Setting box-sizing to border-box for more predictable layouts
+ * 
+ * Using @layer base ensures these styles are injected at the correct point
+ * in Tailwind's CSS output to maintain proper specificity.
+ */
 @layer base {
-  /* Add any additional reset styles beyond Tailwind's normalize here */
+  /* Reset box model for all elements */
   * {
     margin: 0;
     padding: 0;

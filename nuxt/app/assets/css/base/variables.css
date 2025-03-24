@@ -1,10 +1,21 @@
+/**
+ * CSS Custom Properties (Variables)
+ * 
+ * This file defines global CSS variables for consistent theming across the application.
+ * Variables are defined for both light mode (default) and dark mode.
+ * 
+ * Using @layer base ensures these variables are injected at the correct point
+ * in Tailwind's CSS output to maintain proper specificity.
+ */
 @layer base {
+  /* Light mode theme variables (default) */
   :root {
-    /* Add your custom CSS variables here */
+    /* Color variables - can be referenced with var(--variable-name) */
     --primary-color: theme("colors.blue.600");
     --secondary-color: theme("colors.gray.600");
   }
 
+  /* Dark mode theme variables - applied when .dark class is present on an ancestor */
   .dark {
     --primary-color: theme("colors.blue.400");
     --secondary-color: theme("colors.gray.400");

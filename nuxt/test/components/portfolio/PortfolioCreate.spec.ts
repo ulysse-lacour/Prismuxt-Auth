@@ -94,6 +94,16 @@ vi.mock("~/components/ui/button", () => {
 const mockAddPortfolio = vi.fn();
 const mockPush = vi.fn();
 const mockProcessPortfolioData = vi.fn().mockImplementation((data) => data);
+const mockCreatePortfolio = vi.fn().mockResolvedValue({
+  createdPortfolio: {
+    portfolio: {
+      id: "123",
+      name: "Test Portfolio",
+      description: "Test Description",
+      slug: "test-portfolio",
+    },
+  },
+});
 
 // Mock the useRouter composable
 mockNuxtImport("useRouter", () => {
@@ -114,6 +124,13 @@ mockNuxtImport("usePortfolioData", () => {
 mockNuxtImport("usePortfoliosStore", () => {
   return () => ({
     addPortfolio: mockAddPortfolio,
+  });
+});
+
+// Mock the usePortfolioManagement composable
+mockNuxtImport("usePortfolioManagement", () => {
+  return () => ({
+    createPortfolio: mockCreatePortfolio,
   });
 });
 
@@ -178,9 +195,8 @@ describe("PortfolioCreate Component", () => {
     const wrapper = await mountSuspended(PortfolioCreate);
 
     // Reset mock functions
-    mockAddPortfolio.mockClear();
+    mockCreatePortfolio.mockClear();
     mockPush.mockClear();
-    mockProcessPortfolioData.mockClear();
     toast.mockClear();
 
     // Trigger form submission
@@ -188,24 +204,19 @@ describe("PortfolioCreate Component", () => {
 
     // Wait for the next tick to allow async operations to complete
     await vi.waitFor(() => {
-      // Check if the portfolio data was processed
-      expect(mockProcessPortfolioData).toHaveBeenCalledWith({
-        id: "123",
+      // Check if createPortfolio was called with the correct data
+      expect(mockCreatePortfolio).toHaveBeenCalledWith({
         name: "Test Portfolio",
         description: "Test Description",
-        slug: "test-portfolio",
       });
-
-      // Check if the portfolio was added to the store
-      expect(mockAddPortfolio).toHaveBeenCalled();
 
       // Check if the router was used to navigate
       expect(mockPush).toHaveBeenCalledWith("/portfolios/test-portfolio");
 
       // Check if the toast notification was shown
       expect(toast).toHaveBeenCalledWith({
-        title: "Portfolio created",
-        description: "Portfolio created successfully",
+        title: "Portfolio Created",
+        description: 'Your portfolio "Test Portfolio" has been created successfully.',
       });
     });
   });

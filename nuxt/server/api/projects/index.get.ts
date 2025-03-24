@@ -1,76 +1,68 @@
-import { PrismaClient } from "@prisma/client";
+import { auth } from "~/utils/auth";
+import prisma from "~/utils/prisma";
 
 /**
- * API endpoint to fetch all projects with their link status to a specific portfolio
- * GET /api/portfolio/projects?slug=<portfolioSlug>
+ * @server
  *
- * Returns all projects with a flag indicating if they are linked to the specified portfolio
+ * @description Fetches all projects of the current user
+ *
+ * @endpoint GET /api/projects
+ *
+ * @auth Required
+ *
+ * @response {
+ *   projects: Array<{
+ *     id: string - Project unique identifier
+ *     name: string - Project name
+ *     description: string - Project description
+ *     // ... other project properties
+ *   }>
+ * }
+ *
+ * @error {
+ *   401: Unauthorized - User is not authenticated
+ *   500: Internal Server Error - Server-side error
+ * }
  */
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // Extract portfolio slug from query parameters
-    const query = getQuery(event);
-    const slug = query.slug as string;
-
-    // Validate portfolio slug
-    if (!slug) {
+    // Check if user is authenticated
+    const session = await auth.api.getSession(event);
+    if (!session?.user?.email) {
       throw createError({
-        statusCode: 400,
-        message: "Portfolio slug is required",
+        statusCode: 401,
+        message: "Unauthorized",
       });
     }
 
-    // First, get the portfolio ID from the slug
-    const portfolio = await prisma.portfolio.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-
-    // Return 404 if portfolio not found
-    if (!portfolio) {
-      throw createError({
-        statusCode: 404,
-        message: "Portfolio not found",
-      });
-    }
-
-    const portfolioId = portfolio.id;
-
-    // Then fetch all projects and check if they're linked to this portfolio
+    // Fetch all projects
     const projects = await prisma.project.findMany({
+      where: {
+        userId: session.user.id,
+      },
       include: {
-        portfolioProjects: {
-          where: {
-            portfolioId,
+        portfolioProjects: true,
+        projectTags: {
+          include: {
+            tag: true,
           },
         },
+        projectContents: true,
       },
     });
 
-    // Map projects to include link status
-    const projectsWithLinkStatus = projects.map((project) => ({
-      ...project,
-      isLinked: project.portfolioProjects.length > 0,
-    }));
-
-    // Return projects with link status
-    return projectsWithLinkStatus;
+    // Return projects with proper typing
+    return projects as ProjectWithTags[];
   } catch (error: any) {
-    // Log error and return appropriate error response
-    console.error("Error fetching projects:", error);
+    // Log error for server-side debugging
+    console.error(error);
 
-    // Return the error if it's already a handled error
-    if (error.statusCode) {
-      throw error;
-    }
-
+    // Throw error
     throw createError({
-      statusCode: 500,
-      message: "Failed to fetch projects",
+      statusCode: error.statusCode || 500,
+      message: error.message || "Failed to fetch projects",
+      cause: error,
     });
   }
 });

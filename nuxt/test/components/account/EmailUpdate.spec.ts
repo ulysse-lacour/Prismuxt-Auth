@@ -1,28 +1,11 @@
 import EmailUpdate from "@/components/account/EmailUpdate.vue";
-import {
-  mockComponent,
-  mockNuxtImport,
-  mountSuspended,
-  registerEndpoint,
-} from "@nuxt/test-utils/runtime";
-import { describe, expect, it, vi } from "vitest";
+import { mockNuxtImport, mountSuspended, registerEndpoint } from "@nuxt/test-utils/runtime";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock modules before variable declarations to avoid hoisting issues
 vi.mock("~/components/ui/toast", () => {
   return {
     toast: vi.fn(),
-  };
-});
-
-// Mock vee-validate
-vi.mock("vee-validate", () => {
-  return {
-    useForm: () => ({
-      handleSubmit: (callback) => async () => {
-        await callback({ email: "test@example.com" });
-        return true;
-      },
-    }),
   };
 });
 
@@ -77,6 +60,18 @@ vi.mock("~/components/ui/button", () => {
   };
 });
 
+// Mock vee-validate
+vi.mock("vee-validate", () => {
+  return {
+    useForm: () => ({
+      handleSubmit: (callback) => async () => {
+        await callback({ email: "test@example.com" });
+        return true;
+      },
+    }),
+  };
+});
+
 // Create mock functions that we can reference later
 const mockUpdateUser = vi.fn();
 
@@ -101,6 +96,12 @@ registerEndpoint("/api/account/update-email", {
 // Get the mocked toast function from the import
 const { toast } = vi.mocked(await import("~/components/ui/toast"));
 
+/**
+ * EmailUpdate Component Tests
+ *
+ * Tests for the EmailUpdate component which allows users to update their email address.
+ * These tests verify form rendering, validation, submission, and error handling.
+ */
 describe("EmailUpdate Component", () => {
   it("can be imported", () => {
     // This test just verifies that the component can be imported
@@ -149,5 +150,41 @@ describe("EmailUpdate Component", () => {
         description: "Email updated successfully",
       });
     });
+  });
+
+  it("handles API errors during submission", async () => {
+    // Override the API endpoint to return an error
+    registerEndpoint("/api/account/update-email", {
+      method: "PUT",
+      handler: () => {
+        throw new Error("API error");
+      },
+    });
+
+    // Reset mock functions
+    toast.mockClear();
+
+    // Mock console.error to prevent test output pollution
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const wrapper = await mountSuspended(EmailUpdate);
+
+    // Trigger form submission
+    await wrapper.find("form").trigger("submit");
+
+    // Wait for the next tick to allow async operations to complete
+    await vi.waitFor(() => {
+      // Check if the error was logged
+      expect(consoleErrorSpy).toHaveBeenCalled();
+
+      // Check if the error toast notification was shown
+      expect(toast).toHaveBeenCalledWith({
+        title: "Email update failed",
+        description: "Please try again",
+      });
+    });
+
+    // Restore console.error
+    consoleErrorSpy.mockRestore();
   });
 });

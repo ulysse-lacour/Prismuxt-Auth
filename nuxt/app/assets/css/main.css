@@ -1,10 +1,20 @@
+/**
+ * Main CSS Entry Point
+ * 
+ * This file imports all CSS styles for the application in the correct order:
+ * 1. Tailwind CSS layers (base, components, utilities)
+ * 2. Base styles (variables, reset, typography)
+ * 3. Component-specific styles
+ */
+
+/* Import Tailwind CSS layers */
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* Base styles */
-@import "./base/variables.css";
-@import "./base/reset.css";
-@import "./base/typography.css";
+/* Base styles - foundational styling and variables */
+@import "./base/variables.css"; /* CSS custom properties (variables) */
+@import "./base/reset.css"; /* Browser normalization beyond Tailwind's reset */
+@import "./base/typography.css"; /* Global typography settings */
 
-/* Component styles */
+/* Component styles - specific styling for components that can't be handled with Tailwind alone */

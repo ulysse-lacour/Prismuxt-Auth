@@ -17,7 +17,6 @@
   import { Trash2 } from "lucide-vue-next";
   import { useForm } from "vee-validate";
   import * as z from "zod";
-  import type { Project } from "@prisma/client";
 
   // Route parameters and navigation
   const route = useRoute();
@@ -52,9 +51,9 @@
   const { handleSubmit, resetForm } = useForm({
     validationSchema: projectFormSchema,
     initialValues: {
-      name: project.value?.project?.name || "",
-      description: project.value?.project?.description || "",
-      client: project.value?.project?.client || "",
+      name: project.project?.name || "",
+      description: project.project?.description || "",
+      client: project.project?.client || "",
     },
   });
 
@@ -123,99 +122,109 @@
 </script>
 
 <template>
-  <div class="w-full rounded-lg border p-6 shadow-sm">
-    <!-- Page header -->
-    <div class="space-y-2">
-      <h2 class="text-2xl font-semibold">Project Settings</h2>
-      <p class="text-sm text-muted-foreground">Update your project information and settings.</p>
+  <div>
+    <div class="w-full rounded-lg border p-6 shadow-sm">
+      <!-- Page header -->
+      <div class="space-y-2">
+        <h2 class="text-2xl font-semibold">Project Settings</h2>
+        <p class="text-sm text-muted-foreground">Update your project information and settings.</p>
+      </div>
+
+      <!-- Project update form -->
+      <form class="space-y-4" @submit="submitUpdateProject">
+        <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Project name field -->
+          <FormField v-slot="{ field, errorMessage }" name="name">
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  type="text"
+                  placeholder="Enter project name"
+                  class="w-full"
+                />
+              </FormControl>
+              <FormMessage>{{ errorMessage }}</FormMessage>
+            </FormItem>
+          </FormField>
+
+          <!-- Client name field -->
+          <FormField v-slot="{ field, errorMessage }" name="client">
+            <FormItem>
+              <FormLabel>Client</FormLabel>
+              <FormControl>
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  type="text"
+                  placeholder="Enter client name"
+                  class="w-full"
+                />
+              </FormControl>
+              <FormMessage>{{ errorMessage }}</FormMessage>
+            </FormItem>
+          </FormField>
+        </div>
+
+        <!-- Project description field -->
+        <FormField v-slot="{ field, errorMessage }" name="description">
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormControl>
+              <Textarea
+                v-bind="field"
+                v-model="field.value"
+                placeholder="Enter project description"
+                class="min-h-[100px] w-full max-w-6xl resize-none"
+              />
+            </FormControl>
+            <FormMessage>{{ errorMessage }}</FormMessage>
+          </FormItem>
+        </FormField>
+
+        <!-- Form action buttons -->
+        <div class="flex justify-between pt-2">
+          <!-- Delete button -->
+          <div>
+            <Button
+              type="button"
+              variant="destructive"
+              class="flex items-center gap-2"
+              @click="openDeleteDialog"
+            >
+              <Trash2 class="h-4 w-4" />
+            </Button>
+          </div>
+
+          <!-- Update button -->
+          <div>
+            <Button type="submit" class="w-full sm:w-auto">Update Project</Button>
+          </div>
+        </div>
+
+        <!-- Project Tags Section -->
+        <div class="border-t pt-4">
+          <ProjectTagSelector :project-id="projectId" />
+        </div>
+      </form>
+
+      <!-- Project Display Button -->
+
+      <!-- Using DeleteConfirmDialog component -->
+      <DeleteConfirmDialog
+        v-model:open="isDeleteDialogOpen"
+        title="Delete Project"
+        description="Are you sure you want to delete this project? This action cannot be undone and will remove all associated data."
+        @confirm="deleteCurrentProject"
+      />
     </div>
 
-    <!-- Project update form -->
-    <form class="space-y-4" @submit="submitUpdateProject">
-      <div class="grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2">
-        <!-- Project name field -->
-        <FormField v-slot="{ field, errorMessage }" name="name">
-          <FormItem>
-            <FormLabel>Name</FormLabel>
-            <FormControl>
-              <Input
-                v-bind="field"
-                v-model="field.value"
-                type="text"
-                placeholder="Enter project name"
-                class="w-full"
-              />
-            </FormControl>
-            <FormMessage>{{ errorMessage }}</FormMessage>
-          </FormItem>
-        </FormField>
-
-        <!-- Client name field -->
-        <FormField v-slot="{ field, errorMessage }" name="client">
-          <FormItem>
-            <FormLabel>Client</FormLabel>
-            <FormControl>
-              <Input
-                v-bind="field"
-                v-model="field.value"
-                type="text"
-                placeholder="Enter client name"
-                class="w-full"
-              />
-            </FormControl>
-            <FormMessage>{{ errorMessage }}</FormMessage>
-          </FormItem>
-        </FormField>
-      </div>
-
-      <!-- Project description field -->
-      <FormField v-slot="{ field, errorMessage }" name="description">
-        <FormItem>
-          <FormLabel>Description</FormLabel>
-          <FormControl>
-            <Textarea
-              v-bind="field"
-              v-model="field.value"
-              placeholder="Enter project description"
-              class="min-h-[100px] w-full max-w-6xl resize-none"
-            />
-          </FormControl>
-          <FormMessage>{{ errorMessage }}</FormMessage>
-        </FormItem>
-      </FormField>
-
-      <!-- Form action buttons -->
-      <div class="flex justify-between pt-2">
-        <!-- Delete button -->
-        <div>
-          <Button
-            type="button"
-            variant="destructive"
-            class="flex items-center gap-2"
-            @click="openDeleteDialog"
-          >
-            <Trash2 class="h-4 w-4" />
-          </Button>
-        </div>
-
-        <!-- Update button -->
-        <div>
-          <Button type="submit" class="w-full sm:w-auto">Update Project</Button>
-        </div>
-      </div>
-
-      <!-- Project Tags Section -->
-      <div class="border-t pt-4">
-        <ProjectTagSelector :project-id="projectId" />
-      </div>
-    </form>
-
-    <!-- Using DeleteConfirmDialog component -->
-    <DeleteConfirmDialog
-      v-model:open="isDeleteDialogOpen"
-      title="Delete Project"
-      description="Are you sure you want to delete this project? This action cannot be undone and will remove all associated data."
-      @confirm="deleteCurrentProject"
-    />
+    <div class="flex justify-between pt-2">
+      <NuxtLink :to="`/projects/editor/${projectId}`">
+        <Button>Edit Display</Button>
+      </NuxtLink>
+    </div>
   </div>
 </template>

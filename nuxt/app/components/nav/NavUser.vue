@@ -13,7 +13,15 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
-  import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-vue-next";
+  import {
+    BadgeCheck,
+    Bell,
+    ChevronsUpDown,
+    CreditCard,
+    LogOut,
+    Palette,
+    Sparkles,
+  } from "lucide-vue-next";
 
   import {
     SidebarMenu,
@@ -89,6 +97,12 @@
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account
+              </DropdownMenuItem>
+            </NuxtLink>
+            <NuxtLink to="/dashboard">
+              <DropdownMenuItem>
+                <Palette />
+                Theme Settings
               </DropdownMenuItem>
             </NuxtLink>
           </DropdownMenuGroup>

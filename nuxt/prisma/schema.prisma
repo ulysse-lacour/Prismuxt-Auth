@@ -8,22 +8,26 @@ generator client {
   binaryTargets = ["native", "darwin-arm64"]
 }
 
-// BetterAuth Users Tables
+// ===== Authentication Models =====
+// Models for user authentication, sessions, and account management
 
 model User {
-  id               String      @id @default(cuid())
+  id               String         @id @default(cuid())
   name             String
   email            String
-  emailVerified    Boolean     @default(false)
+  emailVerified    Boolean        @default(false)
   image            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  twoFactorEnabled Boolean     @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  twoFactorEnabled Boolean        @default(false)
   Session          Session[]
   Account          Account[]
   projects         Project[]
   portfolios       Portfolio[]
   tags             Tag[]
+  slideTags        SlideTag[]
+  languages        Language[]
+  themeSettings    ThemeSettings?
 
   @@unique([email])
   @@map("user")
@@ -75,7 +79,66 @@ model Verification {
   @@map("verification")
 }
 
-// Data tables
+// ===== Theme Settings Model =====
+// Model for managing user's theme and company settings
+
+model ThemeSettings {
+  id      String  @id @default(cuid())
+  // Logo settings
+  logoUrl String?
+
+  // Font settings
+  headingFont String? // e.g., "Inter", "Roboto"
+  bodyFont    String? // e.g., "Inter", "Roboto"
+
+  // Color settings
+  backgroundColor String? // e.g., "#ffffff"
+  textColor       String? // e.g., "#000000"
+  accentColor     String? // e.g., "#3b82f6"
+  secondaryColor  String? // e.g., "#10b981"
+
+  // Company information
+  companyName        String?
+  companyDescription String?
+  companyEmail       String?
+  companyPhone       String?
+  companyAddress     String?
+
+  // Default language
+  defaultLanguageId String?
+  defaultLanguage   Language? @relation(fields: [defaultLanguageId], references: [id])
+
+  // User relation
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("theme_settings")
+}
+
+// ===== Language Model =====
+// Model for managing supported languages
+
+model Language {
+  id        String   @id @default(cuid())
+  code      String   @unique // e.g., "en", "de"
+  name      String // e.g., "English", "Deutsch"
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  projectContents ProjectContent[]
+  themeSettings   ThemeSettings[]
+
+  @@map("language")
+}
+
+// ===== Project Models =====
+// Models for managing projects and their content
 
 model Project {
   id          String   @id @default(cuid())
@@ -92,6 +155,7 @@ model Project {
   // Relations
   portfolioProjects PortfolioProject[]
   projectTags       ProjectTag[]
+  projectContents   ProjectContent[]
 
   @@map("project")
 }
@@ -103,6 +167,68 @@ enum BlockType {
   IMAGE
   QUOTE
 }
+
+// Project content in specific language
+model ProjectContent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  languageId String
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  // Content blocks for this project in this language
+  contentBlocks ProjectContentBlock[]
+
+  @@unique([projectId, languageId]) // One content per language per project
+  @@map("project_content")
+}
+
+// Content blocks for a project in a specific language
+model ProjectContentBlock {
+  id        String    @id @default(cuid())
+  type      BlockType
+  order     Int // Position of the block
+  config    Json? // Flexible configuration for the block (layout, styling, etc.)
+  content   Json? // The actual content of the block
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  projectContentId String
+  projectContent   ProjectContent @relation(fields: [projectContentId], references: [id], onDelete: Cascade)
+
+  // Slide tag relation - a slide can have only one tag
+  slideTagId String? // Optional, as not all slides need tags
+  slideTag   SlideTag? @relation(fields: [slideTagId], references: [id])
+
+  @@map("project_content_block")
+}
+
+// ===== Slide Tag Model =====
+// Model for slide (content block) tags
+model SlideTag {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String // The user who created this tag
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relation to slides
+  slides ProjectContentBlock[]
+
+  @@unique([name, userId]) // Each user can have unique slide tag names
+  @@map("slide_tag")
+}
+
+// ===== Portfolio Models =====
+// Models for managing portfolios and their relationship with projects
 
 model Portfolio {
   id          String   @id @default(cuid())
@@ -121,7 +247,7 @@ model Portfolio {
   @@map("portfolio")
 }
 
-// Junction table for Projects in Portfolios with their content blocks
+// Junction table for Projects in Portfolios
 model PortfolioProject {
   id        String   @id @default(cuid())
   order     Int // For ordering projects within the portfolio
@@ -134,31 +260,13 @@ model PortfolioProject {
   projectId   String
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  // Content blocks for this project in this portfolio
-  contentBlocks PortfolioProjectBlock[]
-
   @@unique([portfolioId, projectId])
   @@map("portfolio_project")
 }
 
-// Content blocks for a project within a portfolio
-model PortfolioProjectBlock {
-  id        String    @id @default(cuid())
-  type      BlockType
-  order     Int // Position of the block
-  config    Json? // Flexible configuration for the block (layout, styling, etc.)
-  content   Json? // The actual content of the block
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+// ===== Tag System Models =====
+// Models for managing tags and their relationship with projects
 
-  // Relations
-  portfolioProjectId String
-  portfolioProject   PortfolioProject @relation(fields: [portfolioProjectId], references: [id], onDelete: Cascade)
-
-  @@map("portfolio_project_block")
-}
-
-// Tag system models
 model Tag {
   id        String   @id @default(cuid())
   name      String

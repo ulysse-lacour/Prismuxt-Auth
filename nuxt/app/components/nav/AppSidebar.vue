@@ -73,13 +73,18 @@
         icon: FolderKanban,
         isActive: route.path.startsWith("/projects"),
         items: [
+          {
+            title: "All",
+            url: "/projects",
+            icon: FolderKanban,
+          },
           ...projectStore.projects.map((project) => ({
             title: project.name,
             url: `/projects/${project.id}`,
           })),
           {
             title: "New",
-            url: "/projects/new",
+            url: "/projects/create",
             icon: Plus,
           },
         ],
@@ -90,13 +95,18 @@
         icon: Briefcase,
         isActive: route.path.startsWith("/portfolios"),
         items: [
+          {
+            title: "All",
+            url: "/portfolios",
+            icon: Briefcase,
+          },
           ...portfoliosStore.portfolios.map((portfolio) => ({
             title: portfolio.name,
             url: `/portfolios/${portfolio.slug}`,
           })),
           {
             title: "New",
-            url: "/portfolios/new",
+            url: "/portfolios/create",
             icon: Plus,
           },
         ],

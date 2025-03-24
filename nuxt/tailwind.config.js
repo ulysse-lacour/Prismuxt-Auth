@@ -1,20 +1,35 @@
 const animate = require("tailwindcss-animate");
 
-/** @type {import('tailwindcss').Config} */
+/**
+ * Tailwind CSS Configuration
+ *
+ * This file configures Tailwind CSS for the application, including:
+ * - Dark mode support using the 'class' strategy
+ * - Container sizing and responsive breakpoints
+ * - Custom color palette using CSS variables for theming
+ * - Animation utilities via tailwindcss-animate
+ * - Custom components and utilities
+ *
+ * @type {import('tailwindcss').Config}
+ */
 module.exports = {
+  // Enable dark mode with class-based switching
   darkMode: ["class"],
+  // Always include these classes in the compiled CSS
   safelist: ["dark"],
+  // No prefix for utility classes
   prefix: "",
 
   theme: {
     container: {
-      center: true,
-      padding: "2rem",
+      center: true, // Center containers by default
+      padding: "2rem", // Default padding
       screens: {
-        "2xl": "1400px",
+        "2xl": "1400px", // Max width for 2xl screens
       },
     },
     extend: {
+      // Color system using CSS variables for easy theming
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

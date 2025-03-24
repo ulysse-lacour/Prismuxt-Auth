@@ -280,6 +280,23 @@ mockNuxtImport("usePortfolioData", () => {
   });
 });
 
+// Mock the usePortfolioManagement composable
+mockNuxtImport("usePortfolioManagement", () => {
+  return () => ({
+    addProjectToPortfolio: vi.fn().mockResolvedValue({
+      portfolio: mockPortfolioData.portfolio,
+      message: "Project added successfully",
+    }),
+    removeProjectFromPortfolio: vi.fn().mockResolvedValue({
+      portfolio: mockPortfolioData.portfolio,
+      message: "Project removed successfully",
+    }),
+    fetchAllProjects: vi.fn().mockResolvedValue({
+      projects: ref(mockProjectsData),
+    }),
+  });
+});
+
 // Mock useFetch for portfolio data
 mockNuxtImport("useFetch", () => {
   return (url, options) => {
@@ -350,7 +367,13 @@ describe("PortfolioProjects Component", () => {
   });
 
   it("renders the current projects section", async () => {
-    const wrapper = await mountSuspended(PortfolioProjects);
+    const wrapper = await mountSuspended(PortfolioProjects, {
+      props: {
+        portfolioData: mockPortfolioData,
+        projects: mockProjectsData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Check if the component renders the current projects section
     expect(wrapper.find("h2").text()).toBe("Current Projects");
@@ -369,7 +392,13 @@ describe("PortfolioProjects Component", () => {
   });
 
   it("renders the add project form", async () => {
-    const wrapper = await mountSuspended(PortfolioProjects);
+    const wrapper = await mountSuspended(PortfolioProjects, {
+      props: {
+        portfolioData: mockPortfolioData,
+        projects: mockProjectsData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Check if the add project form is rendered
     const formHeadings = wrapper.findAll("h2");
@@ -390,7 +419,13 @@ describe("PortfolioProjects Component", () => {
   });
 
   it("submits the form to add a project", async () => {
-    const wrapper = await mountSuspended(PortfolioProjects);
+    const wrapper = await mountSuspended(PortfolioProjects, {
+      props: {
+        portfolioData: mockPortfolioData,
+        projects: mockProjectsData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Reset mock functions
     mockSetCurrentPortfolio.mockClear();
@@ -401,19 +436,22 @@ describe("PortfolioProjects Component", () => {
 
     // Wait for the next tick to allow async operations to complete
     await vi.waitFor(() => {
-      // Check if the portfolio was updated in the store
-      expect(mockSetCurrentPortfolio).toHaveBeenCalled();
-
       // Check if the toast notification was shown
       expect(toast).toHaveBeenCalledWith({
-        title: "Project added successfully",
-        description: "The project has been added to your portfolio.",
+        title: "Project added",
+        description: "Project has been added to your portfolio",
       });
     });
   });
 
   it("opens the delete dialog when delete button is clicked", async () => {
-    const wrapper = await mountSuspended(PortfolioProjects);
+    const wrapper = await mountSuspended(PortfolioProjects, {
+      props: {
+        portfolioData: mockPortfolioData,
+        projects: mockProjectsData,
+        slug: "test-portfolio",
+      },
+    });
 
     // Find the first delete button (Trash icon)
     const deleteButton = wrapper

@@ -73,6 +73,17 @@ vi.mock("~/components/ui/button", () => {
   };
 });
 
+// Mock ProjectTagSelector component
+vi.mock("~/components/project/ProjectTagSelector", () => {
+  return {
+    default: {
+      name: "ProjectTagSelector",
+      props: ["projectId"],
+      template: '<div class="project-tag-selector"></div>',
+    },
+  };
+});
+
 // Mock DeleteConfirmDialog
 vi.mock("~/components/form/DeleteConfirmDialog", () => {
   return {
@@ -127,6 +138,44 @@ const mockProjectStore = {
   },
 };
 
+// Create mock functions for project management
+const mockFetchProject = vi.fn().mockResolvedValue({
+  project: {
+    project: {
+      id: "project-1",
+      name: "Test Project",
+      description: "Test Description",
+      client: "Test Client",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  },
+});
+
+const mockUpdateProject = vi.fn().mockResolvedValue({
+  project: {
+    id: "project-1",
+    name: "Updated Project",
+    description: "Updated Description",
+    client: "Updated Client",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  message: "Project updated successfully",
+});
+
+const mockDeleteProject = vi.fn().mockResolvedValue({
+  project: {
+    id: "project-1",
+    name: "Test Project",
+    description: "Test Description",
+    client: "Test Client",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  message: "Project deleted successfully",
+});
+
 // Mock imports
 mockNuxtImport("useProjectStore", () => {
   return () => mockProjectStore;
@@ -141,11 +190,46 @@ mockNuxtImport("useRouter", () => {
   });
 });
 
+// Mock the route
+mockNuxtImport("useRoute", () => {
+  return () => ({
+    params: {
+      id: "project-1",
+    },
+    path: "/projects/project-1",
+  });
+});
+
+// Mock the useProjectManagement composable
+mockNuxtImport("useProjectManagement", () => {
+  return () => ({
+    fetchProject: mockFetchProject,
+    updateProject: mockUpdateProject,
+    deleteProject: mockDeleteProject,
+  });
+});
+
 // Get the mocked toast function from the import
 const { toast } = vi.mocked(await import("~/components/ui/toast"));
 
 // Register mock API endpoints
-registerEndpoint("/api/projects/update", {
+registerEndpoint("/api/project/project-1", {
+  method: "GET",
+  handler: () => {
+    return {
+      project: {
+        id: "project-1",
+        name: "Test Project",
+        description: "Test Description",
+        client: "Test Client",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    };
+  },
+});
+
+registerEndpoint("/api/project/project-1", {
   method: "PUT",
   handler: () => {
     return {
@@ -153,7 +237,7 @@ registerEndpoint("/api/projects/update", {
         id: "project-1",
         name: "Updated Project",
         description: "Updated Description",
-        url: "https://updated.com",
+        client: "Updated Client",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -162,7 +246,7 @@ registerEndpoint("/api/projects/update", {
   },
 });
 
-registerEndpoint("/api/projects/delete", {
+registerEndpoint("/api/project/project-1", {
   method: "DELETE",
   handler: () => {
     return {
@@ -170,7 +254,7 @@ registerEndpoint("/api/projects/delete", {
         id: "project-1",
         name: "Test Project",
         description: "Test Description",
-        url: "https://test.com",
+        client: "Test Client",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },

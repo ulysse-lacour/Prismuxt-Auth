@@ -2,8 +2,9 @@
   /**
    * Name Update Component
    *
-   * Provides a form for updating the user's first and last name
-   * Handles validation and submission to the API
+   * Provides a form for updating the user's first and last name.
+   * Uses vee-validate with zod for form validation and handles API submission.
+   * Updates the user store on successful submission.
    */
   import { toTypedSchema } from "@vee-validate/zod";
   import { toast } from "~/components/ui/toast";
@@ -12,8 +13,11 @@
   import * as z from "zod";
 
   /**
-   * Define validation schema using zod
-   * Validates first and last name fields
+   * Form validation schema using zod
+   *
+   * Validates that:
+   * - First name is required and at least 2 characters
+   * - Last name is required and at least 2 characters
    */
   const nameFormSchema = toTypedSchema(
     z.object({
@@ -35,7 +39,7 @@
   );
 
   /**
-   * Initialize form with validation and default values
+   * Initialize form with validation schema and empty default values
    */
   const { handleSubmit: handleNameSubmit } = useForm({
     validationSchema: nameFormSchema,
@@ -47,7 +51,12 @@
 
   /**
    * Handle form submission to update user's name
-   * @param {Object} values - Form values containing firstName and lastName
+   *
+   * 1. Sends API request to update name
+   * 2. Updates local user data store
+   * 3. Shows success/error toast notification
+   *
+   * @param values - Form values containing firstName and lastName
    */
   const onNameSubmit = handleNameSubmit(async (values: { firstName: string; lastName: string }) => {
     try {
@@ -81,7 +90,7 @@
 <template>
   <form class="space-y-8" @submit="onNameSubmit">
     <div class="grid w-full grid-cols-2 gap-4">
-      <!-- First name field -->
+      <!-- First name input field -->
       <FormField v-slot="{ field, errorMessage }" name="firstName">
         <FormItem class="max-w-[200px]">
           <FormLabel>First name</FormLabel>
@@ -92,7 +101,7 @@
         </FormItem>
       </FormField>
 
-      <!-- Last name field -->
+      <!-- Last name input field -->
       <FormField v-slot="{ field, errorMessage }" name="lastName">
         <FormItem class="max-w-[200px]">
           <FormLabel>Last name</FormLabel>
@@ -104,7 +113,7 @@
       </FormField>
     </div>
 
-    <!-- Submit button -->
+    <!-- Form submission button -->
     <div class="flex justify-end">
       <Button type="submit">Update name</Button>
     </div>

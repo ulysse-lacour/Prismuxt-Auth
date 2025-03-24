@@ -53,14 +53,18 @@
     try {
       const { createdProject } = await createProject(values);
 
-      // Show success notification
-      toast({
-        title: "Project created",
-        description: "Project created successfully",
-      });
+      if (createdProject) {
+        // Show success notification
+        toast({
+          title: "Project created",
+          description: "Project created successfully",
+        });
 
-      // Navigate to the new project page
-      router.push(`/projects/${createdProject.project.id}`);
+        // Navigate to the new project page
+        router.push(`/projects/${createdProject.project.id}`);
+      } else {
+        throw new Error("Failed to create project");
+      }
     } catch (error) {
       console.error("Failed to create project:", error);
 
