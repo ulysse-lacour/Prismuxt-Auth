@@ -208,31 +208,6 @@
     selectedTag.value = null; // Explicitly reset selectedTag
   };
 
-  // Initialize selectedTag if slide has a tag
-  onMounted(() => {
-    if (props.slide.slideTag) {
-      selectedTag.value = {
-        value: props.slide.slideTag.id,
-        label: props.slide.slideTag.name,
-      };
-    }
-  });
-
-  // Watch for changes in slide.slideTag to update selectedTag
-  watch(
-    () => props.slide.slideTag,
-    (newTag) => {
-      if (newTag) {
-        selectedTag.value = {
-          value: newTag.id,
-          label: newTag.name,
-        };
-      } else {
-        selectedTag.value = null;
-      }
-    }
-  );
-
   watch(
     () => props.isActive,
     (newValue, oldValue) => {
