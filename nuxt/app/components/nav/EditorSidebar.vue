@@ -35,37 +35,27 @@
     }
   );
 
-  const data = {
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  };
+  const emit = defineEmits(["update", "activate"]);
 
   // Handle slide update from SlideCard
   const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
-    emit("update", updatedSlide);
+    // Find the index of the slide to update
+    const slideIndex = props.slides.findIndex((block) => block.id === updatedSlide.id);
+
+    if (slideIndex !== -1) {
+      // Create a new array with the updated slide
+      const updatedSlides = [...props.slides];
+      updatedSlides[slideIndex] = updatedSlide;
+
+      // Emit the update to the parent
+      emit("update", updatedSlides);
+    }
   };
 
   // Handle slide activation
   const handleSlideActivate = (slideId: string) => {
     emit("activate", slideId);
   };
-
-  const emit = defineEmits(["update", "activate"]);
 </script>
 
 <template>
@@ -81,6 +71,7 @@
         <SlideCard
           :slide="slide"
           :isActive="activeSlideId === slide.id"
+          :rotate="rotate"
           @update:slide="handleSlideUpdate"
           @activate="handleSlideActivate"
         />
@@ -90,7 +81,7 @@
 </template>
 
 <style>
-  .group\/sidebar-wrapper > div > div:nth-child(2) {
+  /* .group\/sidebar-wrapper > div > div:nth-child(2) {
     padding-top: 8rem;
-  }
+  } */
 </style>

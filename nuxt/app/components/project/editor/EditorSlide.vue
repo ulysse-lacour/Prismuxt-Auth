@@ -17,6 +17,8 @@
     }
   );
 
+  const emit = defineEmits(["intersection", "activate", "update"]);
+
   // Create a ref for the slide element
   const slideElement = ref(null);
 
@@ -66,6 +68,16 @@
     }
   );
 
+  // Watch for changes in the slide prop
+  watch(
+    () => props.slide,
+    (newSlide) => {
+      // Re-emit the update to ensure both previews stay in sync
+      emit("update", newSlide);
+    },
+    { deep: true }
+  );
+
   // Stop observing when component is unmounted
   onUnmounted(() => {
     stopObserver();
@@ -93,8 +105,10 @@
     }
   };
 
-  // Emit intersection data and activate events for parent component
-  const emit = defineEmits(["intersection", "activate"]);
+  // Handle block update from BlockEditor
+  const handleBlockUpdate = (updatedBlock: ProjectContentBlock) => {
+    emit("update", updatedBlock);
+  };
 </script>
 
 <template>
@@ -119,7 +133,7 @@
       @click="handleActivate"
     >
       <div class="absolute inset-0 overflow-auto p-4">
-        <BlockEditor :block="slide" />
+        <BlockEditor :block="slide" @update="handleBlockUpdate" :isPreview="false" />
       </div>
     </div>
   </section>

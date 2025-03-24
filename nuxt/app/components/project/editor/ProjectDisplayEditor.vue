@@ -121,6 +121,11 @@
       contentBlocks.value = updatedBlocks;
     }
   };
+
+  // Handle slides update from EditorSidebar
+  const handleSlidesUpdate = (updatedSlides: ProjectContentBlock[]) => {
+    contentBlocks.value = updatedSlides;
+  };
 </script>
 
 <template>
@@ -130,6 +135,7 @@
       :slides="contentBlocks"
       :activeSlideId="activeSlideId"
       @activate="handleSidebarSlideActivate"
+      @update="handleSlidesUpdate"
     />
 
     <!-- Main content area with header and content slot -->

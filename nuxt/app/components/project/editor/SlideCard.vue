@@ -20,6 +20,7 @@
       slideTag?: SlideTag | null;
     };
     isActive?: boolean;
+    rotate?: "horizontal" | "vertical";
   }>();
 
   const emit = defineEmits(["update:slide", "activate"]);
@@ -44,10 +45,11 @@
   const searchInput = ref("");
   const isLoadingTag = ref(false);
 
-  // Handle slide activation
-  const handleActivate = () => {
-    emit("activate", props.slide.id);
-  };
+  // Create a computed property for two-way binding of the slide
+  const modelValue = computed({
+    get: () => props.slide,
+    set: (value) => emit("update:slide", value),
+  });
 
   // Fetch all slide tags for the current user
   const { data: slideTags } = await fetchSlideTags();
@@ -55,7 +57,6 @@
   // Available tags for selection
   const availableTags = computed(() => {
     if (!slideTags.value?.tags) return [];
-
     return slideTags.value.tags.map((tag) => ({
       value: tag.id,
       label: tag.name,
@@ -65,7 +66,6 @@
   // Filtered tags based on search input
   const filteredTags = computed(() => {
     if (!searchInput.value) return availableTags.value;
-
     return availableTags.value.filter((tag) =>
       tag.label.toLowerCase().includes(searchInput.value.toLowerCase())
     );
@@ -79,6 +79,11 @@
     );
   });
 
+  // Handle slide activation
+  const handleActivate = () => {
+    emit("activate", props.slide.id);
+  };
+
   // Toggle the visibility of layout options
   const toggleLayoutOptions = () => {
     showLayoutOptions.value = !showLayoutOptions.value;
@@ -89,12 +94,22 @@
     try {
       isUpdating.value = true;
       const response = await updateBlockLayout(projectId, props.slide.id, layoutType);
-      emit("update:slide", response.block);
-      showLayoutOptions.value = false;
-      toast({
-        title: "Layout updated",
-        description: `Changed slide layout to ${layoutType.toLowerCase()}`,
-      });
+
+      if (response?.block) {
+        // Update the slide through the computed property, preserving the existing slide structure
+        modelValue.value = {
+          ...props.slide,
+          type: response.block.type,
+          config: response.block.config,
+          content: response.block.content,
+        };
+
+        showLayoutOptions.value = false;
+        toast({
+          title: "Layout updated",
+          description: `Changed slide layout to ${layoutType.toLowerCase()}`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Update failed",
@@ -227,6 +242,11 @@
       }
     }
   );
+
+  // Handle slide update from SlidePreview
+  const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
+    emit("update:slide", updatedSlide);
+  };
 </script>
 
 <template>
@@ -380,12 +400,13 @@
     </div>
   </div>
 
-  <div
-    v-else
-    class="h-fit w-2/12 min-w-[300px] cursor-pointer hover:bg-gray-100"
-    @click="handleActivate"
-  >
-    <div class="px-4 py-2">Slide - {{ slide.order }}</div>
+  <div v-else class="h-fit cursor-pointer" @click="handleActivate">
+    <div class="relative overflow-hidden rounded-lg border bg-white p-2">
+      <!-- Thumbnail preview -->
+      <div class="">
+        <SlidePreview :slide="slide" :rotate="rotate" class="!p-0" @update="handleSlideUpdate" />
+      </div>
+    </div>
   </div>
 </template>
 
