@@ -111,14 +111,16 @@
     <div
       :class="[
         props.slideClass,
-        'w-full rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
+        'relative w-full rounded-lg bg-white p-4 text-black transition-all duration-300 hover:ring-2 hover:ring-yellow-400',
         props.rotate === 'vertical' ? 'aspect-a4-vertical' : 'aspect-a4',
         props.isActive ? 'shadow-lg ring-2 ring-yellow-400' : 'cursor-pointer shadow',
       ]"
       :id="`slide-editor-${slide.id}`"
       @click="handleActivate"
     >
-      <BlockEditor :block="slide" />
+      <div class="absolute inset-0 overflow-auto p-4">
+        <BlockEditor :block="slide" />
+      </div>
     </div>
   </section>
 </template>
@@ -127,13 +129,13 @@
   /* Add custom aspect ratios */
   .aspect-a4 {
     aspect-ratio: 1.414 / 1; /* A4 aspect ratio for horizontal orientation */
-    /* width: 100%;
-    height: auto; */
+    width: 100%;
+    height: auto;
   }
   .aspect-a4-vertical {
     aspect-ratio: 1 / 1.414; /* A4 aspect ratio for vertical orientation */
-    /* width: auto;
-    height: 100svh; */
+    width: 100%;
+    height: auto;
   }
 
   .active-slide {

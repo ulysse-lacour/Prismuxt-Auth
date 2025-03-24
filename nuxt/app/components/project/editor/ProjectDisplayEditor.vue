@@ -148,12 +148,7 @@
 
       <!-- Page content -->
       <template v-if="projectContent">
-        <div
-          v-for="block in contentBlocks"
-          :key="block.id"
-          :id="`slide-${block.id}`"
-          class="col-span-12 mb-4"
-        >
+        <div v-for="block in contentBlocks" :key="block.id" :id="`slide-${block.id}`" class="mb-4">
           <EditorSlide
             :slide="block"
             :rotate="rotate"
