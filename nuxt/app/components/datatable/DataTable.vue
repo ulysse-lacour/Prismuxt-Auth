@@ -62,7 +62,16 @@
   const expanded = ref<ExpandedState>({});
 
   // Make data reactive
-  const tableData = computed(() => props.data);
+  const tableData = ref(props.data);
+
+  // Watch for changes in props.data
+  watch(
+    () => props.data,
+    (newData) => {
+      tableData.value = newData;
+    },
+    { deep: true }
+  );
 
   const table =
     props.table ||
@@ -118,9 +127,15 @@
         : updaterOrValue;
   }
 
-  const handleDragChange = (evt: any) => {
+  const handleDragChange = async (evt: any) => {
     if (props.onReorder) {
-      props.onReorder(tableData.value);
+      try {
+        // Get the new order of IDs from the table data
+        const newOrder = tableData.value.map((item: any) => item.id);
+        props.onReorder(newOrder);
+      } catch (error) {
+        console.error("Failed to reorder projects:", error);
+      }
     }
   };
 </script>

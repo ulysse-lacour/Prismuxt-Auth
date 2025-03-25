@@ -37,7 +37,7 @@
   const tableProjects = ref<ProjectWithTags[]>([]);
   const dataTable = ref();
 
-  const { fetchAllProjects, deleteProject } = useProjectManagement();
+  const { fetchAllProjects, deleteProject, reorderProjects } = useProjectManagement();
   const { allProjects } = await fetchAllProjects();
   tableProjects.value = allProjects;
 
@@ -52,6 +52,19 @@
       cell: () => {
         return h("div", { class: "drag-handle cursor-move" }, () =>
           h(Icon, { name: "lucide:grip-vertical", class: "h-4 w-4 text-muted-foreground" })
+        );
+      },
+    },
+    {
+      accessorKey: "order",
+      header: ({ column }) => {
+        return h(
+          Button,
+          {
+            variant: "ghost",
+            onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+          },
+          () => ["Order", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
         );
       },
     },
@@ -316,13 +329,18 @@
     isDeleteDialogOpen.value = true;
   };
 
-  const handleReorder = async (newOrder: ProjectWithTags[]) => {
+  const handleReorder = async (newOrder: string[]) => {
     try {
-      // Update the local state
-      tableProjects.value = newOrder;
+      console.log("Reordering projects:", newOrder); // Debug log
+      // Get the full project objects in the new order
+      const reorderedProjects = newOrder
+        .map((id) => tableProjects.value.find((project) => project.id === id))
+        .filter((project): project is ProjectWithTags => project !== undefined);
 
-      // Here you would typically make an API call to update the order in the backend
-      // await updateProjectsOrder(newOrder.map(project => project.id));
+      await reorderProjects(reorderedProjects);
+      // Refresh the projects list after reordering
+      const { allProjects: updatedProjects } = await fetchAllProjects();
+      tableProjects.value = updatedProjects;
 
       toast({
         title: "Projects reordered",
