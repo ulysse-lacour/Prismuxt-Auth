@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useSidebar } from "@/components/ui/sidebar/utils";
+  import { nextTick, watch } from "vue";
   import type { ProjectContentBlock } from "@prisma/client";
   import type { HTMLAttributes } from "vue";
 
@@ -32,6 +33,24 @@
   const { open } = useSidebar();
 
   const emit = defineEmits(["update", "activate", "addSlide"]);
+
+  // Watch for active slide changes to scroll in sidebar
+  watch(
+    () => props.activeSlideId,
+    (newId) => {
+      if (newId && open.value) {
+        nextTick(() => {
+          const slideCard = document.getElementById(`sidebar-slide-${newId}`);
+          if (slideCard) {
+            slideCard.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+        });
+      }
+    }
+  );
 
   // Handle slide update from SlideCard
   const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
@@ -66,13 +85,15 @@
     </SidebarHeader>
     <SidebarContent class="p-4">
       <template v-if="open" v-for="slide in slides" :key="slide.id">
-        <SlideCard
-          :slide="slide"
-          :isActive="activeSlideId === slide.id"
-          :rotate="rotate"
-          @update:slide="handleSlideUpdate"
-          @activate="handleSlideActivate"
-        />
+        <div :id="`sidebar-slide-${slide.id}`">
+          <SlideCard
+            :slide="slide"
+            :isActive="activeSlideId === slide.id"
+            :rotate="rotate"
+            @update:slide="handleSlideUpdate"
+            @activate="handleSlideActivate"
+          />
+        </div>
       </template>
     </SidebarContent>
   </Sidebar>

@@ -24,8 +24,8 @@
     (newSlide) => {
       // Re-emit the update to ensure both previews stay in sync
       emit("update", newSlide);
-    },
-    { deep: true }
+    }
+    // { deep: true }
   );
 </script>
 

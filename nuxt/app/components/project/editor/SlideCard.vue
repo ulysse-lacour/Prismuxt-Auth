@@ -280,7 +280,7 @@
             <div
               class="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-sm font-medium"
             >
-              {{ slideTags?.tags.find((tag) => tag.id === slide.slideTagId)?.name }}
+              {{ slideTags?.tags?.find((tag) => tag.id === slide.slideTagId)?.name }}
               <button
                 class="ml-1 rounded-full p-0.5"
                 aria-label="Remove tag"
@@ -375,7 +375,6 @@
         </div>
       </div>
     </div>
-    <!-- Yellow header -->
   </div>
 
   <div v-else class="h-fit cursor-pointer" @click="handleActivate">

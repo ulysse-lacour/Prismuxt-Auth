@@ -12,7 +12,6 @@
     }>(),
     {
       isActive: false,
-      cardClass: "",
       slideClass: "",
     }
   );
