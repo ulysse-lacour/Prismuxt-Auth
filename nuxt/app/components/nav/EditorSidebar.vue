@@ -1,18 +1,9 @@
 <script setup lang="ts">
   import { useSidebar } from "@/components/ui/sidebar/utils";
-  import { Briefcase, FolderKanban, Frame, Map, PieChart, Plus } from "lucide-vue-next";
-  import type { SidebarProps } from "../../components/ui/sidebar";
   import type { ProjectContentBlock } from "@prisma/client";
-  import type { LucideIcon } from "lucide-vue-next";
   import type { HTMLAttributes } from "vue";
 
-  import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarTrigger,
-  } from "../../components/ui/sidebar";
+  import { Sidebar, SidebarContent, SidebarHeader } from "../../components/ui/sidebar";
 
   /**
    * Editor Sidebar Component
