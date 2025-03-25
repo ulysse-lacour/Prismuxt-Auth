@@ -127,15 +127,36 @@
         : updaterOrValue;
   }
 
-  const handleDragChange = async (evt: any) => {
-    if (props.onReorder) {
-      try {
-        // Get the new order of IDs from the table data
-        const newOrder = tableData.value.map((item: any) => item.id);
-        props.onReorder(newOrder);
-      } catch (error) {
-        console.error("Failed to reorder projects:", error);
-      }
+  const draggedRow = ref<any>(null);
+
+  const handleDragStart = (row: any) => {
+    draggedRow.value = row;
+  };
+
+  const handleDragEnd = () => {
+    draggedRow.value = null;
+  };
+
+  const handleDrop = async (targetRow: any) => {
+    if (!draggedRow.value || !props.onReorder) return;
+
+    try {
+      const newData = [...tableData.value];
+      const draggedIndex = newData.findIndex((item) => item.id === draggedRow.value.original.id);
+      const targetIndex = newData.findIndex((item) => item.id === targetRow.original.id);
+
+      // Remove dragged item and insert at new position
+      const [draggedItem] = newData.splice(draggedIndex, 1);
+      newData.splice(targetIndex, 0, draggedItem);
+
+      // Update local data
+      tableData.value = newData;
+
+      // Notify parent of reorder
+      const newOrder = newData.map((item) => item.id);
+      await props.onReorder(newOrder);
+    } catch (error) {
+      console.error("Failed to reorder:", error);
     }
   };
 </script>
@@ -193,54 +214,43 @@
             </TableHead>
           </TableRow>
         </TableHeader>
-        <template v-if="table.getRowModel().rows?.length">
-          <draggable
-            v-model="tableData"
-            item-key="id"
-            tag="tbody"
-            handle=".drag-handle"
-            @change="handleDragChange"
-          >
-            <template #item="{ element }">
-              <TableRow>
-                <TableCell v-for="column in table.getAllColumns()" :key="column.id">
-                  <template v-if="column.id === 'dragHandle'">
-                    <div class="drag-handle cursor-move">
+
+        <TableBody>
+          <template v-if="table.getRowModel().rows?.length">
+            <template v-for="row in table.getRowModel().rows" :key="row.id">
+              <TableRow :data-state="row.getIsSelected() && 'selected'">
+                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                  <template v-if="cell.column.id === 'dragHandle'">
+                    <div
+                      class="drag-handle cursor-move"
+                      draggable="true"
+                      @dragstart="handleDragStart(row)"
+                      @dragend="handleDragEnd"
+                      @dragover.prevent
+                      @drop="handleDrop(row)"
+                    >
                       <Icon name="lucide:grip-vertical" class="h-4 w-4 text-muted-foreground" />
                     </div>
                   </template>
                   <template v-else>
-                    <FlexRender
-                      :render="column.columnDef.cell"
-                      :props="{
-                        row: {
-                          original: element,
-                          getValue: (key: string) => element[key],
-                        },
-                        column,
-                        table,
-                        renderValue: () => {
-                          const value = element[column.id];
-                          if (typeof value === 'function') {
-                            return value(element);
-                          }
-                          return value;
-                        },
-                      }"
-                    />
+                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                   </template>
                 </TableCell>
               </TableRow>
+              <TableRow v-if="row.getIsExpanded()">
+                <TableCell :colspan="row.getAllCells().length">
+                  <slot name="expanded" :row="row.original" />
+                </TableCell>
+              </TableRow>
             </template>
-          </draggable>
-        </template>
-        <tbody v-else>
-          <TableRow>
+          </template>
+
+          <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
               <slot name="empty"> No results found. </slot>
             </TableCell>
           </TableRow>
-        </tbody>
+        </TableBody>
       </Table>
     </div>
 
