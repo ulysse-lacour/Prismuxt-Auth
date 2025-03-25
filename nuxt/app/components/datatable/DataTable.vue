@@ -24,7 +24,9 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
+  import { Icon } from "#components";
   import { Filter, X } from "lucide-vue-next";
+  import draggable from "vuedraggable";
   import type {
     ColumnDef,
     ColumnFiltersState,
@@ -40,6 +42,7 @@
     searchKey?: string;
     pageSize?: number;
     table?: TableType<any>;
+    onReorder?: (newOrder: any[]) => void;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -59,7 +62,16 @@
   const expanded = ref<ExpandedState>({});
 
   // Make data reactive
-  const tableData = computed(() => props.data);
+  const tableData = ref(props.data);
+
+  // Watch for changes in props.data
+  watch(
+    () => props.data,
+    (newData) => {
+      tableData.value = newData;
+    },
+    { deep: true }
+  );
 
   const table =
     props.table ||
@@ -114,6 +126,39 @@
         ? (updaterOrValue as (old: T) => T)(ref.value)
         : updaterOrValue;
   }
+
+  const draggedRow = ref<any>(null);
+
+  const handleDragStart = (row: any) => {
+    draggedRow.value = row;
+  };
+
+  const handleDragEnd = () => {
+    draggedRow.value = null;
+  };
+
+  const handleDrop = async (targetRow: any) => {
+    if (!draggedRow.value || !props.onReorder) return;
+
+    try {
+      const newData = [...tableData.value];
+      const draggedIndex = newData.findIndex((item) => item.id === draggedRow.value.original.id);
+      const targetIndex = newData.findIndex((item) => item.id === targetRow.original.id);
+
+      // Remove dragged item and insert at new position
+      const [draggedItem] = newData.splice(draggedIndex, 1);
+      newData.splice(targetIndex, 0, draggedItem);
+
+      // Update local data
+      tableData.value = newData;
+
+      // Notify parent of reorder
+      const newOrder = newData.map((item) => item.id);
+      await props.onReorder(newOrder);
+    } catch (error) {
+      console.error("Failed to reorder:", error);
+    }
+  };
 </script>
 
 <template>
@@ -169,12 +214,27 @@
             </TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow :data-state="row.getIsSelected() && 'selected'">
                 <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                  <template v-if="cell.column.id === 'dragHandle'">
+                    <div
+                      class="drag-handle cursor-move"
+                      draggable="true"
+                      @dragstart="handleDragStart(row)"
+                      @dragend="handleDragEnd"
+                      @dragover.prevent
+                      @drop="handleDrop(row)"
+                    >
+                      <Icon name="lucide:grip-vertical" class="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </template>
+                  <template v-else>
+                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                  </template>
                 </TableCell>
               </TableRow>
               <TableRow v-if="row.getIsExpanded()">

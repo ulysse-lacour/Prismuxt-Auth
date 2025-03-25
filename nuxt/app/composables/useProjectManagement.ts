@@ -178,6 +178,40 @@ export function useProjectManagement() {
   };
 
   /**
+   * @function reorderProjects
+   *
+   * @description Updates the order of projects and syncs with the backend.
+   *
+   * @param projects - Array of projects in their new order
+   *
+   * @returns Promise containing the updated projects
+   *
+   * @throws {Error} If the API request fails
+   *
+   * @sideEffect Updates the projects store with the reordered projects
+   */
+  const reorderProjects = async (projects: ProjectWithTags[]) => {
+    try {
+      const updatedProjects = await $fetch(`/api/projects/reorder`, {
+        method: "PUT",
+        body: { projects: projects.map((project) => project.id) },
+      });
+
+      if (updatedProjects) {
+        // Update the projects store with reordered projects
+        projectStore.setProjects(
+          updatedProjects.projects.map((project) => processProjectData(project))
+        );
+      }
+
+      return { updatedProjects };
+    } catch (error) {
+      console.error("Error reordering projects:", error);
+      throw error;
+    }
+  };
+
+  /**
    * @function fetchAllTags
    *
    * @description Fetches all tags available for the current user.
@@ -332,6 +366,7 @@ export function useProjectManagement() {
     createProject,
     updateProject,
     deleteProject,
+    reorderProjects,
     // Tags
     fetchAllTags,
     createTag,

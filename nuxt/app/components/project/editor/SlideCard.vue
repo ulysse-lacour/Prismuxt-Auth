@@ -20,9 +20,10 @@
       slideTag?: SlideTag | null;
     };
     isActive?: boolean;
+    rotate?: "horizontal" | "vertical";
   }>();
 
-  const emit = defineEmits(["update:slide"]);
+  const emit = defineEmits(["update:slide", "activate"]);
 
   // Get the current route to extract the project ID
   const route = useRoute();
@@ -44,13 +45,18 @@
   const searchInput = ref("");
   const isLoadingTag = ref(false);
 
+  // Create a computed property for two-way binding of the slide
+  const modelValue = computed({
+    get: () => props.slide,
+    set: (value) => emit("update:slide", value),
+  });
+
   // Fetch all slide tags for the current user
   const { data: slideTags } = await fetchSlideTags();
 
   // Available tags for selection
   const availableTags = computed(() => {
     if (!slideTags.value?.tags) return [];
-
     return slideTags.value.tags.map((tag) => ({
       value: tag.id,
       label: tag.name,
@@ -60,7 +66,6 @@
   // Filtered tags based on search input
   const filteredTags = computed(() => {
     if (!searchInput.value) return availableTags.value;
-
     return availableTags.value.filter((tag) =>
       tag.label.toLowerCase().includes(searchInput.value.toLowerCase())
     );
@@ -74,6 +79,11 @@
     );
   });
 
+  // Handle slide activation
+  const handleActivate = () => {
+    emit("activate", props.slide.id);
+  };
+
   // Toggle the visibility of layout options
   const toggleLayoutOptions = () => {
     showLayoutOptions.value = !showLayoutOptions.value;
@@ -84,12 +94,22 @@
     try {
       isUpdating.value = true;
       const response = await updateBlockLayout(projectId, props.slide.id, layoutType);
-      emit("update:slide", response.block);
-      showLayoutOptions.value = false;
-      toast({
-        title: "Layout updated",
-        description: `Changed slide layout to ${layoutType.toLowerCase()}`,
-      });
+
+      if (response?.block) {
+        // Update the slide through the computed property, preserving the existing slide structure
+        modelValue.value = {
+          ...props.slide,
+          type: response.block.type,
+          config: response.block.config,
+          content: response.block.content,
+        };
+
+        showLayoutOptions.value = false;
+        toast({
+          title: "Layout updated",
+          description: `Changed slide layout to ${layoutType.toLowerCase()}`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Update failed",
@@ -188,31 +208,6 @@
     selectedTag.value = null; // Explicitly reset selectedTag
   };
 
-  // Initialize selectedTag if slide has a tag
-  onMounted(() => {
-    if (props.slide.slideTag) {
-      selectedTag.value = {
-        value: props.slide.slideTag.id,
-        label: props.slide.slideTag.name,
-      };
-    }
-  });
-
-  // Watch for changes in slide.slideTag to update selectedTag
-  watch(
-    () => props.slide.slideTag,
-    (newTag) => {
-      if (newTag) {
-        selectedTag.value = {
-          value: newTag.id,
-          label: newTag.name,
-        };
-      } else {
-        selectedTag.value = null;
-      }
-    }
-  );
-
   watch(
     () => props.isActive,
     (newValue, oldValue) => {
@@ -222,161 +217,173 @@
       }
     }
   );
+
+  // Handle slide update from SlidePreview
+  const handleSlideUpdate = (updatedSlide: ProjectContentBlock) => {
+    emit("update:slide", updatedSlide);
+  };
 </script>
 
 <template>
-  <div
-    v-if="isActive"
-    class="flex h-fit w-full flex-col overflow-hidden rounded-lg bg-[#fff8ef] text-black"
-  >
-    <!-- Yellow header -->
-    <div class="bg-[#FFFB03] px-4 py-2 font-bold">Slide - {{ slide.order }}</div>
-    <div class="space-y-4 p-4">
-      <!-- Change Slide Layout button with toggle arrow -->
-      <button
-        @click="toggleLayoutOptions"
-        class="flex w-full items-center justify-start rounded-full bg-[#C5C5C5] px-4 py-2 text-left transition duration-150 hover:bg-[#b8b8b8]"
-        :disabled="isUpdating"
-      >
-        <span>Change Slide Layout</span>
-      </button>
+  <div v-if="isActive" class="flex h-fit w-full flex-col rounded-lg bg-[#fff8ef] text-black">
+    <div class="flex h-full w-full flex-col overflow-hidden rounded-lg outline outline-[#FFFB03]">
+      <div class="bg-[#FFFB03] px-4 py-2 font-bold">Slide - {{ slide.order }}</div>
+      <div class="space-y-4 p-4">
+        <!-- Change Slide Layout button with toggle arrow -->
+        <button
+          @click="toggleLayoutOptions"
+          class="flex w-full items-center justify-start rounded-full bg-[#C5C5C5] px-4 py-2 text-left transition duration-150 hover:bg-[#b8b8b8]"
+          :disabled="isUpdating"
+        >
+          <span>Change Slide Layout</span>
+        </button>
 
-      <!-- Layout options with transition -->
-      <div
-        class="flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out"
-        :class="showLayoutOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
-      >
-        <button
-          @click="handleLayoutSelect('HEADER')"
-          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
-          :disabled="isUpdating"
+        <!-- Layout options with transition -->
+        <div
+          class="flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out"
+          :class="showLayoutOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
         >
-          Header
-        </button>
-        <button
-          @click="handleLayoutSelect('TEXT')"
-          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
-          :disabled="isUpdating"
-        >
-          Text
-        </button>
-        <button
-          @click="handleLayoutSelect('IMAGE')"
-          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
-          :disabled="isUpdating"
-        >
-          Image
-        </button>
-        <button
-          @click="handleLayoutSelect('QUOTE')"
-          class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
-          :disabled="isUpdating"
-        >
-          Quote
-        </button>
-      </div>
-
-      <!-- Tag selector section -->
-      <div class="mt-4 space-y-2 text-white">
-        <!-- Display current tag if exists -->
-        <div v-if="slide.slideTagId" class="flex items-center gap-2">
-          <div
-            class="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-sm font-medium"
+          <button
+            @click="handleLayoutSelect('HEADER')"
+            class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+            :disabled="isUpdating"
           >
-            {{ slideTags?.tags.find((tag) => tag.id === slide.slideTagId)?.name }}
-            <button
-              class="ml-1 rounded-full p-0.5"
-              aria-label="Remove tag"
-              :disabled="isLoadingTag"
-              @click="handleRemoveTag"
-            >
-              <X class="h-3.5 w-3.5" />
-            </button>
-          </div>
+            Header
+          </button>
+          <button
+            @click="handleLayoutSelect('TEXT')"
+            class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+            :disabled="isUpdating"
+          >
+            Text
+          </button>
+          <button
+            @click="handleLayoutSelect('IMAGE')"
+            class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+            :disabled="isUpdating"
+          >
+            Image
+          </button>
+          <button
+            @click="handleLayoutSelect('QUOTE')"
+            class="cursor-pointer rounded-md px-3 py-2 text-left transition hover:bg-gray-200"
+            :disabled="isUpdating"
+          >
+            Quote
+          </button>
         </div>
 
-        <!-- Tag selector combobox -->
-        <div v-else class="flex items-end gap-2">
-          <div class="flex-1">
-            <Combobox v-model="selectedTag" v-model:open="open" by="value">
-              <ComboboxAnchor as-child>
-                <ComboboxTrigger as-child>
-                  <Button variant="outline" class="w-full justify-between" :disabled="isLoadingTag">
-                    {{ selectedTag?.label ? selectedTag.label : "Select or create tag" }}
-                    <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </ComboboxTrigger>
-              </ComboboxAnchor>
-
-              <ComboboxList
-                position="popper"
-                class="max-h-[300px] w-full min-w-[var(--reka-combobox-trigger-width)] overflow-y-auto data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2"
+        <!-- Tag selector section -->
+        <div class="mt-4 space-y-2 text-white">
+          <!-- Display current tag if exists -->
+          <div v-if="slide.slideTagId" class="flex items-center gap-2">
+            <div
+              class="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-sm font-medium"
+            >
+              {{ slideTags?.tags?.find((tag) => tag.id === slide.slideTagId)?.name }}
+              <button
+                class="ml-1 rounded-full p-0.5"
+                aria-label="Remove tag"
+                :disabled="isLoadingTag"
+                @click="handleRemoveTag"
               >
-                <!-- Search input for tags -->
-                <div class="relative w-full items-center">
-                  <ComboboxInput
-                    v-model="searchInput"
-                    class="h-10 rounded-none border-0 border-b pl-9 focus-visible:ring-0"
-                    placeholder="Search or create tag..."
-                  />
-                  <span class="absolute inset-y-0 start-0 flex items-center justify-center px-3">
-                    <Search class="size-4 text-muted-foreground" />
-                  </span>
-                </div>
+                <X class="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
 
-                <ComboboxEmpty v-if="searchInput && !searchExists">
-                  <div class="flex flex-col items-center py-2">
-                    <span>No tag found</span>
-                    <div class="flex items-center gap-1 text-sm text-muted-foreground">
-                      Create "<span class="font-medium">{{ searchInput }}</span
-                      >"?
-                    </div>
+          <!-- Tag selector combobox -->
+          <div v-else class="flex items-end gap-2">
+            <div class="flex-1">
+              <Combobox v-model="selectedTag" v-model:open="open" by="value">
+                <ComboboxAnchor as-child>
+                  <ComboboxTrigger as-child>
                     <Button
                       variant="outline"
-                      size="sm"
-                      class="mt-2"
+                      class="w-full justify-between"
                       :disabled="isLoadingTag"
-                      @click="handleCreateTag"
                     >
-                      <span v-if="isLoadingTag" class="mr-2 h-4 w-4 animate-spin">•</span>
-                      <PlusCircle v-else class="mr-2 h-4 w-4" />
-                      Create Tag
+                      {{ selectedTag?.label ? selectedTag.label : "Select or create tag" }}
+                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
-                  </div>
-                </ComboboxEmpty>
+                  </ComboboxTrigger>
+                </ComboboxAnchor>
 
-                <ComboboxEmpty v-else-if="filteredTags.length === 0">
-                  No tags available
-                </ComboboxEmpty>
-
-                <ComboboxGroup>
-                  <ComboboxItem
-                    v-for="tag in filteredTags"
-                    :key="tag.value"
-                    :value="tag.value"
-                    @select="handleSelect(tag.value)"
-                  >
-                    {{ tag.label }}
-                    <Check
-                      :class="
-                        cn(
-                          'ml-auto h-4 w-4',
-                          selectedTag?.value === tag.value ? 'opacity-100' : 'opacity-0'
-                        )
-                      "
+                <ComboboxList
+                  position="popper"
+                  class="max-h-[300px] w-full min-w-[var(--reka-combobox-trigger-width)] overflow-y-auto data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2"
+                >
+                  <!-- Search input for tags -->
+                  <div class="relative w-full items-center">
+                    <ComboboxInput
+                      v-model="searchInput"
+                      class="h-10 rounded-none border-0 border-b pl-9 focus-visible:ring-0"
+                      placeholder="Search or create tag..."
                     />
-                  </ComboboxItem>
-                </ComboboxGroup>
-              </ComboboxList>
-            </Combobox>
+                    <span class="absolute inset-y-0 start-0 flex items-center justify-center px-3">
+                      <Search class="size-4 text-muted-foreground" />
+                    </span>
+                  </div>
+
+                  <ComboboxEmpty v-if="searchInput && !searchExists">
+                    <div class="flex flex-col items-center py-2">
+                      <span>No tag found</span>
+                      <div class="flex items-center gap-1 text-sm text-muted-foreground">
+                        Create "<span class="font-medium">{{ searchInput }}</span
+                        >"?
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        class="mt-2"
+                        :disabled="isLoadingTag"
+                        @click="handleCreateTag"
+                      >
+                        <span v-if="isLoadingTag" class="mr-2 h-4 w-4 animate-spin">•</span>
+                        <PlusCircle v-else class="mr-2 h-4 w-4" />
+                        Create Tag
+                      </Button>
+                    </div>
+                  </ComboboxEmpty>
+
+                  <ComboboxEmpty v-else-if="filteredTags.length === 0">
+                    No tags available
+                  </ComboboxEmpty>
+
+                  <ComboboxGroup>
+                    <ComboboxItem
+                      v-for="tag in filteredTags"
+                      :key="tag.value"
+                      :value="tag.value"
+                      @select="handleSelect(tag.value)"
+                    >
+                      {{ tag.label }}
+                      <Check
+                        :class="
+                          cn(
+                            'ml-auto h-4 w-4',
+                            selectedTag?.value === tag.value ? 'opacity-100' : 'opacity-0'
+                          )
+                        "
+                      />
+                    </ComboboxItem>
+                  </ComboboxGroup>
+                </ComboboxList>
+              </Combobox>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div v-else class="h-fit w-2/12 min-w-[300px]">
-    <div class="px-4 py-2">Slide - {{ slide.order }}</div>
+  <div v-else class="h-fit cursor-pointer" @click="handleActivate">
+    <div class="relative rounded-lg border bg-white p-2">
+      <!-- Thumbnail preview -->
+      <div class="">
+        <SlidePreview :slide="slide" :rotate="rotate" class="!p-0" @update="handleSlideUpdate" />
+      </div>
+    </div>
   </div>
 </template>
 

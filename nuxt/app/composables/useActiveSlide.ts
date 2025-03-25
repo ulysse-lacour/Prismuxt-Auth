@@ -1,3 +1,5 @@
+import { nextTick } from "vue";
+
 /**
  * Composable to track the most visible slide
  * Uses intersection observation data to determine which slide has the greatest visibility
@@ -12,10 +14,16 @@ export const useActiveSlide = () => {
   // Track if the active slide was set manually (by clicking)
   const isManuallyActivated = ref(false);
 
+  // Add a lock to prevent intersection updates during scroll animation
+  const isScrolling = ref(false);
+
   // Handle intersection updates from slides
   const handleIntersection = ({ id, ratio }: { id: string; ratio: number }) => {
     // Update the intersection data for this slide
     intersectionData.value.set(id, ratio);
+
+    // Don't update active slide if we're currently scrolling from a manual activation
+    if (isScrolling.value) return;
 
     // If current active slide has scrolled out of view (ratio 0),
     // we should allow auto-activation again
@@ -57,6 +65,27 @@ export const useActiveSlide = () => {
   const setActiveSlide = (slideId: string) => {
     activeSlideId.value = slideId;
     isManuallyActivated.value = true;
+    isScrolling.value = true;
+
+    // Add scroll behavior
+    nextTick(() => {
+      const slideElement = document.getElementById(`slide-${slideId}`);
+      if (slideElement) {
+        slideElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+
+        // Reset the scrolling lock after animation completes (500ms is typical smooth scroll duration)
+        setTimeout(() => {
+          isScrolling.value = false;
+        }, 500);
+      } else {
+        // If element not found, reset the lock immediately
+        isScrolling.value = false;
+      }
+    });
   };
 
   // Reset the active slide state when content changes (i.e., language switch)
@@ -64,6 +93,7 @@ export const useActiveSlide = () => {
     intersectionData.value = new Map();
     activeSlideId.value = null;
     isManuallyActivated.value = false;
+    isScrolling.value = false;
   };
 
   return {

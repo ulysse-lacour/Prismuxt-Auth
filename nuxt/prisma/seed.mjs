@@ -202,6 +202,7 @@ async function seed() {
         client: "Fashion Store Inc.",
         date: "2023",
         imageUrl: "/images/projects/ecommerce.jpg",
+        order: 1,
         userId: user.id,
         projectTags: {
           create: [
@@ -339,6 +340,7 @@ async function seed() {
         client: "Digital Bank Ltd",
         date: "2024",
         imageUrl: "/images/projects/banking.jpg",
+        order: 2,
         userId: user.id,
         projectTags: {
           create: [
@@ -452,6 +454,7 @@ async function seed() {
         client: "MediCare Solutions",
         date: "2023",
         imageUrl: "/images/projects/healthcare.jpg",
+        order: 3,
         userId: user.id,
         projectTags: {
           create: [
@@ -519,6 +522,7 @@ async function seed() {
         client: "Wanderlust Travels",
         date: "2024",
         imageUrl: "/images/projects/travel.jpg",
+        order: 4,
         userId: user.id,
         projectTags: {
           create: [

@@ -8,8 +8,6 @@
 
 <template>
   <div>
-    <h1>Block Editor</h1>
-
     <pre>{{ block }}</pre>
   </div>
 </template>
