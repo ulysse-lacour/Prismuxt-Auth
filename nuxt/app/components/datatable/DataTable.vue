@@ -24,7 +24,9 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
+  import { Icon } from "#components";
   import { Filter, X } from "lucide-vue-next";
+  import draggable from "vuedraggable";
   import type {
     ColumnDef,
     ColumnFiltersState,
@@ -40,6 +42,7 @@
     searchKey?: string;
     pageSize?: number;
     table?: TableType<any>;
+    onReorder?: (newOrder: any[]) => void;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -114,6 +117,12 @@
         ? (updaterOrValue as (old: T) => T)(ref.value)
         : updaterOrValue;
   }
+
+  const handleDragChange = (evt: any) => {
+    if (props.onReorder) {
+      props.onReorder(tableData.value);
+    }
+  };
 </script>
 
 <template>
@@ -169,28 +178,54 @@
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          <template v-if="table.getRowModel().rows?.length">
-            <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow :data-state="row.getIsSelected() && 'selected'">
-                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-                </TableCell>
-              </TableRow>
-              <TableRow v-if="row.getIsExpanded()">
-                <TableCell :colspan="row.getAllCells().length">
-                  <slot name="expanded" :row="row.original" />
+        <template v-if="table.getRowModel().rows?.length">
+          <draggable
+            v-model="tableData"
+            item-key="id"
+            tag="tbody"
+            handle=".drag-handle"
+            @change="handleDragChange"
+          >
+            <template #item="{ element }">
+              <TableRow>
+                <TableCell v-for="column in table.getAllColumns()" :key="column.id">
+                  <template v-if="column.id === 'dragHandle'">
+                    <div class="drag-handle cursor-move">
+                      <Icon name="lucide:grip-vertical" class="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </template>
+                  <template v-else>
+                    <FlexRender
+                      :render="column.columnDef.cell"
+                      :props="{
+                        row: {
+                          original: element,
+                          getValue: (key: string) => element[key],
+                        },
+                        column,
+                        table,
+                        renderValue: () => {
+                          const value = element[column.id];
+                          if (typeof value === 'function') {
+                            return value(element);
+                          }
+                          return value;
+                        },
+                      }"
+                    />
+                  </template>
                 </TableCell>
               </TableRow>
             </template>
-          </template>
-
-          <TableRow v-else>
+          </draggable>
+        </template>
+        <tbody v-else>
+          <TableRow>
             <TableCell :colspan="columns.length" class="h-24 text-center">
               <slot name="empty"> No results found. </slot>
             </TableCell>
           </TableRow>
-        </TableBody>
+        </tbody>
       </Table>
     </div>
 

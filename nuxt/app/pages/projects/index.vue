@@ -15,6 +15,7 @@
     getSortedRowModel,
     useVueTable,
   } from "@tanstack/vue-table";
+  import { Icon } from "#components";
   import { toast } from "~/components/ui/toast";
   import { useProjectManagement } from "~/composables/useProjectManagement";
   import { ArrowUpDown, Building2, MoreHorizontal } from "lucide-vue-next";
@@ -43,6 +44,17 @@
   //   console.log(allProjects);
 
   const columns: ColumnDef<ProjectWithTags>[] = [
+    {
+      id: "dragHandle",
+      enableHiding: false,
+      enableSorting: false,
+      enableColumnFilter: false,
+      cell: () => {
+        return h("div", { class: "drag-handle cursor-move" }, () =>
+          h(Icon, { name: "lucide:grip-vertical", class: "h-4 w-4 text-muted-foreground" })
+        );
+      },
+    },
     {
       accessorKey: "name",
       header: ({ column }) => {
@@ -303,6 +315,28 @@
     projectToDelete.value = projectId;
     isDeleteDialogOpen.value = true;
   };
+
+  const handleReorder = async (newOrder: ProjectWithTags[]) => {
+    try {
+      // Update the local state
+      tableProjects.value = newOrder;
+
+      // Here you would typically make an API call to update the order in the backend
+      // await updateProjectsOrder(newOrder.map(project => project.id));
+
+      toast({
+        title: "Projects reordered",
+        description: "The order of projects has been updated successfully",
+      });
+    } catch (error) {
+      console.error("Failed to reorder projects:", error);
+      toast({
+        title: "Failed to reorder projects",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 </script>
 
 <template>
@@ -315,6 +349,7 @@
         :table="table"
         search-key="name"
         :page-size="10"
+        @reorder="handleReorder"
       >
         <template #filters>
           <DataTableFacetedFilter
